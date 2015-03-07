@@ -23,13 +23,13 @@
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
  * \date 2015-02-17
  * \file
- * This file contains the main method for the reasoner.
+ * This file contains the implementation of the Instance class.
  */
+ 
+#include "Instance.h"
 
-using namespace std;
+namespace raccoon
+{
 
-int main(int argc, char* argv[]) {
-	
 }
-
 

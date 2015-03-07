@@ -23,13 +23,34 @@
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
  * \date 2015-02-17
  * \file
- * This file contains the main method for the reasoner.
+ * This file contains the implementation of the Literal class.
  */
+ 
+// STL
+#include <string>
+// raccoon
+#include "Literal.h"
 
 using namespace std;
-
-int main(int argc, char* argv[]) {
+namespace raccoon
+{
 	
-}
+	/**
+	 * Creates a new concept. The creator should provide the name and id of the concept.
+	 * \param name a string containing the name of the concept.
+	 * \param id an unsigned int containing the id of the concept.
+	 */
+	Literal::Literal(string& name, unsigned int id)
+	 : _name(name)
+	 , _id(id)
+	{
+	}
 
+	/**
+	 * Destructor. Currently does nothing.
+	 */
+	Literal::~Literal()
+	{
+	}
+}
 

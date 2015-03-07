@@ -23,13 +23,33 @@
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
  * \date 2015-02-17
  * \file
- * This file contains the main method for the reasoner.
+ * This file contains the declaration of the FreitasMelo reasoner class.
  */
 
-using namespace std;
+#ifndef __RACCOON_BACK_FM_FREITASMELO_H
+#define __RACCOON_BACK_FM_FREITASMELO_H
 
-int main(int argc, char* argv[]) {
-	
+// raccoon
+#include "../../ir/Path.h"
+#include "../../ir/ClauseSet.h"
+#include "../../ir/Clause.h"
+
+namespace raccoon
+{
+	class FreitasMelo
+	{
+	private:
+		ClauseSet& kb;
+		Path path;
+	public:
+		bool query(ClauseSet& query);
+		bool regularity(Clause* objective);
+		bool connect(ILiteralRealization* lit, unsigned int id, bool neg);
+		bool prove(Clause* objective);
+		
+		FreitasMelo(ClauseSet& kb);
+		~FreitasMelo();
+	};
 }
 
-
+#endif // __RACCOON_BACK_FM_FREITASMELO_H

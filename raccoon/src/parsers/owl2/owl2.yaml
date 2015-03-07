@@ -1,0 +1,673 @@
+---
+language:
+  name: OWL2 Functional Syntax
+  prefix: OWL2_
+  startRule: ontologyDocument
+  startState: default
+  type: 'LL(*)'
+
+classes:
+  # ALPHABETIC CHARACTERS
+  -
+    name: ALPHA
+    regex: '[A-Za-z]'
+  # ALPHABETIC AND NUMERIC CHARACTERS
+  -
+    name: ALPHANUM
+    regex: '[A-Za-z0-9]'
+  # Latin characters with all kinds of diacritics and variations
+  # \u00D7 is the multiplication sign (skipped)
+  # \u00F7 is the division sign (skipped)
+  -
+    name: LATIN_EXTRA
+    regex: '[\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF]'         
+  # Greek, Coptic, Cyrillic, Armenian, Hebrew, Arabic, Syriac, Thaana, Nko, Samaritan, Mandaic, Devanagari, Bengali,
+  # Gurmukhi, Gujarati, Oriya, Tamil, Telugu, Kannada, Malayalam, Sinhala, Thai, Lao, Tibetan, Myanmar, Georgian,
+  # Hangul, Ethiopic, Cherokee, Canadian Syllabics.
+  # Except for the greek question mark which is a semicolon.
+  -
+    name: EXTRA_LANGS
+    regex: '[\u0370-\u037D\u037F-\u1FFF]'
+  # Misc symbols and extra languages
+  - 
+    name: EXTRA_MISC
+    regex: '[\u200C\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\U00010000-\U000EFFFF]'
+  # SPARQL PN_CHARS_BASE
+  -
+    name: PN_CHARS_BASE
+    regex: '[:ALPHA::LATIN_EXTRA::EXTRA_LANGS::EXTRA_MISC:]'
+  # SPARQL PN_CHARS_U
+  -
+    name: PN_CHARS_U
+    regex: '[:PN_CHARS_BASE:_]'
+  # SPARQL PN_CHARS
+  -
+    name: PN_CHARS
+    regex: '[:PN_CHARS_U:\-0-9\u00B7\u0300-\u036F\u203F\u2040]'
+  # RFC3987 UCSCHAR
+  -
+    name: UCSCHAR
+    regex: '[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\U00010000-\U0001FFFD\U00020000-\U0002FFFD\U00030000-\U0003FFFD\U00040000-\U0004FFFD\U00050000-\U0005FFFD\U00060000-\U0006FFFD\U00070000-\U0007FFFD\U00080000-\U0008FFFD\U00090000-\U0009FFFD\U000A0000-\U000AFFFD\U000B0000-\U000BFFFD\U000C0000-\U000CFFFD\U000D0000-\U000DFFFD\U000E0000-\U000EFFFD]'
+  # RFC3987 IPRIVATE
+  -
+    name: IPRIVATE
+    regex: '[\uE000-\uF8FF\U000F0000-\U000FFFFD\U00100000-\U0010FFFD]'
+  # RFC3987 IUNRESERVED
+  -
+    name: IUNRESERVED
+    regex: '[:ALPHANUM::UCSCHAR:._~-]'
+  # RFC3987 SUBDELIMS
+  -
+    name: SUBDELIMS
+    regex: '[!$&''()*+,;=]'
+  # Part of the RFC3987 IPCHAR
+  -
+    name: IPCHAR0
+    regex: '[:IUNRESERVED::SUBDELIMS:\:@]'
+  # An HEX digit
+  -
+    name: HEX
+    regex: '[0-9a-fA-F]'
+
+tokens:
+  -
+    name: $WHITESPACE
+    regex: '[\t\r\n ]+'
+  -
+    name: $COMMENT
+    regex: '#[^\n\r]+'
+  -
+    name: EQ
+    regex: '='
+  -
+    name: LPAR
+    regex: '\('
+  -
+    name: RPAR
+    regex: '\)'
+  -
+    name: DHAT
+    regex: '\^\^'
+  -
+    name: nonNegativeInteger
+    regex: '[0-9]+'
+  -
+    name: quotedString
+    regex: '"(\\\\|\\"|[^"])+"'
+  -
+    name: languageTag
+    regex: '@([:ALPHA:]{2,3}(-[:ALPHA:]{3}){0,3}|[:ALPHA:]{4}|[:ALPHA:]{5,8})(-[:ALPHA:]{4})?(-[:ALPHA:]{2}|\d{3})?(-[:ALPHANUM:]{5,8}|\d[:ALPHANUM:]{3})*(-[0-9A-WY-Za-wy-z](-[:ALPHANUM:]{2,8})+)*(-x(-[:ALPHANUM:]{1,8})+)?'
+  # The ABBREVIATEDIRI is equivalent to the SPARQL PNAME_LN definition
+  -
+    name: ABBREVIATEDIRI
+    regex: '[:PN_CHARS_BASE:]([:PN_CHARS:.]*[:PN_CHARS:])?:[:PN_CHARS_U:0-9]([:PN_CHARS:.]*[:PN_CHARS:])?'
+  -
+    name: NODEID
+    regex: '_\:[:PN_CHARS_U:0-9]([:PN_CHARS:.]*[:PN_CHARS:])?'
+  # Equivalent to SPARQL PNAME_NS definition
+  -
+    name: PREFIXNAME
+    regex: '([:PN_CHARS_BASE:]([:PN_CHARS:.]*[:PN_CHARS:]))?:'
+  # RFC3987 IRI definition as a single regular expression
+  -
+    name: FULLIRI
+    regex: '<[:ALPHA:][:ALPHANUM:+.\-]*:(//(([:IUNRESERVED::SUBDELIMS:\:]|%[:HEX:]{2})*@)?(\[(([:HEX:]{1,4}:){6}([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|::([:HEX:]{1,4}:){5}([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|([:HEX:]{1,4})?::([:HEX:]{1,4}:){4}([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(([:HEX:]{1,4}:){0,1}([:HEX:]{1,4}))?::([:HEX:]{1,4}:){3}([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(([:HEX:]{1,4}:){0,2}([:HEX:]{1,4}))?::([:HEX:]{1,4}:){2}([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(([:HEX:]{1,4}:){0,3}([:HEX:]{1,4}))?::[:HEX:]{1,4}:([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(([:HEX:]{1,4}:){0,4}([:HEX:]{1,4}))?::([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(([:HEX:]{1,4}:){0,5}([:HEX:]{1,4}))?::[:HEX:]{1,4}|(([:HEX:]{1,6}:){0,1}([:HEX:]{1,4}))?::|v[:HEX:]+\.[:ALPHANUM::SUBDELIMS:._~-\:]+)\]|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|([:IUNRESERVED::SUBDELIMS:]|%[:HEX:]{2})*)(:[0-9]*)?(/([:IPCHAR0:]|%[:HEX:]{2})*)*|/(([:IPCHAR0:]|%[:HEX:]{2})+(/([:IPCHAR0:]|%[:HEX:]{2})*)*)?|([:IPCHAR0:]|%[:HEX:]{2})+(/([:IPCHAR0:]|%[:HEX:]{2})*)*)?(\?([:IPCHAR0::IPRIVATE:/?]|%[:HEX:]{2})*)?(#([:IPCHAR0:/?]|%[:HEX:]{2})*)?>'
+  -
+    name: ANNOTATIONASSERTION
+    regex: 'AnnotationAssertion'
+  -
+    name: SUBANNOTATIONPROPERTYOF
+    regex: 'SubAnnotationPropertyOf'
+  -
+    name: ANNOTATIONPROPERTYDOMAIN
+    regex: 'AnnotationPropertyDomain'
+  -
+    name: ANNOTATIONPROPERTYRANGE
+    regex: 'AnnotationPropertyRange'
+  -
+    name: ANNOTATIONPROPERTY
+    regex: 'AnnotationProperty'
+  -
+    name: ANNOTATION
+    regex: 'Annotation'
+  -
+    name: DECLARATION
+    regex: 'Declaration'
+  -
+    name: DATAPROPERTYASSERTION
+    regex: 'DataPropertyAssertion'
+  -
+    name: DATASOMEVALUESFROM
+    regex: 'DataSomeValuesFrom'
+  -
+    name: DATAALLVALUESFROM
+    regex: 'DataAllValuesFrom'
+  -
+    name: DATAHASVALUE
+    regex: 'DataHasValue'
+  -
+    name: DATAMINCARDINALITY
+    regex: 'DataMinCardinality'
+  -
+    name: DATAMAXCARDINALITY
+    regex: 'DataMaxCardinality'
+  -
+    name: DATAEXACTCARDINALITY
+    regex: 'DataExactCardinality'
+  -
+    name: DATAINTERSECTIONOF
+    regex: 'DataIntersectionOf'
+  -
+    name: DATAUNIONOF
+    regex: 'DataUnionOf'
+  -
+    name: DATACOMPLEMENTOF
+    regex: 'DataComplementOf'
+  -
+    name: DATAONEOF
+    regex: 'DataOneOf'
+  -
+    name: DATATYPERESTRICTION
+    regex: 'DatatypeRestriction'
+  -
+    name: DATATYPEDEFINITION
+    regex: 'DatatypeDefinition'
+  -
+    name: HASKEY
+    regex: 'HasKey'
+  -
+    name: CLASSASSERTION
+    regex: 'ClassAssertion'    
+  -
+    name: CLASS
+    regex: 'Class'
+  -
+    name: DATATYPE
+    regex: 'Datatype'
+  -
+    name: OBJECTPROPERTYCHAIN
+    regex: 'ObjectPropertyChain'
+  -
+    name: OBJECTPROPERTYASSERTION
+    regex: 'ObjectPropertyAssertion'
+  -
+    name: OBJECTPROPERTYDOMAIN
+    regex: 'ObjectPropertyDomain'
+  -
+    name: OBJECTPROPERTYRANGE
+    regex: 'ObjectPropertyRange'
+  -
+    name: OBJECTPROPERTY
+    regex: 'ObjectProperty'
+  -
+    name: DATAPROPERTYDOMAIN
+    regex: 'DataPropertyDomain'
+  -
+    name: DATAPROPERTYRANGE
+    regex: 'DataPropertyRange'
+  -
+    name: DATAPROPERTY
+    regex: 'DataProperty'
+  -
+    name: NAMEDINDIVIDUAL
+    regex: 'NamedIndividual'
+  -
+    name: SUBCLASSOF
+    regex: 'SubClassOf'
+  -
+    name: EQUIVALENTCLASSES
+    regex: 'EquivalentClasses'
+  -
+    name: SUBOBJECTPROPERTYOF
+    regex: 'SubObjectPropertyOf'
+  -
+    name: EQUIVALENTOBJECTPROPERTIES
+    regex: 'EquivalentObjectProperties'
+  -
+    name: DISJOINTOBJECTPROPERTIES
+    regex: 'DisjointObjectProperties'
+  -
+    name: FUNCTIONALOBJECTPROPERTY
+    regex: 'FunctionalObjectProperty'
+  -
+    name: INVERSEFUNCTIONALOBJECTPROPERTY
+    regex: 'InverseFunctionalObjectProperty'
+  -
+    name: REFLEXIVEOBJECTPROPERTY
+    regex: 'ReflexiveObjectProperty'
+  -
+    name: IRREFLEXIVEOBJECTPROPERTY
+    regex: 'IrreflexiveObjectProperty'
+  -
+    name: SYMMETRICOBJECTPROPERTY
+    regex: 'SymmetricObjectProperty'
+  -
+    name: ASYMMETRICOBJECTPROPERTY
+    regex: 'AsymmetricObjectProperty'
+  -
+    name: TRANSITIVEOBJECTPROPERTY
+    regex: 'TransitiveObjectProperty'
+  -
+    name: SUBDATAPROPERTYOF
+    regex: 'SubDataPropertyOf'
+  -
+    name: EQUIVALENTDATAPROPERTIES
+    regex: 'EquivalentDataProperties'
+  -
+    name: DISJOINTDATAPROPERTIES
+    regex: 'DisjointDataProperties'
+  -
+    name: FUNCTIONALDATAPROPERTY
+    regex: 'FunctionalDataProperty'
+  -
+    name: SAMEINDIVIDUAL
+    regex: 'SameIndividual'
+  -
+    name: DIFFERENTINDIVIDUALS
+    regex: 'DifferentIndividuals'
+  -
+    name: NEGATIVEOBJECTPROPERTYASSERTION
+    regex: 'NegativeObjectPropertyAssertion'
+  -
+    name: NEGATIVEDATAPROPERTYASSERTION
+    regex: 'NegativeDataPropertyAssertion'
+  -
+    name: OBJECTINTERSECTIONOF
+    regex: 'ObjectIntersectionOf'
+  -
+    name: OBJECTUNIONOF
+    regex: 'ObjectUnionOf'
+  -
+    name: OBJECTCOMPLEMENTOF
+    regex: 'ObjectComplementOf'
+  -
+    name: OBJECTONEOF
+    regex: 'ObjectOneOf'
+  -
+    name: OBJECTSOMEVALUESFROM
+    regex: 'ObjectSomeValuesFrom'
+  -
+    name: OBJECTALLVALUESFROM
+    regex: 'ObjectAllValuesFrom'
+  -
+    name: OBJECTHASVALUE
+    regex: 'ObjectHasValue'
+  -
+    name: OBJECTHASSELF
+    regex: 'ObjectHasSelf'
+  -
+    name: OBJECTMINCARDINALITY
+    regex: 'ObjectMinCardinality'
+  -
+    name: OBJECTMAXCARDINALITY
+    regex: 'ObjectMaxCardinality'
+  -
+    name: OBJECTEXACTCARDINALITY
+    regex: 'ObjectExactCardinality'
+  -
+    name: OBJECTINVERSEOF
+    regex: 'ObjectInverseOf'
+  -
+    name: PREFIX
+    regex: 'Prefix'
+  -
+    name: ONTOLOGY
+    regex: 'Ontology'
+  -
+    name: IMPORT
+    regex: 'Import'
+  -
+    name: DISJOINTCLASSES
+    regex: 'DisjointClasses'
+  -
+    name: DISJOINTUNION
+    regex: 'DisjointUnion'
+  -
+    name: INVERSEOBJECTPROPERTIES
+    regex: 'InverseObjectProperties'
+
+grammar:
+  - IRI:                                  
+    - FULLIRI                             
+    - ABBREVIATEDIRI                      
+  - ontologyDocument:                      
+    - prefixDeclaration Ontology                 
+  - prefixDeclaration:                      
+    - PREFIX LPAR PREFIXNAME EQ FULLIRI RPAR prefixDeclaration  
+    - PREFIX LPAR PREFIXNAME EQ FULLIRI RPAR          
+    - ''                            
+  - Ontology:                          
+    - ONTOLOGY LPAR ontologyIRI directlyImportsDocuments ontologyAnnotations axioms RPAR  
+  - ontologyIRI:          
+    - FULLIRI versionIRI      
+    - FULLIRI            
+    - ''              
+  - versionIRI:            
+    - FULLIRI            
+    - ''              
+  - directlyImportsDocuments:    
+    - IMPORT LPAR IRI RPAR directlyImportsDocuments
+    - IMPORT LPAR IRI RPAR    
+    - ''
+  - ontologyAnnotations:       
+    - Annotation ontologyAnnotations 
+    - Annotation           
+    - ''              
+  - axioms:              
+    - Axiom axioms           
+    - Axiom             
+    - ''              
+  - Annotation:              
+    - ANNOTATION LPAR annotationAnnotations AnnotationProperty AnnotationValue RPAR 
+  - annotationAnnotations:        
+    - Annotation annotationAnnotations   
+    - Annotation             
+    - ''                  
+  - AnnotationProperty:          
+    - IRI                 
+  - AnnotationValue:          
+    - AnonymousIndividual         
+    - IRI                 
+    - Literal               
+  - AnonymousIndividual:        
+    - NODEID               
+  - Literal:             
+    - typedLiteral          
+    - stringLiteralWithLanguage    
+    - stringLiteralNoLanguage    
+  - typedLiteral:           
+    - lexicalForm DHAT Datatype   
+  - stringLiteralNoLanguage:    
+    - quotedString          
+  - stringLiteralWithLanguage:    
+    - quotedString languageTag    
+  - lexicalForm:          
+    - quotedString          
+  - Datatype:            
+    - IRI               
+  - Axiom:              
+    - Declaration           
+    - ClassAxiom          
+    - ObjectPropertyAxiom      
+    - DataPropertyAxiom        
+    - DatatypeDefinition       
+    - HasKey             
+    - Assertion           
+    - AnnotationAxiom        
+  - Declaration:          
+    - DECLARATION LPAR axiomAnnotations Entity RPAR   
+  - ClassAxiom:            
+    - SubClassOf           
+    - EquivalentClasses       
+    - DisjointClasses         
+    - DisjointUnion         
+  - ObjectPropertyAxiom:
+    - SubObjectPropertyOf            
+    - EquivalentObjectProperties     
+    - DisjointObjectProperties       
+    - InverseObjectProperties        
+    - ObjectPropertyDomain           
+    - ObjectPropertyRange            
+    - FunctionalObjectProperty       
+    - InverseFunctionalObjectProperty  
+    - ReflexiveObjectProperty        
+    - IrreflexiveObjectProperty      
+    - SymmetricObjectProperty        
+    - AsymmetricObjectProperty       
+    - TransitiveObjectProperty       
+  - DataPropertyAxiom:               
+    - SubDataPropertyOf              
+    - EquivalentDataProperties       
+    - DisjointDataProperties         
+    - DataPropertyDomain             
+    - DataPropertyRange              
+    - FunctionalDataProperty         
+  - DatatypeDefinition:              
+    - DATATYPEDEFINITION LPAR axiomAnnotations Datatype DataRange RPAR
+  - HasKey:                           
+    - HASKEY LPAR axiomAnnotations ClassExpression LPAR 
+  - Assertion:                      
+    - SameIndividual               
+    - DifferentIndividuals         
+    - ClassAssertion         
+    - ObjectPropertyAssertion         
+    - NegativeObjectPropertyAssertion         
+    - DataPropertyAssertion         
+    - NegativeDataPropertyAssertion         
+  - AnnotationAxiom:             
+    - AnnotationAssertion         
+    - SubAnnotationPropertyOf         
+    - AnnotationPropertyDomain         
+    - AnnotationPropertyRange         
+  - axiomAnnotations:          
+    - Annotation axiomAnnotations  
+    - Annotation           
+    - ''              
+  - Entity: 
+    - CLASS LPAR Class RPAR          
+    - DATATYPE LPAR Datatype RPAR    
+    - OBJECTPROPERTY LPAR ObjectProperty RPAR 
+    - DATAPROPERTY LPAR DataProperty RPAR 
+    - ANNOTATIONPROPERTY LPAR AnnotationProperty RPAR 
+    - NAMEDINDIVIDUAL LPAR NamedIndividual RPAR 
+  - SubClassOf:                
+    - SUBCLASSOF LPAR axiomAnnotations subClassExpression superClassExpression RPAR 
+  - subClassExpression:            
+    - ClassExpression             
+  - superClassExpression:           
+    - ClassExpression             
+  - EquivalentClasses:            
+    - EQUIVALENTCLASSES LPAR axiomAnnotations ClassExpression ClassExpression ClassExpressionList RPAR 
+  - ClassExpressionList:           
+    - ClassExpression ClassExpressionList   
+    - ClassExpression             
+    - ''                  
+  - ClassExpression:       
+    - Class                      
+    - ObjectIntersectionOf       
+    - ObjectUnionOf       
+    - ObjectComplementOf       
+    - ObjectOneOf        
+    - ObjectSomeValuesFrom        
+    - ObjectAllValuesFrom       
+    - ObjectHasValue       
+    - ObjectHasSelf       
+    - ObjectMinCardinality       
+    - ObjectMaxCardinality       
+    - ObjectExactCardinality       
+    - DataSomeValuesFrom       
+    - DataAllValuesFrom       
+    - DataHasValue       
+    - DataMinCardinality       
+    - DataMaxCardinality       
+    - DataExactCardinality       
+  - DisjointClasses:        
+    - DISJOINTCLASSES LPAR axiomAnnotations ClassExpression ClassExpression ClassExpressionList RPAR 
+  - DisjointUnion:        
+    - DISJOINTUNION LPAR axiomAnnotations Class disjointClassExpressions 
+  - SubObjectPropertyOf: 
+    - SUBOBJECTPROPERTYOF LPAR axiomAnnotations subObjectPropertyExpression superObjectPropertyExpression 
+  - EquivalentObjectProperties: 
+    - EQUIVALENTOBJECTPROPERTIES LPAR axiomAnnotations ObjectPropertyExpression ObjectPropertyExpression ObjectPropertyExpressionList RPAR 
+  - DisjointObjectProperties: 
+    - DISJOINTOBJECTPROPERTIES LPAR axiomAnnotations ObjectPropertyExpression ObjectPropertyExpression ObjectPropertyExpressionList RPAR 
+  - InverseObjectProperties: 
+    - INVERSEOBJECTPROPERTIES LPAR axiomAnnotations ObjectPropertyExpression ObjectPropertyExpression RPAR 
+  - ObjectPropertyDomain: 
+    - OBJECTPROPERTYDOMAIN LPAR axiomAnnotations ObjectPropertyExpression ClassExpression RPAR 
+  - ObjectPropertyRange: 
+    - OBJECTPROPERTYRANGE LPAR axiomAnnotations ObjectPropertyExpression ClassExpression RPAR 
+  - FunctionalObjectProperty: 
+    - FUNCTIONALOBJECTPROPERTY LPAR axiomAnnotations ObjectPropertyExpression RPAR 
+  - InverseFunctionalObjectProperty: 
+    - INVERSEFUNCTIONALOBJECTPROPERTY LPAR axiomAnnotations ObjectPropertyExpression RPAR 
+  - ReflexiveObjectProperty: 
+    - REFLEXIVEOBJECTPROPERTY LPAR axiomAnnotations ObjectPropertyExpression RPAR 
+  - IrreflexiveObjectProperty: 
+    - IRREFLEXIVEOBJECTPROPERTY LPAR axiomAnnotations ObjectPropertyExpression RPAR 
+  - SymmetricObjectProperty: 
+    - SYMMETRICOBJECTPROPERTY LPAR axiomAnnotations ObjectPropertyExpression RPAR 
+  - AsymmetricObjectProperty: 
+    - ASYMMETRICOBJECTPROPERTY LPAR axiomAnnotations ObjectPropertyExpression RPAR 
+  - TransitiveObjectProperty: 
+    - TRANSITIVEOBJECTPROPERTY LPAR axiomAnnotations ObjectPropertyExpression RPAR 
+  - ObjectPropertyExpressionList: 
+    - ObjectPropertyExpression ObjectPropertyExpressionList 
+    - ObjectPropertyExpression 
+    - '' 
+  - SubDataPropertyOf: 
+    - SUBDATAPROPERTYOF LPAR axiomAnnotations subDataPropertyExpression superDataPropertyExpression RPAR 
+  - EquivalentDataProperties:  
+    - EQUIVALENTDATAPROPERTIES LPAR axiomAnnotations DataPropertyExpression DataPropertyExpression DataPropertyExpressionList RPAR 
+  - DisjointDataProperties:  
+    - DISJOINTDATAPROPERTIES LPAR axiomAnnotations DataPropertyExpression DataPropertyExpression DataPropertyExpressionList RPAR
+  - DataPropertyDomain: 
+    - DATAPROPERTYDOMAIN LPAR axiomAnnotations DataPropertyExpression ClassExpression RPAR  
+  - DataPropertyRange:  
+    - DATAPROPERTYRANGE LPAR axiomAnnotations DataPropertyExpression DataRange RPAR  
+  - FunctionalDataProperty:  
+    - FUNCTIONALDATAPROPERTY LPAR axiomAnnotations DataPropertyExpression RPAR  
+  - DataPropertyExpressionList:  
+    - DataPropertyExpression DataPropertyExpressionList  
+    - DataPropertyExpression  
+    - ''  
+  - DataRange: 
+    - Datatype 
+    - DataIntersectionOf 
+    - DataUnionOf 
+    - DataComplementOf 
+    - DataOneOf 
+    - DatatypeRestriction 
+  - SameIndividual: 
+    - SAMEINDIVIDUAL LPAR axiomAnnotations Individual Individual IndividualList RPAR 
+  - DifferentIndividuals: 
+    - DIFFERENTINDIVIDUALS LPAR axiomAnnotations Individual Individual IndividualList RPAR 
+  - ClassAssertion: 
+    - CLASSASSERTION LPAR axiomAnnotations ClassExpression Individual RPAR 
+  - ObjectPropertyAssertion: 
+    - OBJECTPROPERTYASSERTION LPAR axiomAnnotations ObjectPropertyExpression sourceIndividual targetIndividual RPAR  
+  - NegativeObjectPropertyAssertion: 
+    - NEGATIVEOBJECTPROPERTYASSERTION LPAR axiomAnnotations ObjectPropertyExpression sourceIndividual targetIndividual RPAR 
+  - DataPropertyAssertion: 
+    - DATAPROPERTYASSERTION LPAR axiomAnnotations DataPropertyExpression sourceIndividual targetValue RPAR 
+  - NegativeDataPropertyAssertion: 
+    - NEGATIVEDATAPROPERTYASSERTION LPAR axiomAnnotations DataPropertyExpression sourceIndividual targetValue RPAR 
+  - IndividualList: 
+    - Individual IndividualList 
+    - Individual 
+    - '' 
+  - AnnotationAssertion: 
+    - ANNOTATIONASSERTION LPAR axiomAnnotations AnnotationProperty AnnotationSubject AnnotationValue RPAR 
+  - SubAnnotationPropertyOf: 
+    - SUBANNOTATIONPROPERTYOF LPAR axiomAnnotations AnnotationProperty IRI RPAR 
+  - AnnotationPropertyDomain: 
+    - ANNOTATIONPROPERTYDOMAIN LPAR axiomAnnotations AnnotationProperty IRI RPAR 
+  - AnnotationPropertyRange: 
+    - ANNOTATIONPROPERTYRANGE LPAR axiomAnnotations AnnotationProperty IRI RPAR 
+  - Class:              
+    - IRI               
+  - ObjectProperty:     
+    - IRI               
+  - DataProperty:       
+    - IRI               
+  - NamedIndividual:    
+    - IRI               
+  - ObjectIntersectionOf: 
+    - OBJECTINTERSECTIONOF LPAR ClassExpression ClassExpression ClassExpressionList RPAR 
+  - ObjectUnionOf: 
+    - OBJECTUNIONOF LPAR ClassExpression ClassExpression ClassExpressionList RPAR 
+  - ObjectComplementOf: 
+    - OBJECTCOMPLEMENTOF LPAR ClassExpressionList RPAR 
+  - ObjectOneOf:  
+    - OBJECTONEOF LPAR Individual IndividualList RPAR 
+  - ObjectSomeValuesFrom: 
+    - OBJECTSOMEVALUESFROM LPAR ObjectPropertyExpression ClassExpression RPAR 
+  - ObjectAllValuesFrom: 
+    - OBJECTALLVALUESFROM LPAR ObjectPropertyExpression ClassExpression RPAR 
+  - ObjectHasValue: 
+    - OBJECTHASVALUE LPAR ObjectPropertyExpression Individual RPAR 
+  - ObjectHasSelf: 
+    - OBJECTHASSELF LPAR ObjectPropertyExpression LPAR 
+  - ObjectMinCardinality: 
+    - OBJECTMINCARDINALITY LPAR nonNegativeInteger ObjectPropertyExpression ClassExpression RPAR 
+    - OBJECTMINCARDINALITY LPAR nonNegativeInteger ObjectPropertyExpression RPAR 
+  - ObjectMaxCardinality: 
+    - OBJECTMAXCARDINALITY LPAR nonNegativeInteger ObjectPropertyExpression ClassExpression RPAR 
+    - OBJECTMAXCARDINALITY LPAR nonNegativeInteger ObjectPropertyExpression RPAR 
+  - ObjectExactCardinality: 
+    - OBJECTEXACTCARDINALITY LPAR nonNegativeInteger ObjectPropertyExpression ClassExpression RPAR 
+    - OBJECTEXACTCARDINALITY LPAR nonNegativeInteger ObjectPropertyExpression RPAR 
+  - DataSomeValuesFrom:
+    - DATASOMEVALUESFROM LPAR DataPropertyExpression DataPropertyExpressionList DataRange RPAR 
+  - DataAllValuesFrom: 
+    - DATAALLVALUESFROM LPAR DataPropertyExpression DataPropertyExpressionList DataRange RPAR 
+  - DataHasValue: 
+    - DATAHASVALUE LPAR DataPropertyExpression Literal RPAR 
+  - DataMinCardinality: 
+    - DATAMINCARDINALITY LPAR nonNegativeInteger DataPropertyExpression DataRange RPAR 
+    - DATAMINCARDINALITY LPAR nonNegativeInteger DataPropertyExpression RPAR 
+  - DataMaxCardinality: 
+    - DATAMAXCARDINALITY LPAR nonNegativeInteger DataPropertyExpression DataRange RPAR 
+    - DATAMAXCARDINALITY LPAR nonNegativeInteger DataPropertyExpression RPAR 
+  - DataExactCardinality: 
+    - DATAEXACTCARDINALITY LPAR nonNegativeInteger DataPropertyExpression DataRange RPAR 
+    - DATAEXACTCARDINALITY LPAR nonNegativeInteger DataPropertyExpression RPAR 
+  - disjointClassExpressions:   
+    - ClassExpression ClassExpression ClassExpressionList   
+  - subObjectPropertyExpression: 
+    - ObjectPropertyExpression
+    - propertyExpressionChain 
+  - propertyExpressionChain: 
+    - OBJECTPROPERTYCHAIN LPAR ObjectPropertyExpression ObjectPropertyExpression ObjectPropertyExpressionList RPAR 
+  - superObjectPropertyExpression: 
+    - ObjectPropertyExpression 
+  - ObjectPropertyExpression: 
+    - ObjectProperty          
+    - InverseObjectProperty 
+  - InverseObjectProperty: 
+    - OBJECTINVERSEOF LPAR ObjectProperty RPAR 
+  - subDataPropertyExpression:    
+    - DataPropertyExpression    
+  - superDataPropertyExpression:    
+    - DataPropertyExpression    
+  - DataPropertyExpression:    
+    - DataProperty              
+  - DataIntersectionOf: 
+    - DATAINTERSECTIONOF LPAR DataRange DataRange DataRangeList RPAR 
+  - DataUnionOf: 
+    - DATAUNIONOF LPAR DataRange DataRange DataRangeList RPAR 
+  - DataComplementOf: 
+    - DATACOMPLEMENTOF LPAR DataRange RPAR 
+  - DataOneOf: 
+    - DATAONEOF LPAR Literal LiteralList RPAR 
+  - DatatypeRestriction: 
+    - DATATYPERESTRICTION LPAR Datatype constrainingFacet restrictionValue crList RPAR 
+  - DataRangeList: 
+    - DataRange DataRangeList 
+    - DataRange 
+    - '' 
+  - LiteralList: 
+    - Literal LiteralList 
+    - Literal 
+    - '' 
+  - crList: 
+    - constrainingFacet restrictionValue crList 
+    - constrainingFacet restrictionValue 
+    - '' 
+  - constrainingFacet: 
+    - IRI 
+  - restrictionValue: 
+    - Literal 
+  - Individual: 
+    - NamedIndividual 
+    - AnonymousIndividual 
+  - sourceIndividual: 
+    - Individual 
+  - targetIndividual: 
+    - Individual 
+  - targetValue: 
+    - Literal 
+  - AnnotationSubject: 
+    - IRI             
+    - AnonymousIndividual 
+...

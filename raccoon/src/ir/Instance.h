@@ -23,13 +23,47 @@
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
  * \date 2015-02-17
  * \file
- * This file contains the main method for the reasoner.
+ * This file contains the declaration of the Instance class.
  */
+ 
+#ifndef __RACCOON_IR_INSTANCE_H
+#define __RACCOON_IR_INSTANCE_H
+
+// STL
+#include <string>
 
 using namespace std;
-
-int main(int argc, char* argv[]) {
-	
+namespace raccoon
+{
+	class Instance
+	{
+	public:
+		string name;
+		unsigned int id;
+		
+		Instance(string& name, unsigned int id)
+		 : name(name)
+		 , id(id)
+		 {
+		 }
+		 
+		Instance(const Instance& other)
+		 : name(other.name)
+		 , id(other.id)
+		{
+		}
+		
+		Instance& operator=(const Instance& other)
+		{
+			this->name = other.name;
+			this->id = other.id;
+			return *this;
+		}
+		
+		~Instance()
+		{
+		}
+	};
 }
 
-
+#endif // __RACCOON_IR_INSTANCE_H

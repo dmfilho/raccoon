@@ -1,0 +1,6 @@
+raccoon/Debug
+.clang
+.codelite
+Makefile
+/raccoon/raccoon.mk
+/raccoon/raccoon.txt

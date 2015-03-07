@@ -23,13 +23,43 @@
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
  * \date 2015-02-17
  * \file
- * This file contains the main method for the reasoner.
+ * This file contains the definition of the ILiteralRealization class.
  */
 
-using namespace std;
+#ifndef __RACCOON_IR_ILITERALREALIZATION_H
+#define __RACCOON_IR_ILITERALREALIZATION_H
 
-int main(int argc, char* argv[]) {
-	
+namespace raccoon
+{
+	class ILiteralRealization
+	{
+	public:
+		/**
+		 * \returns the type of the object. Each descending class must implement this method returning an unique
+		 * integer, according to the class's type.
+		 */
+		virtual int type() = 0;
+		
+		/**
+		 * \returns true when the literal is negated.
+		 */
+		virtual bool negated() = 0;
+		
+		/**
+		 * \returns true when the current Literal realization is the complement of another literal realization.
+		 */
+		virtual bool complementOf(ILiteralRealization* L) = 0;
+		
+		/**
+		 * \returns true when the current Literal realization is equivalent to another literal realization.
+		 */
+		virtual bool equivalentTo(ILiteralRealization* L) = 0;
+		
+		/**
+		 * Destructor. Currently does nothing.
+		 */
+		virtual ~ILiteralRealization();
+	};
 }
 
-
+#endif // __RACCOON_IR_ILITERALREALIZATION_H

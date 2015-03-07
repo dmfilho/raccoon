@@ -23,13 +23,35 @@
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
  * \date 2015-02-17
  * \file
- * This file contains the main method for the reasoner.
+ * This file contains the implementation of the Clause class.
  */
 
-using namespace std;
+#include "Clause.h"
 
-int main(int argc, char* argv[]) {
+namespace raccoon
+{
 	
-}
+	bool Clause::contains(unsigned int id, bool negated)
+	{
+		// TODO
+		return false;
+	}
+	
+	Clause::Clause()
+	 : _varCount(1)
+	{
+	}
 
+	Clause::~Clause()
+	{
+		for (ConceptRealization* cr: concepts)
+		{
+			delete cr;
+		}
+		for (RoleRealization* rr: roles)
+		{
+			delete rr;
+		}
+	}
+}
 
