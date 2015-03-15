@@ -31,6 +31,7 @@
  
 // STL
 #include <string>
+#include <iostream>
 // raccoon
 extern "C" {
 	#include "owl2_parser.h"
@@ -46,9 +47,36 @@ extern "C" {
 using namespace std;
 namespace raccoon
 {
+	
+	Owl2::Owl2()
+	{
+		// Create the ObjectUnionOf node and all its children.
+		unionNode = ast_new_node();
+		unionNode->tokenId = OWL2_ClassExpression;
+		ast_node* node = ast_new_node();
+		unionNode->firstChild = node;
+		node->tokenId = OWL2_ObjectUnionOf;
+		node->firstChild = ast_new_node();
+		node = node->firstChild;
+		node->tokenId = OWL2_OBJECTUNIONOF;
+		node->nextSibling = ast_new_node();
+		node = node->nextSibling;
+		node->tokenId = OWL2_LPAR;
+		node->nextSibling = 0;
+	}
+	
+	Owl2::~Owl2()
+	{
+		if (unionNode != nullptr)
+		{
+			unionNode->firstChild->firstChild->nextSibling->nextSibling = 0;
+			ast_free(unionNode);
+		}
+	}
+	
 	void Owl2::parseString(string& data, Ontology* ontology, ClauseSet* clauseSet, bool neg)
 	{
-		parse_result* pr = OWL2__parse_string((char*)data.c_str());
+		parse_result* pr = OWL2_parse_string((char*)data.c_str());
 		parse(pr, ontology, clauseSet, neg);
 		parse_result_free(pr);
 	}
@@ -59,7 +87,7 @@ namespace raccoon
 	 */
 	void Owl2::parseFile(string& fileName, Ontology* ontology, ClauseSet* clauseSet, bool neg)
 	{
-		parse_result* pr = OWL2__parse_file((char*)fileName.c_str());
+		parse_result* pr = OWL2_parse_file((char*)fileName.c_str());
 		parse(pr, ontology, clauseSet, neg);
 		parse_result_free(pr);
 	}
@@ -229,12 +257,12 @@ namespace raccoon
 	
 	void Owl2::parseSubClassOf(ast_node* node, bool neg)
 	{
-		node = findChild(node, OWL2_ClassExpression);
+		node = findChild(node, OWL2_subClassExpression);
 		if (node == nullptr)
 		{
 			throw parser_exception("OWL2 Parser Error: a SubClassOf requires a ClassExpression.");
 		}
-		parseInclusion(node, node->nextSibling, neg, neg);
+		parseInclusion(node->firstChild, node->nextSibling->firstChild, neg, neg);
 	}
 	
 	void Owl2::parseEquivalentClasses(ast_node* node, bool neg)
@@ -249,13 +277,20 @@ namespace raccoon
 			ast_node* eqNode = node->nextSibling;
 			while (eqNode != nullptr)
 			{
-				eqNode = node->firstChild;
+				if (eqNode->tokenId == OWL2_ClassExpressionList)
+				{
+					eqNode = eqNode->firstChild;
+					if (eqNode == nullptr)
+					{
+						break;
+					}
+				}
 				parseInclusion(node, eqNode, neg, neg);
 				parseInclusion(eqNode, node, neg, neg);
-				eqNode = node->nextSibling;
+				eqNode = eqNode->nextSibling;
 			}
 			node = node->nextSibling;
-			if (node != nullptr)
+			if (node != nullptr && node->tokenId == OWL2_ClassExpressionList)
 			{
 				node = node->firstChild;
 			}
@@ -269,47 +304,53 @@ namespace raccoon
 		{
 			throw parser_exception("OWL2 Parser Error: a DisjointClasses Node requires a ClassExpression.");
 		}
+		
 		while (node != nullptr)
 		{
 			ast_node* dcNode = node->nextSibling;
 			while (dcNode != nullptr)
 			{
-				dcNode = node->firstChild;
+				if (dcNode->tokenId == OWL2_ClassExpressionList)
+				{
+					dcNode = dcNode->firstChild;
+					if (dcNode == nullptr)
+					{
+						break;
+					}
+				}
 				parseInclusion(node, dcNode, neg, !neg);
-				dcNode = node->nextSibling;
+				dcNode = dcNode->nextSibling;
 			}
 			node = node->nextSibling;
-			if (node != nullptr)
+			if (node != nullptr && node->tokenId == OWL2_ClassExpressionList)
 			{
 				node = node->firstChild;
 			}
 		}
 	}
 	
+	// DisjointUnion(C C1..Cn) is the same as:
+	// EquivalentClasses(C ObjectUnionOf(C1..Cn)) followed by
+	// DisjointClasses(C1..Cn)
 	void Owl2::parseDisjointUnion(ast_node* node, bool neg)
 	{
-		node = findChild(node, OWL2_ClassExpression);
+		ast_node classExpr;
+		node = findChild(node, OWL2_Class);
 		if (node == nullptr)
 		{
-			throw parser_exception("OWL2 Parser Error: a EquivalentClasses Node requires a ClassExpression.");
+			throw parser_exception("OWL2 Parser Error: a DisjointUnion Node requires a ClassExpression.");
 		}
-		
-		while (node != nullptr)
-		{
-			ast_node* eqNode = node->nextSibling;
-			while (eqNode != nullptr)
-			{
-				eqNode = node->firstChild;
-				parseInclusion(node, eqNode, neg, neg);
-				parseInclusion(eqNode, node, neg, neg);
-				eqNode = node->nextSibling;
-			}
-			node = node->nextSibling;
-			if (node != nullptr)
-			{
-				node = node->firstChild;
-			}
-		}
+		classExpr.tokenId = OWL2_ClassExpression;
+		classExpr.firstChild = node;
+		unionNode->firstChild->firstChild->nextSibling->nextSibling = node->nextSibling->firstChild;
+		// Simulate EquivalentClasses(C ObjectUnionOf(C1..Cn))
+		parseInclusion(&classExpr, unionNode, neg, neg);
+		parseInclusion(unionNode, &classExpr, neg, neg);
+		// Call DisjointClasses for (C1..Cn)
+		classExpr.tokenId = OWL2_DisjointClasses;
+		classExpr.firstChild = node->nextSibling->firstChild;
+		parseDisjointClasses(&classExpr, neg);
+		unionNode->firstChild->firstChild->nextSibling->nextSibling = nullptr;
 	}
 	
 	/**
@@ -348,13 +389,7 @@ namespace raccoon
 		switch (node->tokenId)
 		{
 			case OWL2_Class:
-				clause->add(
-					new ConceptRealization(
-						ontology->assertConcept(node->firstChild->firstChild->data),
-						var,
-						neg
-					)
-				);
+				parseClass(node, neg, clause, var);
 				break;
 			case OWL2_ObjectIntersectionOf:
 				if (neg)
@@ -369,11 +404,11 @@ namespace raccoon
 			case OWL2_ObjectUnionOf:
 				if (neg)
 				{
-					parseConjunction(findChild(node, OWL2_ClassExpression), neg, clause, var);
+					parseConjunction(findChild(node, OWL2_ClassExpression), true, clause, var);
 				}
 				else
 				{
-					parseDisjunction(findChild(node, OWL2_ClassExpression), neg, clause, var);
+					parseDisjunction(findChild(node, OWL2_ClassExpression), false, clause, var);
 				}
 				break;
 			case OWL2_ObjectComplementOf:
@@ -385,21 +420,21 @@ namespace raccoon
 			case OWL2_ObjectSomeValuesFrom:
 				if (neg)
 				{
-					parseUniversalQuantifier(findChild(node, OWL2_ObjectPropertyExpression), findChild(node, OWL2_ClassExpression), true, clause, var);
+					parseUniversalQuantifier(findChild(node, OWL2_ObjectPropertyExpression), findChild(node, OWL2_ClassExpression), true, true, clause, var);
 				}
 				else
 				{
-					parseExistentialQuantifier(findChild(node, OWL2_ObjectPropertyExpression), findChild(node, OWL2_ClassExpression), false, clause, var);
+					parseExistentialQuantifier(findChild(node, OWL2_ObjectPropertyExpression), findChild(node, OWL2_ClassExpression), false, false, clause, var);
 				}
 				break;
 			case OWL2_ObjectAllValuesFrom:
 				if (neg)
 				{
-					parseExistentialQuantifier(findChild(node, OWL2_ObjectPropertyExpression), findChild(node, OWL2_ClassExpression), true, clause, var);
+					parseExistentialQuantifier(findChild(node, OWL2_ObjectPropertyExpression), findChild(node, OWL2_ClassExpression), false, true, clause, var);
 				}
 				else
 				{
-					parseUniversalQuantifier(findChild(node, OWL2_ObjectPropertyExpression), findChild(node, OWL2_ClassExpression), false, clause, var);
+					parseUniversalQuantifier(findChild(node, OWL2_ObjectPropertyExpression), findChild(node, OWL2_ClassExpression), true, false, clause, var);
 				}
 				break;
 			case OWL2_ObjectHasValue:
@@ -427,13 +462,24 @@ namespace raccoon
 		}
 	}
 	
+	void Owl2::parseClass(ast_node* node, bool neg, Clause* clause, unsigned int var)
+	{
+		clause->add(
+			new ConceptRealization(
+				ontology->assertConcept(node->firstChild->firstChild->data),
+				var,
+				neg
+			)
+		);
+	}
+	
 	void Owl2::parseConjunction(ast_node* node, bool neg, Clause* clause, unsigned int var)
 	{
 		while (node != nullptr && node->tokenId == OWL2_ClassExpression)
 		{
 			parseClassExpression(node, neg, clause, var);
 			node = node->nextSibling;
-			if (node != nullptr)
+			if (node != nullptr && node->tokenId == OWL2_ClassExpressionList)
 			{
 				node = node->firstChild;
 			}
@@ -448,17 +494,17 @@ namespace raccoon
 		{
 			Clause* c = new Clause();
 			c->add(new ConceptRealization(lit, var, true));
-			parseClassExpression(node, !neg, c, 0);
+			parseClassExpression(node, neg, c, 0);
 			clauseSet->add(c);
 			node = node->nextSibling;
-			if (node != nullptr)
+			if (node != nullptr && node->tokenId == OWL2_ClassExpressionList)
 			{
 				node = node->firstChild;
 			}
 		}
 	}
 	
-	void Owl2::parseUniversalQuantifier(ast_node* roleNode, ast_node* conceptNode, bool neg, Clause* clause, unsigned int var)
+	void Owl2::parseUniversalQuantifier(ast_node* roleNode, ast_node* conceptNode, bool negRole, bool negConcept, Clause* clause, unsigned int var)
 	{
 		Literal* roleLit = nullptr;
 		roleNode = roleNode->firstChild;
@@ -467,7 +513,7 @@ namespace raccoon
 			case OWL2_ObjectProperty:
 				roleLit = &ontology->assertRole(roleNode->firstChild->firstChild->data);
 				break;
-			case OWL2_InverseObjectProperty:
+			case OWL2_InverseObjectProperty: // inverse as in inverse function
 				throw parser_exception("OWL2 Parser Error: The parser doesn't support the InverseObjectProperty.");
 			default:
 				throw parser_exception("OWL2 Parser Error: Expected ObjectProperty or InverseObjectProperty on Quantifier.");
@@ -477,19 +523,19 @@ namespace raccoon
 		{
 			Clause* c = new Clause();
 			Literal& newConcept = ontology->newConcept();
-			clause->add(new UniversalRealization(*roleLit, var, 0, !neg, newConcept, neg));
-			c->add(new ConceptRealization(newConcept, 0, !neg));
-			parseClassExpression(conceptNode, neg, c, 0);
+			clause->add(new UniversalRealization(*roleLit, var, 0, negRole, newConcept, negConcept));
+			c->add(new ConceptRealization(newConcept, 0, !negConcept));
+			parseClassExpression(conceptNode, negConcept, c, 0);
 			clauseSet->add(c);
 		}
 		else
 		{
 			Literal& concept = ontology->assertConcept(conceptNode->firstChild->firstChild->firstChild->data);
-			clause->add(new UniversalRealization(*roleLit, var, 0, !neg, concept, neg));
+			clause->add(new UniversalRealization(*roleLit, var, 0, negRole, concept, negConcept));
 		}
 	}
 	
-	void Owl2::parseExistentialQuantifier(ast_node* roleNode, ast_node* conceptNode, bool neg, Clause* clause, unsigned int var)
+	void Owl2::parseExistentialQuantifier(ast_node* roleNode, ast_node* conceptNode, bool negRole, bool negConcept, Clause* clause, unsigned int var)
 	{
 		Literal* lit = nullptr;
 		roleNode = roleNode->firstChild;
@@ -497,10 +543,10 @@ namespace raccoon
 		{
 			case OWL2_ObjectProperty:
 				lit = &ontology->assertRole(roleNode->firstChild->firstChild->data);
-				clause->add(new RoleRealization(*lit, var, 0, neg));
+				clause->add(new RoleRealization(*lit, var, 0, negRole));
 				break;
-			case OWL2_InverseObjectProperty:
-				throw parser_exception("OWL2 Parser Error: The parser doesn't support the InverseObjectProperty.");
+			case OWL2_InverseObjectProperty: // inverse as in inverse function
+				throw parser_exception("OWL2 Parser Error: The parser doesn't support the InverseObjectProperty yet.");
 				break;
 			default:
 				throw parser_exception("OWL2 Parser Error: Expected ObjectProperty or InverseObjectProperty on Quantifier.");
@@ -513,23 +559,54 @@ namespace raccoon
 			Literal& newConcept = ontology->newConcept();
 			clause->add(new ConceptRealization(newConcept, roleVar, false));
 			c->add(new ConceptRealization(newConcept, 0, true));
-			parseClassExpression(conceptNode, neg, c, 0);
+			parseClassExpression(conceptNode, negConcept, c, 0);
 			clauseSet->add(c);
 		}
 		else
 		{
 			Literal& concept = ontology->assertConcept(conceptNode->firstChild->firstChild->firstChild->data);
-			clause->add(new ConceptRealization(concept, roleVar, neg));
+			clause->add(new ConceptRealization(concept, roleVar, negConcept));
 		}
 	}
 	
 	void Owl2::parseObjectPropertyAxiom(ast_node* node)
 	{
-		throw parser_exception("OWL2 Parser Error: The reasoner doesn't support ObjectProperty Axioms");
+		node = node->firstChild;
+		switch (node->tokenId)
+		{
+			case OWL2_SubObjectPropertyOf:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support SubObjectPropertyOf");
+			case OWL2_EquivalentObjectProperties:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support EquivalentObjectProperties");
+			case OWL2_DisjointObjectProperties:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support DisjointObjectProperties");
+			case OWL2_InverseObjectProperties:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support InverseObjectProperties");
+			case OWL2_ObjectPropertyDomain:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support ObjectPropertyDomain");
+			case OWL2_ObjectPropertyRange:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support ObjectPropertyRange");
+			case OWL2_FunctionalObjectProperty:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support FunctionalObjectProperty");
+			case OWL2_InverseFunctionalObjectProperty:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support InverseFunctionalObjectProperty");
+			case OWL2_ReflexiveObjectProperty:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support ReflexiveObjectProperty");
+			case OWL2_IrreflexiveObjectProperty:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support IrreflexiveObjectProperty");
+			case OWL2_SymmetricObjectProperty:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support SymmetricObjectProperty");
+			case OWL2_AsymmetricObjectProperty:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support AsymmetricObjectProperty");
+			case OWL2_TransitiveObjectProperty:
+				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support TransitiveObjectProperty");
+		}
+		
 	}
 	
 	void Owl2::parseAssertion(ast_node* node, bool neg)
 	{
+		node = node->firstChild;
 		switch (node->tokenId)
 		{
 			case OWL2_SameIndividual:
@@ -556,7 +633,14 @@ namespace raccoon
 	{
 		Clause* clause = new Clause();
 		parseClassExpression(classNode, neg, clause, 0);
-		clause->values[0] = getIndividualInstance(indiv);
+		if (clause->values.size() <= 0)
+		{
+			clause->values.push_back(getIndividualInstance(indiv));
+		}
+		else
+		{
+			clause->values[0] = getIndividualInstance(indiv);
+		}
 		clauseSet->add(clause);
 	}
 	
@@ -577,8 +661,16 @@ namespace raccoon
 			default:
 				throw parser_exception("OWL2 Parser Error: Expected ObjectProperty or InverseObjectProperty on Quantifier.");
 		}
-		clause->values[0] = getIndividualInstance(source->firstChild);
-		clause->values[1] = getIndividualInstance(target->firstChild);		
+		if (clause->values.size() <= 0)
+		{
+			clause->values.push_back(getIndividualInstance(source->firstChild));
+		}
+		else
+		{
+			clause->values[0] = getIndividualInstance(source->firstChild);
+		}
+		clause->values.push_back(getIndividualInstance(target->firstChild));
+			
 		clauseSet->add(clause);
 	}
 	

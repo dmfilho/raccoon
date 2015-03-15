@@ -31,6 +31,11 @@ namespace raccoon
 			clauses.push_back(clause);
 		}
 		
+		inline void clear()
+		{
+			clauses.clear();
+		}
+		
 		inline vector<Clause*>::iterator begin()
 		{
 			return clauses.begin();
@@ -40,6 +45,13 @@ namespace raccoon
 		{
 			return clauses.end();
 		}
+		
+		inline unsigned int size()
+		{
+			return clauses.size();
+		}
+		
+		void printClauses();
 	};
 }
 

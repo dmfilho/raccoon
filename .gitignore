@@ -4,3 +4,6 @@ raccoon/Debug
 Makefile
 /raccoon/raccoon.mk
 /raccoon/raccoon.txt
+raccoon/Release
+raccoon/Debug
+raccoon/Test

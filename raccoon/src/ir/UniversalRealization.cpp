@@ -39,7 +39,7 @@ namespace raccoon
 		Literal& concept, 
 		bool negc
 	)
-	 : role(role, var1r, var2r, !negr)
+	 : role(role, var1r, var2r, negr)
 	 , concept(concept, var2r, negc)
 	{
 	}

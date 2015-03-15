@@ -33,21 +33,23 @@
 #include "../../ir/Path.h"
 #include "../../ir/ClauseSet.h"
 #include "../../ir/Clause.h"
+#include "../../ir/Ontology.h"
 
 namespace raccoon
 {
 	class FreitasMelo
 	{
 	private:
-		ClauseSet& kb;
+		ClauseSet* kb;
 		Path path;
 	public:
-		bool query(ClauseSet& query);
+		bool consistency(Ontology* ontology);
+		bool query(ClauseSet* query);
 		bool regularity(Clause* objective);
 		bool connect(ILiteralRealization* lit, unsigned int id, bool neg);
 		bool prove(Clause* objective);
 		
-		FreitasMelo(ClauseSet& kb);
+		FreitasMelo(ClauseSet* kb);
 		~FreitasMelo();
 	};
 }

@@ -43,6 +43,7 @@ namespace raccoon
 	Literal::Literal(string& name, unsigned int id)
 	 : _name(name)
 	 , _id(id)
+	 , original(true)
 	{
 	}
 

@@ -21,15 +21,43 @@
  * The author can be reached by e-mail: dldmf@cin.ufpe.br.
  * 
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
- * \date 2015-02-17
+ * \date 2015-02-04
  * \file
- * This file contains the main method for the reasoner.
+ * This file contains the definition of the Options class, which is responsible for parsing command line options and
+ * displaying help information to the user.
  */
 
-using namespace std;
+#ifndef OPTIONS_H_
+#define OPTIONS_H_
 
-int main(int argc, char* argv[]) {
-	
-}
+#include <getopt.h>
+#include <string>
 
+namespace raccoon 
+{
+	enum OptionCmd {
+		invalid_command,
+		classification,
+		consistency,
+		realization
+	};
+		
+	class Options 
+	{
+	private:
+	static struct option long_options[];
+	public:
+		std::string* inputFileName;
+		OptionCmd command;
+		bool writeGetSymbolNameMethod;
+		bool valid;
+		Options(int argc, char* argv[]);
+		virtual ~Options();
 
+		void printHelp();
+		void printVersion();
+		void printWarranty();
+	}; /* class Options */
+} /* namespace raccoon */
+
+#endif /* OPTIONS_H_ */

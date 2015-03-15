@@ -20,7 +20,7 @@ namespace raccoon
 		unsigned int id;
 		if (search == instances.end())
 		{
-			id = instanceCount++;
+			id = instanceCount++ + conceptCount + roleCount;
 			Instance* instance = new Instance(name, id);
 			instances[name] = instance;
 			instancesById[id] = instance;
@@ -38,9 +38,9 @@ namespace raccoon
 	 * \param name the name of the instance.
 	 * \return the id of the existing instance, or the id of the newly mapped instance.
 	 */
-	Instance& Ontology::assertInstance(char* name)
+	Instance& Ontology::assertInstance(const char* name)
 	{
-		string strName(name);
+ 		string strName(name);
 		return assertInstance(strName);
 	}
 	
@@ -56,7 +56,7 @@ namespace raccoon
 		unsigned int id;
 		if (search == concepts.end())
 		{
-			id = conceptCount++;
+			id = conceptCount++ + roleCount + instanceCount;
 			Literal* concept = new Literal(name, id);
 			concepts[name] = concept;
 			conceptsById[id] = concept;
@@ -74,7 +74,7 @@ namespace raccoon
 	 * \param name the name of the concept.
 	 * \return the id of the existing concept, or the id of the newly mapped concept.
 	 */
-	Literal& Ontology::assertConcept(char* name)
+	Literal& Ontology::assertConcept(const char* name)
 	{
 		string strName(name);
 		return assertConcept(strName);
@@ -92,7 +92,7 @@ namespace raccoon
 		unsigned int id;
 		if (search == roles.end())
 		{
-			id = roleCount++;
+			id = roleCount++ + conceptCount + instanceCount;
 			Literal* role = new Literal(name, id);
 			roles[name] = role;
 			rolesById[id] = role;
@@ -110,7 +110,7 @@ namespace raccoon
 	 * \param name the name of the role.
 	 * \return the id of the existing role, or the id of the newly mapped role.
 	 */
-	Literal& Ontology::assertRole(char* name)
+	Literal& Ontology::assertRole(const char* name)
 	{
 		string strName(name);
 		return assertRole(strName);
@@ -122,9 +122,12 @@ namespace raccoon
 	Literal& Ontology::newConcept()
 	{
 		stringstream s;
-		s << "$RC_" << conceptCount++;
+		s << "$RC_" << conceptCount;
 		string conceptName = s.str();
-		return assertConcept(conceptName);
+		++newConceptCount;
+		Literal& lit = assertConcept(conceptName);
+		lit.original = false;
+		return lit;
 	}
 	
 	/**
@@ -133,9 +136,12 @@ namespace raccoon
 	Literal& Ontology::newRole()
 	{
 		stringstream s;
-		s << "$RC_" << roleCount++;
+		s << "$RC_" << roleCount;
 		string roleName = s.str();
-		return assertRole(roleName);
+		++newRoleCount;
+		Literal& lit = assertRole(roleName);
+		lit.original = false;
+		return lit;
 	}
 }
 

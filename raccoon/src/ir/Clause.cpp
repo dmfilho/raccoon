@@ -37,8 +37,26 @@ namespace raccoon
 		return false;
 	}
 	
+	void Clause::negate()
+	{
+		for (auto concept: concepts)
+		{
+			concept->neg = !concept->neg;
+		}
+		for (auto role: roles)
+		{
+			role->neg = !role->neg;
+		}
+		for (auto universal: universals)
+		{
+			universal->concept.neg = !universal->concept.neg;
+			universal->role.neg = !universal->role.neg;
+		}
+	}
+	
 	Clause::Clause()
 	 : _varCount(1)
+	 , ignore(false)
 	{
 	}
 

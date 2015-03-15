@@ -50,6 +50,11 @@ namespace raccoon
 		
 	public:
 		/**
+		 * True when the literal is original from the ontology. False when it was created during normalization.
+		 */
+		bool original;
+		
+		/**
 		 * Gets the concept name.
 		 * \returns the concept name.
 		 */

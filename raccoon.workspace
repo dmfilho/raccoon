@@ -2,7 +2,7 @@
 <CodeLite_Workspace Name="raccoon" Database="">
   <Project Name="raccoon" Path="raccoon/raccoon.project" Active="Yes"/>
   <BuildMatrix>
-    <WorkspaceConfiguration Name="Debug" Selected="yes">
+    <WorkspaceConfiguration Name="Debug" Selected="no">
       <Project Name="raccoon" ConfigName="Debug"/>
     </WorkspaceConfiguration>
     <WorkspaceConfiguration Name="Release" Selected="yes">

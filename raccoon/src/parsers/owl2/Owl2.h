@@ -49,7 +49,10 @@ namespace raccoon
 	private:
 		Ontology* ontology;
 		ClauseSet* clauseSet;
+		ast_node* unionNode;		//< a fixed ObjectUnionOf node to be used on the parsing of DisjointUnion
 	public:
+		Owl2();
+		~Owl2();
 		void parseString(string& data, Ontology* ontology, ClauseSet* clauseSet, bool neg);
 		void parseFile(string& fileName, Ontology* ontology, ClauseSet* clauseSet, bool neg);
 		void parse(parse_result* pr, Ontology* ontology, ClauseSet* clauseSet, bool neg);
@@ -65,10 +68,11 @@ namespace raccoon
 		void parseDisjointUnion(ast_node* node, bool neg);
 		void parseInclusion(ast_node* nodeSub, ast_node* nodeSuper, bool negNodeSub = false, bool negNodeSuper = false);
 		void parseClassExpression(ast_node* node, bool lneg, Clause* clause, unsigned int var);
+		void parseClass(ast_node* node, bool neg, Clause* clause, unsigned int var);
 		void parseConjunction(ast_node* node, bool neg, Clause* clause, unsigned int var);
 		void parseDisjunction(ast_node* node, bool neg, Clause* clause, unsigned int var);
-		void parseUniversalQuantifier(ast_node* roleNode, ast_node* conceptNode, bool neg, Clause* clause, unsigned int var);
-		void parseExistentialQuantifier(ast_node* roleNode, ast_node* conceptNode, bool neg, Clause* clause, unsigned int var);
+		void parseUniversalQuantifier(ast_node* roleNode, ast_node* conceptNode, bool negRole, bool negConcept, Clause* clause, unsigned int var);
+		void parseExistentialQuantifier(ast_node* roleNode, ast_node* conceptNode, bool negRole, bool negConcept, Clause* clause, unsigned int var);
 		void parseObjectPropertyAxiom(ast_node* node);
 		void parseAssertion(ast_node* node, bool neg);
 		void parseClassAssertion(ast_node* classNode, ast_node* indiv, bool neg);

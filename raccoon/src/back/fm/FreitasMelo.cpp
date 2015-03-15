@@ -35,12 +35,39 @@
 #include "../../ir/Clause.h"
 #include "../../ir/ClauseSet.h"
 
+#include <iostream>
+
 namespace raccoon
 {
-	bool FreitasMelo::query(ClauseSet& query)
+	bool FreitasMelo::consistency(Ontology* ontology)
+	{
+		for (auto concept: ontology->conceptsById)
+		{
+			if (concept.second->original)
+			{
+				
+				ConnectionList* connList = kb->getConnections(concept.first, false);
+				for (Clause* conn: *connList)
+				{
+					if (conn->ignore)
+					{
+						continue;
+					}
+					if (this->prove(conn))
+					{
+						return false;
+					}
+					conn->ignore = true;
+				}				
+			}
+		}
+		return true;
+	}
+	
+	bool FreitasMelo::query(ClauseSet* query)
 	{
 		this->path.clear();
-		for (Clause* clause: query)
+		for (Clause* clause: *query)
 		{
 			if (this->prove(clause))
 			{
@@ -82,14 +109,21 @@ namespace raccoon
 	bool FreitasMelo::connect(ILiteralRealization* lit, unsigned int id, bool neg)
 	{
 		this->path.push(lit);
-		ConnectionList* connList = kb.getConnections(id, neg);
+		ConnectionList* connList = kb->getConnections(id, neg);
 		for (Clause* conn: *connList)
 		{
+			// Make sure the clause isn't ignored
+			if (conn->ignore)
+			{
+				continue;
+			}
+			// Try to connect
 			if (this->prove(conn))
 			{ 
 				this->path.pop();
 				return true;
 			}
+			//conn->ignore = true;
 		}
 		this->path.pop();
 		return false;
@@ -149,7 +183,7 @@ namespace raccoon
 		return true;
 	}
 	
-	FreitasMelo::FreitasMelo(ClauseSet& kb)
+	FreitasMelo::FreitasMelo(ClauseSet* kb)
 	 : kb(kb)
 	{
 	}

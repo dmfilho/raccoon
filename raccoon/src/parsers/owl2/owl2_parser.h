@@ -1,7 +1,6 @@
 #ifndef __OWL2__H
 #define __OWL2__H
 
-
 typedef struct _ast_node {
  int tokenId;
  char* data;
@@ -26,16 +25,18 @@ typedef struct _parse_result {
  ast_node* ast;
 } parse_result;
 
-void token_list_free(token_list* tokens);
 ast_node* ast_new_node();
 void ast_add_child(ast_node* parent, ast_node* child);
 void ast_add_sibling(ast_node* sibling, ast_node* sibling_new);
 void ast_free(ast_node* node);
 void ast_clear(ast_node* node);
 ast_node* ast_invert_siblings(ast_node* node, ast_node* newNextSibling);
-void parse_result_free(parse_result* p);
-parse_result* OWL2__parse_string(char* text);
-parse_result* OWL2__parse_file(char* fileName);
+void token_list_free(token_list* tokens);
+parse_result* parse_result_new();
+void parse_result_free(parse_result* pr);
+
+parse_result* OWL2_parse_file(char* fileName);
+parse_result* OWL2_parse_string(char* buffer);
 
 #define OWL2_IRI 1000000000
 #define OWL2_ontologyDocument 1000000001

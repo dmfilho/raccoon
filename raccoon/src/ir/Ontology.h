@@ -14,11 +14,14 @@ namespace raccoon
 {
 	class Ontology
 	{
-	private:
+	public:
 		unsigned int instanceCount;
 		unsigned int conceptCount;
 		unsigned int roleCount;
-	public:
+		unsigned int newInstanceCount;
+		unsigned int newConceptCount;
+		unsigned int newRoleCount;
+		
 		ClauseSet clauseSet;
 		unordered_map<string, Instance*> instances;
 		unordered_map<string, Literal*> concepts;
@@ -34,11 +37,11 @@ namespace raccoon
 		 * \return the id of the existing instance, or the id of the newly mapped instance.
 		 */
 		Instance& assertInstance(string& name);
-		Instance& assertInstance(char* name);
+		Instance& assertInstance(const char* name);
 		Literal& assertConcept(string& name);
-		Literal& assertConcept(char* name);
+		Literal& assertConcept(const char* name);
 		Literal& assertRole(string& name);
-		Literal& assertRole(char* name);
+		Literal& assertRole(const char* name);
 		Literal& newConcept();
 		Literal& newRole();
 		
@@ -46,6 +49,9 @@ namespace raccoon
 		 : instanceCount(0)
 		 , conceptCount(0)
 		 , roleCount(0)
+		 , newInstanceCount(0)
+		 , newConceptCount(0)
+		 , newRoleCount(0)
 		{
 		}
 		

@@ -46,6 +46,11 @@ namespace raccoon
 		unsigned int _varCount;
 	public:
 		/**
+		 * When true, the clause is not used on the reasoning process.
+		 */
+		bool ignore;
+		
+		/**
 		 * List of concept realizations of the clause. A concept realization is a concept coupled to an instance when
 		 * necessary. Since a clause can deal with multiple variables, the realization also tells which var of the 
 		 * clause the concept deals with.
@@ -84,6 +89,11 @@ namespace raccoon
 		 * \returns true when the clause contains the specified literal.
 		 */
 		bool contains(unsigned int id, bool negated);
+		
+		/**
+		 * \brief Negates each literal of the clause.
+		 */
+		void negate();
 		
 		/**
 		 * Adds a ConceptRealization to the concepts vector.
