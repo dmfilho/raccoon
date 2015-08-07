@@ -38,6 +38,7 @@ extern "C" {
 }
 #include "Owl2.h"
 #include "../../exceptions/parser_exception.h"
+#include "../../exceptions/unsupported_feature_exception.h"
 #include "../../ir/Ontology.h"
 #include "../../ir/Clause.h"
 #include "../../ir/ConceptRealization.h"
@@ -49,6 +50,14 @@ namespace raccoon
 {
 	
 	Owl2::Owl2()
+	 : _declarationCount(0)
+	 , _classAxiomCount(0)
+	 , _objectPropertyAxiomCount(0)
+	 , _dataPropertyAxiomCount(0)
+	 , _datatypeDefinitionCount(0)
+	 , _hasKeyCount(0)
+	 , _assertionCount(0)
+	 , _annotationCount(0)
 	{
 		// Create the ObjectUnionOf node and all its children.
 		unionNode = ast_new_node();
@@ -129,7 +138,14 @@ namespace raccoon
 			// if it is an axiom, parse it
 			if (node->tokenId == OWL2_Axiom)
 			{
-				Owl2::parseAxiom(node, neg);
+				try 
+				{
+					Owl2::parseAxiom(node, neg);
+				} 
+				catch (unsupported_feature_exception ex)
+				{
+					this->unsupportedFeatures.emplace(ex.feature());
+				}
 			}
 			node = findSibling(node, OWL2_axioms);
 		}		
@@ -146,27 +162,41 @@ namespace raccoon
 		switch (node->tokenId)
 		{
 			case OWL2_Declaration:
+				++this->_declarationCount;
 				parseDeclaration(node);
 				break;
 			case OWL2_ClassAxiom:
+				++this->_classAxiomCount;
 				parseClassAxiom(node, neg);
 				break;
 			case OWL2_ObjectPropertyAxiom:
+				++this->_objectPropertyAxiomCount;
 				parseObjectPropertyAxiom(node);
 				break;
 			case OWL2_DataPropertyAxiom:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support DataPropertyAxiom constructs.");
+				++this->_dataPropertyAxiomCount;
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support DataPropertyAxiom constructs.",
+					"DataPropertyAxiom");
 				break;
 			case OWL2_DatatypeDefinition:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support DatatypeDefinition constructs.");
+				++this->_datatypeDefinitionCount;
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support DatatypeDefinition constructs.",
+					"DatatypeDefinition");
 				break;
 			case OWL2_HasKey:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support HasKey constructs.");
+				++this->_hasKeyCount;
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support HasKey constructs.",
+					"HasKey");
 				break;
 			case OWL2_Assertion:
+				++this->_assertionCount;
 				parseAssertion(node, neg);
 				break;
 			case OWL2_AnnotationAxiom:
+				++this->_annotationCount;
 				// ignores AnnotationAxiom
 				break;
 			default:
@@ -415,7 +445,9 @@ namespace raccoon
 				parseClassExpression(findChild(node, OWL2_ClassExpression), !neg, clause, var);
 				break;
 			case OWL2_ObjectOneOf:
-				throw parser_exception("The ObjectOneOf construct ins't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The ObjectOneOf construct ins't supported by the reasoner.",
+					"ObjectOneOf");
 				break;
 			case OWL2_ObjectSomeValuesFrom:
 				if (neg)
@@ -438,27 +470,49 @@ namespace raccoon
 				}
 				break;
 			case OWL2_ObjectHasValue:
-				throw parser_exception("The ObjectHasValue construct isn't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The ObjectHasValue construct isn't supported by the reasoner.",
+					"ObjectHasValue");
 			case OWL2_ObjectHasSelf:
-				throw parser_exception("The ObjectHasSelf construct isn't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The ObjectHasSelf construct isn't supported by the reasoner.",
+					"ObjectHasSelf");
 			case OWL2_ObjectMinCardinality:
-				throw parser_exception("The ObjectMinCardinality construct isn't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The ObjectMinCardinality construct isn't supported by the reasoner.",
+					"ObjectMinCardinality");
 			case OWL2_ObjectMaxCardinality:
-				throw parser_exception("The ObjectMaxCardinality construct isn't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The ObjectMaxCardinality construct isn't supported by the reasoner.",
+					"ObjectMaxCardinality");
 			case OWL2_ObjectExactCardinality:
-				throw parser_exception("The ObjectExactCardinality construct isn't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The ObjectExactCardinality construct isn't supported by the reasoner.",
+					"ObjectExactCardinality");
 			case OWL2_DataSomeValuesFrom:
-				throw parser_exception("The DataSomeValuesFrom construct isn't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The DataSomeValuesFrom construct isn't supported by the reasoner.",
+					"DataSomeValuesFrom");
 			case OWL2_DataAllValuesFrom:
-				throw parser_exception("The DataAllValuesFrom construct isn't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The DataAllValuesFrom construct isn't supported by the reasoner.",
+					"DataAllValuesFrom");
 			case OWL2_DataHasValue:
-				throw parser_exception("The DataHasValue construct isn't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The DataHasValue construct isn't supported by the reasoner.",
+					"DataHasValue");
 			case OWL2_DataMinCardinality:
-				throw parser_exception("The DataMinCardinality construct isn't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The DataMinCardinality construct isn't supported by the reasoner.",
+					"DataMinCardinality");
 			case OWL2_DataMaxCardinality:
-				throw parser_exception("The DataMaxCardinality construct isn't supported by the reasoner.");
+				throw unsupported_feature_exception(
+					"The DataMaxCardinality construct isn't supported by the reasoner.",
+					"DataMaxCardinality");
 			case OWL2_DataExactCardinality:
-				throw parser_exception("The DataExactCardinality construct isn't supported by the reasoner.");				
+				throw unsupported_feature_exception(
+					"The DataExactCardinality construct isn't supported by the reasoner.",
+					"DataExactCardinality");				
 		}
 	}
 	
@@ -514,7 +568,9 @@ namespace raccoon
 				roleLit = &ontology->assertRole(roleNode->firstChild->firstChild->data);
 				break;
 			case OWL2_InverseObjectProperty: // inverse as in inverse function
-				throw parser_exception("OWL2 Parser Error: The parser doesn't support the InverseObjectProperty.");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The parser doesn't support the InverseObjectProperty.",
+					"InverseObjectProperty");
 			default:
 				throw parser_exception("OWL2 Parser Error: Expected ObjectProperty or InverseObjectProperty on Quantifier.");
 		}
@@ -546,7 +602,9 @@ namespace raccoon
 				clause->add(new RoleRealization(*lit, var, 0, negRole));
 				break;
 			case OWL2_InverseObjectProperty: // inverse as in inverse function
-				throw parser_exception("OWL2 Parser Error: The parser doesn't support the InverseObjectProperty yet.");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The parser doesn't support the InverseObjectProperty yet.",
+					"InverseObjectProperty");
 				break;
 			default:
 				throw parser_exception("OWL2 Parser Error: Expected ObjectProperty or InverseObjectProperty on Quantifier.");
@@ -575,31 +633,57 @@ namespace raccoon
 		switch (node->tokenId)
 		{
 			case OWL2_SubObjectPropertyOf:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support SubObjectPropertyOf");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support SubObjectPropertyOf",
+					"SubObjectPropertyOf");
 			case OWL2_EquivalentObjectProperties:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support EquivalentObjectProperties");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support EquivalentObjectProperties",
+					"EquivalentObjectProperties");
 			case OWL2_DisjointObjectProperties:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support DisjointObjectProperties");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support DisjointObjectProperties",
+					"DisjointObjectProperties");
 			case OWL2_InverseObjectProperties:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support InverseObjectProperties");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support InverseObjectProperties",
+					"InverseObjectProperties");
 			case OWL2_ObjectPropertyDomain:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support ObjectPropertyDomain");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support ObjectPropertyDomain",
+					"ObjectPropertyDomain");
 			case OWL2_ObjectPropertyRange:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support ObjectPropertyRange");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support ObjectPropertyRange",
+					"ObjectPropertyRange");
 			case OWL2_FunctionalObjectProperty:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support FunctionalObjectProperty");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support FunctionalObjectProperty",
+					"FunctionalObjectProperty");
 			case OWL2_InverseFunctionalObjectProperty:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support InverseFunctionalObjectProperty");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support InverseFunctionalObjectProperty",
+					"InverseFunctionalObjectProperty");
 			case OWL2_ReflexiveObjectProperty:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support ReflexiveObjectProperty");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support ReflexiveObjectProperty",
+					"ReflexiveObjectProperty");
 			case OWL2_IrreflexiveObjectProperty:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support IrreflexiveObjectProperty");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support IrreflexiveObjectProperty",
+					"IrreflexiveObjectProperty");
 			case OWL2_SymmetricObjectProperty:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support SymmetricObjectProperty");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support SymmetricObjectProperty",
+					"SymmetricObjectProperty");
 			case OWL2_AsymmetricObjectProperty:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support AsymmetricObjectProperty");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support AsymmetricObjectProperty",
+					"AsymmetricObjectProperty");
 			case OWL2_TransitiveObjectProperty:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support TransitiveObjectProperty");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support TransitiveObjectProperty",
+					"TransitiveObjectProperty");
 		}
 		
 	}
@@ -610,9 +694,13 @@ namespace raccoon
 		switch (node->tokenId)
 		{
 			case OWL2_SameIndividual:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support SameIndividual Assertions");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support SameIndividual Assertions",
+					"SameIndividual");
 			case OWL2_DifferentIndividuals:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support DifferentIndividuals Assertions");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support DifferentIndividuals Assertions",
+					"DifferentIndividuals");
 			case OWL2_ClassAssertion:
 				parseClassAssertion(findChild(node, OWL2_ClassExpression), findChild(node, OWL2_Individual), neg);
 				break;
@@ -623,9 +711,13 @@ namespace raccoon
 				parseObjectPropertyAssertion(findChild(node, OWL2_ObjectPropertyExpression), findChild(node, OWL2_sourceIndividual), findChild(node, OWL2_targetIndividual), !neg);
 				break;
 			case OWL2_DataPropertyAssertion:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support DataPropertyAssertion");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support DataPropertyAssertion",
+					"DataPropertyAssertion");
 			case OWL2_NegativeDataPropertyAssertion:
-				throw parser_exception("OWL2 Parser Error: The reasoner doesn't support NegativeDataPropertyAssertion");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The reasoner doesn't support NegativeDataPropertyAssertion",
+					"NegativeDataPropertyAssertion");
 		}
 	}
 	
@@ -656,7 +748,9 @@ namespace raccoon
 				clause->add(new RoleRealization(*lit, 0, 1, neg));
 				break;
 			case OWL2_InverseObjectProperty:
-				throw parser_exception("OWL2 Parser Error: The parser doesn't support the InverseObjectProperty.");
+				throw unsupported_feature_exception(
+					"OWL2 Parser Error: The parser doesn't support the InverseObjectProperty.",
+					"InverseObjectProperty");
 				break;
 			default:
 				throw parser_exception("OWL2 Parser Error: Expected ObjectProperty or InverseObjectProperty on Quantifier.");
@@ -709,5 +803,21 @@ namespace raccoon
 		node = node->firstChild;
 		return findSibling(node, tokenId);
 	}
+	
+	void Owl2::printUnsupportedFeatures()
+	{
+		auto it = this->unsupportedFeatures.begin();
+		if (it != this->unsupportedFeatures.end())
+		{
+			cout << *it;
+			++it;
+		}
+		while (it != this->unsupportedFeatures.end())
+		{
+			cout << ',' << *it;
+			++it;
+		}
+	}
+		
 }
 

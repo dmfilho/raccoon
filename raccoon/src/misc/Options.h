@@ -37,9 +37,11 @@ namespace raccoon
 {
 	enum OptionCmd {
 		invalid_command,
-		classification,
-		consistency,
-		realization
+		classification,  //< Classify the concepts of the ontology in an hierarchy
+		consistency,     //< Check the consistency of the ontology
+		realization,     //< Realize the classes of every instance of the ontology
+		info,            //< Display information about the ontology
+		matrix           //< Display the parsed ontology in matrix form
 	};
 		
 	class Options 
@@ -51,6 +53,7 @@ namespace raccoon
 		OptionCmd command;
 		bool writeGetSymbolNameMethod;
 		bool valid;
+		bool quiet;
 		Options(int argc, char* argv[]);
 		virtual ~Options();
 

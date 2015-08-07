@@ -48,36 +48,87 @@ int main(int argc, char* argv[])
 	Owl2 owl2;
 	Ontology ontology;
 	ClauseSet clauseSet;
-	time_t before;
+	time_t before = 0;
 	
 	if (options.valid)
 	{
-		cout << "Parsing Ontology..." << flush;
-		before = time(NULL);
+		if (!options.quiet) 
+		{
+			cout << "Parsing Ontology..." << flush;
+			before = time(NULL);
+		}
 		parse_result* pr = OWL2_parse_file((char*)options.inputFileName->c_str());
-		cout << (time(NULL) - before) <<  "secs" << endl;
-		cout << "Normalizing Ontology..." << flush;
-		before = time(NULL);
+		if (!options.quiet)
+		{
+			cout << (time(NULL) - before) <<  "secs" << endl;
+			cout << "Normalizing Ontology..." << flush;
+			before = time(NULL);
+		}
 		owl2.parse(pr, &ontology, &clauseSet, true);
-		cout << (time(NULL) - before) <<  "secs" << endl;
-		cout << "--------------------------------------" << endl;
-		cout << "Concepts: " << ontology.concepts.size() << " (" << ontology.conceptCount - ontology.newConceptCount << 
-				" + " <<  ontology.newConceptCount << " new)" << endl;
-		cout << "Roles: " << ontology.roles.size() << endl;
-		cout << "Instances: " << ontology.instances.size() << endl;
-		cout << "Matrix Clauses: " << clauseSet.size() << endl;
-		cout << "--------------------------------------" << endl << endl;
-		cout << "Reasoning..." << flush;
-		before = time(NULL);
-		FreitasMelo reasoner(&clauseSet);
-		if (reasoner.consistency(&ontology))
+		if (!options.quiet)
 		{
-			cout << "true" << endl;
+			cout << (time(NULL) - before) <<  "secs"                                                     "\n"
+			     << "--------------------------------------"                                             "\n"
+			     << "Concepts: " << ontology.concepts.size() << " (" << ontology.conceptCount - ontology.newConceptCount << 
+					" + " <<  ontology.newConceptCount << " new)"                                        "\n"
+			     << "Roles: " << ontology.roles.size() <<                                                "\n"
+			     << "Instances: " << ontology.instances.size() <<                                        "\n"
+			     << "Axioms: " << (owl2.tboxCount() + owl2.aboxCount()) <<                               "\n"
+			     << "TBox: " << owl2.tboxCount() <<                                                      "\n"
+			     << "ABox: " << owl2.aboxCount() <<                                                      "\n"
+			     << "Declarations: " << owl2.declarationCount() <<                                       "\n"
+			     << "Annotations: " << owl2.annotationCount() <<                                         "\n"
+			     << "Matrix Clauses: " << clauseSet.size() <<                                            "\n"
+			     << "Unsupported Features: ";
+			owl2.printUnsupportedFeatures();
+			cout << endl
+			     << "--------------------------------------" << endl << endl;
+			before = time(NULL);
 		}
-		else
+		switch (options.command)
 		{
-			cout << "false" << endl;
+			case OptionCmd::info:
+			{
+				return 0;
+			}
+			case OptionCmd::realization:
+			{
+				cout << "The realization is not implemented yet." << endl;
+				return 1;
+			}
+			case OptionCmd::classification:
+			{
+				cout << "The classification is not implemented yet." << endl;
+				return 1;
+			}
+			case OptionCmd::consistency:
+			{
+				FreitasMelo reasoner(&clauseSet);
+				if (reasoner.consistency(&ontology))
+				{
+					cout << "true" << endl;
+				}
+				else
+				{
+					cout << "false" << endl;
+				}
+				if (!options.quiet)
+				{
+					cout << (time(NULL) - before) <<  "secs" << endl << flush;
+				}
+				return 0;
+			}
+			case OptionCmd::matrix:
+			{
+				cout << "Note: the matrix is transposed.\n";
+				clauseSet.printClauses();
+				return 0;
+			}
+			case OptionCmd::invalid_command:
+			{
+				cout << "Invalid command." << endl;
+				return 1;
+			}
 		}
-		cout << (time(NULL) - before) <<  "secs" << endl << flush;
 	}
 }

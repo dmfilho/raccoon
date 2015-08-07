@@ -81,7 +81,7 @@ namespace raccoon
 	bool ConceptRealization::complementOf(ILiteralRealization* L)
 	{
 		return (
-			L->type() == ConceptRealization::TYPE &&									// if they are both concepts 
+			L->type() == ConceptRealization::TYPE &&								// if they are both concepts 
 			reinterpret_cast<ConceptRealization*>(L)->concept == this->concept &&	// if their conceptIDs are the same
 			reinterpret_cast<ConceptRealization*>(L)->neg != this->neg				// one is neg'd and the other isn't
 		);
@@ -94,7 +94,7 @@ namespace raccoon
 	bool ConceptRealization::equivalentTo(ILiteralRealization* L)
 	{
 		return (
-			L->type() == ConceptRealization::TYPE &&									// if they are both concepts
+			L->type() == ConceptRealization::TYPE &&								// if they are both concepts
 			reinterpret_cast<ConceptRealization*>(L)->concept == this->concept &&	// if their conceptiDs are the same
 			reinterpret_cast<ConceptRealization*>(L)->neg == this->neg				// both are neg'd or both aren't
 		);

@@ -26,6 +26,7 @@
  * This file contains the implementation of the Clause class.
  */
 
+#include <iostream>
 #include "Clause.h"
 
 namespace raccoon
@@ -33,7 +34,27 @@ namespace raccoon
 	
 	bool Clause::contains(unsigned int id, bool negated)
 	{
-		// TODO
+		for (ConceptRealization* concept: this->concepts)
+		{
+			if (concept->concept.id() == id)
+			{
+				return true;
+			}
+		}
+		for (RoleRealization* role: this->roles)
+		{
+			if (role->role.id() == id)
+			{
+				return true;
+			}
+		}
+		for (UniversalRealization* universal: this->universals)
+		{
+			if (universal->concept.concept.id() == id || universal->role.role.id() == id)
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 	
@@ -51,6 +72,57 @@ namespace raccoon
 		{
 			universal->concept.neg = !universal->concept.neg;
 			universal->role.neg = !universal->role.neg;
+		}
+	}
+	
+	void Clause::print()
+	{
+		for (auto concept: this->concepts)
+		{
+			if (concept->neg) 
+			{
+				cout << '-';
+			}
+			cout << concept->concept.name();
+			if (this->values.size() > 0)
+			{
+				cout << "(" << this->values[0]->name << ")";
+			}
+			cout << ", ";
+		}
+		for (auto role: this->roles)
+		{
+			if (role->neg)
+			{
+				cout << '-';
+			}
+			cout << role->role.name();
+			if (this->values.size() > 0)
+			{
+				cout << "(" << this->values[0]->name;
+				if (this->values.size() > 1)
+				{
+					cout << "," << this->values[1]->name << ")";
+				}
+				else
+				{
+					cout << ",?)";
+				}
+			}
+		}
+		for (auto universal: this->universals)
+		{
+			cout << '[';
+			if (universal->concept.neg)
+			{
+				cout << '-';
+			}
+			cout << universal->concept.concept.name() << " | ";
+			if (universal->role.neg)
+			{
+				cout << '-';
+			}
+			cout << universal->role.role.name() << "], ";
 		}
 	}
 	

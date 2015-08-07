@@ -100,6 +100,13 @@ namespace raccoon
 		 */
 		inline void add(ConceptRealization* cr, bool newvar = false)
 		{
+			// Do not add !Thing nor Nothing since they don't change the value of disjunctions.
+			if ((cr->concept.name() == "owl:Thing" && cr->neg == true) ||
+			   (cr->concept.name() == "owl:Nothing" && cr->neg == false))
+			{
+				delete cr;
+				return;
+			}			   
 			this->concepts.push_back(cr);
 			if (newvar)
 			{
@@ -129,6 +136,11 @@ namespace raccoon
 			ur->role.var2 = var2;
 			values.push_back(nullptr);
 		}
+		
+		/**
+		 * \brief Prints the clause in a user friendly form, horizontally.
+		 */
+		void print();
 		
 		/**
 		 * Constructor

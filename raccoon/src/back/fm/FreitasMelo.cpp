@@ -41,24 +41,11 @@ namespace raccoon
 {
 	bool FreitasMelo::consistency(Ontology* ontology)
 	{
-		for (auto concept: ontology->conceptsById)
+		for (Clause* clause: *kb)
 		{
-			if (concept.second->original)
+			if (this->prove(clause))
 			{
-				
-				ConnectionList* connList = kb->getConnections(concept.first, false);
-				for (Clause* conn: *connList)
-				{
-					if (conn->ignore)
-					{
-						continue;
-					}
-					if (this->prove(conn))
-					{
-						return false;
-					}
-					conn->ignore = true;
-				}				
+				return false;
 			}
 		}
 		return true;

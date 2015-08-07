@@ -7,6 +7,10 @@ language:
   type: 'LL(*)'
 
 classes:
+  # INVALID CHARACTER REPLACEMENT
+  -
+    name: INVCHAR
+    regex: '[\uFFFD]'
   # ALPHABETIC CHARACTERS
   -
     name: ALPHA
@@ -20,14 +24,14 @@ classes:
   # \u00F7 is the division sign (skipped)
   -
     name: LATIN_EXTRA
-    regex: '[\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF]'         
+    regex: '[\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF:INVCHAR:]'         
   # Greek, Coptic, Cyrillic, Armenian, Hebrew, Arabic, Syriac, Thaana, Nko, Samaritan, Mandaic, Devanagari, Bengali,
   # Gurmukhi, Gujarati, Oriya, Tamil, Telugu, Kannada, Malayalam, Sinhala, Thai, Lao, Tibetan, Myanmar, Georgian,
   # Hangul, Ethiopic, Cherokee, Canadian Syllabics.
   # Except for the greek question mark which is a semicolon.
   -
     name: EXTRA_LANGS
-    regex: '[\u0370-\u037D\u037F-\u1FFF]'
+    regex: '[\u0370-\u037D\u037F-\u1FFF:INVCHAR:]'
   # Misc symbols and extra languages
   - 
     name: EXTRA_MISC
@@ -43,15 +47,15 @@ classes:
   # SPARQL PN_CHARS
   -
     name: PN_CHARS
-    regex: '[:PN_CHARS_U:\-0-9\u00B7\u0300-\u036F\u203F\u2040]'
+    regex: '[:PN_CHARS_U:\-0-9\u00B7\u0300-\u036F\u203F\u2040:INVCHAR:]'
   # RFC3987 UCSCHAR
   -
     name: UCSCHAR
-    regex: '[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\U00010000-\U0001FFFD\U00020000-\U0002FFFD\U00030000-\U0003FFFD\U00040000-\U0004FFFD\U00050000-\U0005FFFD\U00060000-\U0006FFFD\U00070000-\U0007FFFD\U00080000-\U0008FFFD\U00090000-\U0009FFFD\U000A0000-\U000AFFFD\U000B0000-\U000BFFFD\U000C0000-\U000CFFFD\U000D0000-\U000DFFFD\U000E0000-\U000EFFFD]'
+    regex: '[:INVCHAR:\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\U00010000-\U0001FFFD\U00020000-\U0002FFFD\U00030000-\U0003FFFD\U00040000-\U0004FFFD\U00050000-\U0005FFFD\U00060000-\U0006FFFD\U00070000-\U0007FFFD\U00080000-\U0008FFFD\U00090000-\U0009FFFD\U000A0000-\U000AFFFD\U000B0000-\U000BFFFD\U000C0000-\U000CFFFD\U000D0000-\U000DFFFD\U000E0000-\U000EFFFD]'
   # RFC3987 IPRIVATE
   -
     name: IPRIVATE
-    regex: '[\uE000-\uF8FF\U000F0000-\U000FFFFD\U00100000-\U0010FFFD]'
+    regex: '[:INVCHAR:\uE000-\uF8FF\U000F0000-\U000FFFFD\U00100000-\U0010FFFD]'
   # RFC3987 IUNRESERVED
   -
     name: IUNRESERVED
@@ -107,11 +111,11 @@ tokens:
   # Equivalent to SPARQL PNAME_NS definition
   -
     name: PREFIXNAME
-    regex: '([:PN_CHARS_BASE:]([:PN_CHARS:.]*[:PN_CHARS:]))?:'
+    regex: '([:PN_CHARS_BASE:]([:PN_CHARS:.]*[:PN_CHARS:])?)?:'
   # RFC3987 IRI definition as a single regular expression
   -
     name: FULLIRI
-    regex: '<[:ALPHA:][:ALPHANUM:+.\-]*:(//(([:IUNRESERVED::SUBDELIMS:\:]|%[:HEX:]{2})*@)?(\[(([:HEX:]{1,4}:){6}([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|::([:HEX:]{1,4}:){5}([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|([:HEX:]{1,4})?::([:HEX:]{1,4}:){4}([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(([:HEX:]{1,4}:){0,1}([:HEX:]{1,4}))?::([:HEX:]{1,4}:){3}([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(([:HEX:]{1,4}:){0,2}([:HEX:]{1,4}))?::([:HEX:]{1,4}:){2}([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(([:HEX:]{1,4}:){0,3}([:HEX:]{1,4}))?::[:HEX:]{1,4}:([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(([:HEX:]{1,4}:){0,4}([:HEX:]{1,4}))?::([:HEX:]{1,4}:[:HEX:]{1,4}|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(([:HEX:]{1,4}:){0,5}([:HEX:]{1,4}))?::[:HEX:]{1,4}|(([:HEX:]{1,6}:){0,1}([:HEX:]{1,4}))?::|v[:HEX:]+\.[:ALPHANUM::SUBDELIMS:._~-\:]+)\]|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|([:IUNRESERVED::SUBDELIMS:]|%[:HEX:]{2})*)(:[0-9]*)?(/([:IPCHAR0:]|%[:HEX:]{2})*)*|/(([:IPCHAR0:]|%[:HEX:]{2})+(/([:IPCHAR0:]|%[:HEX:]{2})*)*)?|([:IPCHAR0:]|%[:HEX:]{2})+(/([:IPCHAR0:]|%[:HEX:]{2})*)*)?(\?([:IPCHAR0::IPRIVATE:/?]|%[:HEX:]{2})*)?(#([:IPCHAR0:/?]|%[:HEX:]{2})*)?>'
+    regex: '<[:ALPHA:][:ALPHANUM:+.\-]*:(//(([:IUNRESERVED::SUBDELIMS:\:]|%[:HEX:]{2})*@)?(\[(([:HEX:]{1,4}:){6}([:HEX:]{1,4}:[:HEX:]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)[.]){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d))|::([:HEX:]{1,4}:){5}([:HEX:]{1,4}:[:HEX:]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)[.]){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d))|([:HEX:]{1,4})?::([:HEX:]{1,4}:){4}([:HEX:]{1,4}:[:HEX:]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)[.]){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d))|(([:HEX:]{1,4}:){0,1}([:HEX:]{1,4}))?::([:HEX:]{1,4}:){3}([:HEX:]{1,4}:[:HEX:]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)[.]){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d))|(([:HEX:]{1,4}:){0,2}([:HEX:]{1,4}))?::([:HEX:]{1,4}:){2}([:HEX:]{1,4}:[:HEX:]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)[.]){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d))|(([:HEX:]{1,4}:){0,3}([:HEX:]{1,4}))?::[:HEX:]{1,4}:([:HEX:]{1,4}:[:HEX:]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)[.]){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d))|(([:HEX:]{1,4}:){0,4}([:HEX:]{1,4}))?::([:HEX:]{1,4}:[:HEX:]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)[.]){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d))|(([:HEX:]{1,4}:){0,5}([:HEX:]{1,4}))?::[:HEX:]{1,4}|(([:HEX:]{1,6}:){0,1}([:HEX:]{1,4}))?::|v[:HEX:]+\.[:ALPHANUM::SUBDELIMS:._~-\:]+)\]|((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)[.]){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)|([:IUNRESERVED::SUBDELIMS:]|%[:HEX:]{2})*)(:[0-9]*)?(/([:IPCHAR0:]|%[:HEX:]{2})*)*|/(([:IPCHAR0:]|%[:HEX:]{2})+(/([:IPCHAR0:]|%[:HEX:]{2})*)*)?|([:IPCHAR0:]|%[:HEX:]{2})+(/([:IPCHAR0:]|%[:HEX:]{2})*)*)?(\?([:IPCHAR0::IPRIVATE:/?]|%[:HEX:]{2})*)?(#([:IPCHAR0:/?]|%[:HEX:]{2})*)?>'
   -
     name: ANNOTATIONASSERTION
     regex: 'AnnotationAssertion'
@@ -343,8 +347,7 @@ grammar:
     - FULLIRI            
     - ''              
   - versionIRI:            
-    - FULLIRI            
-    - ''              
+    - FULLIRI        
   - directlyImportsDocuments:    
     - IMPORT LPAR IRI RPAR directlyImportsDocuments
     - IMPORT LPAR IRI RPAR    
@@ -454,9 +457,9 @@ grammar:
     - SUBCLASSOF LPAR axiomAnnotations subClassExpression superClassExpression RPAR 
   - subClassExpression:            
     - ClassExpression             
-  - superClassExpression:           
-    - ClassExpression             
-  - EquivalentClasses:            
+  - superClassExpression:
+    - ClassExpression
+  - EquivalentClasses:
     - EQUIVALENTCLASSES LPAR axiomAnnotations ClassExpression ClassExpression ClassExpressionList RPAR 
   - ClassExpressionList:           
     - ClassExpression ClassExpressionList   
@@ -484,9 +487,9 @@ grammar:
   - DisjointClasses:        
     - DISJOINTCLASSES LPAR axiomAnnotations ClassExpression ClassExpression ClassExpressionList RPAR 
   - DisjointUnion:        
-    - DISJOINTUNION LPAR axiomAnnotations Class disjointClassExpressions 
+    - DISJOINTUNION LPAR axiomAnnotations Class disjointClassExpressions RPAR
   - SubObjectPropertyOf: 
-    - SUBOBJECTPROPERTYOF LPAR axiomAnnotations subObjectPropertyExpression superObjectPropertyExpression 
+    - SUBOBJECTPROPERTYOF LPAR axiomAnnotations subObjectPropertyExpression superObjectPropertyExpression RPAR
   - EquivalentObjectProperties: 
     - EQUIVALENTOBJECTPROPERTIES LPAR axiomAnnotations ObjectPropertyExpression ObjectPropertyExpression ObjectPropertyExpressionList RPAR 
   - DisjointObjectProperties: 
@@ -577,7 +580,7 @@ grammar:
   - ObjectUnionOf: 
     - OBJECTUNIONOF LPAR ClassExpression ClassExpression ClassExpressionList RPAR 
   - ObjectComplementOf: 
-    - OBJECTCOMPLEMENTOF LPAR ClassExpressionList RPAR 
+    - OBJECTCOMPLEMENTOF LPAR ClassExpression RPAR 
   - ObjectOneOf:  
     - OBJECTONEOF LPAR Individual IndividualList RPAR 
   - ObjectSomeValuesFrom: 
@@ -622,7 +625,7 @@ grammar:
   - superObjectPropertyExpression: 
     - ObjectPropertyExpression 
   - ObjectPropertyExpression: 
-    - ObjectProperty          
+    - ObjectProperty
     - InverseObjectProperty 
   - InverseObjectProperty: 
     - OBJECTINVERSEOF LPAR ObjectProperty RPAR 

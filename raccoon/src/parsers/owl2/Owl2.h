@@ -35,6 +35,7 @@
 // STL
 #include <string>
 #include <vector>
+#include <unordered_set>
 // raccoon
 #include "../../ir/Ontology.h"
 #include "../../ir/Clause.h"
@@ -47,10 +48,19 @@ namespace raccoon
 	class Owl2
 	{
 	private:
-		Ontology* ontology;
-		ClauseSet* clauseSet;
+		Ontology* ontology;		//< The ontology object being used on the parsing
+		ClauseSet* clauseSet;		//< The clauseset object being used on the parsing
 		ast_node* unionNode;		//< a fixed ObjectUnionOf node to be used on the parsing of DisjointUnion
+		unsigned int _declarationCount;
+		unsigned int _classAxiomCount;
+		unsigned int _objectPropertyAxiomCount;
+		unsigned int _dataPropertyAxiomCount;
+		unsigned int _datatypeDefinitionCount;
+		unsigned int _hasKeyCount;
+		unsigned int _assertionCount;
+		unsigned int _annotationCount;
 	public:
+		unordered_set<string> unsupportedFeatures; //< A list of unsupported features found during the parse.
 		Owl2();
 		~Owl2();
 		void parseString(string& data, Ontology* ontology, ClauseSet* clauseSet, bool neg);
@@ -80,7 +90,58 @@ namespace raccoon
 		Instance* getIndividualInstance(ast_node* individual);
 		ast_node* findSibling(ast_node* node, int tokenId);
 		ast_node* findChild(ast_node* node, int tokenId);
-
+		
+		inline unsigned int tboxCount() 
+		{
+			return 
+				this->_classAxiomCount + 
+				this->_objectPropertyAxiomCount +
+				this->_dataPropertyAxiomCount +
+				this->_datatypeDefinitionCount +
+				this->_hasKeyCount;
+		}
+		
+		inline unsigned int aboxCount()
+		{
+			return this->_assertionCount;
+		}
+		
+		inline unsigned int declarationCount()
+		{
+			return this->_declarationCount;
+		}
+		
+		inline unsigned int classAxiomCount()
+		{
+			return this->_classAxiomCount;
+		}
+		
+		inline unsigned int objectPropertyAxiomCount()
+		{
+			return this->_objectPropertyAxiomCount;
+		}
+		
+		inline unsigned int dataPropertyAxiomCount()
+		{
+			return this->_dataPropertyAxiomCount;
+		}
+		
+		inline unsigned int datatypeDefinitionCount()
+		{
+			return this->_datatypeDefinitionCount;
+		}
+		
+		inline unsigned int hasKeyCount()
+		{
+			return this->_hasKeyCount;
+		}
+		
+		inline unsigned int annotationCount()
+		{
+			return this->_annotationCount;
+		}			
+		
+		void printUnsupportedFeatures();
 	};
 }
 

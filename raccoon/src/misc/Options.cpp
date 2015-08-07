@@ -39,12 +39,13 @@ using namespace std;
 namespace raccoon 
 {
 	struct option Options::long_options[] = {
-		{"help",	no_argument,		0,	'h'},
-		{"input",	required_argument,	0,	'i'},
-		{"version",	no_argument,		0,	0},
-		{"warranty",no_argument,		0,	0},
-		{"command", required_argument,	0,	'c'},
-		{0,			0,					0,	0}
+		{"help",    no_argument,       0, 'h'},
+		{"input",   required_argument, 0, 'i'},
+		{"version", no_argument,       0,  0},
+		{"warranty",no_argument,       0,  0},
+		{"command", required_argument, 0, 'c'},
+		{"quiet",   no_argument,       0, 'q'},
+		{0,	        0,                 0,  0}
 	};
 	
 	Options::Options(int argc, char* argv[])
@@ -89,12 +90,23 @@ namespace raccoon
 				{
 					this->command = OptionCmd::realization;
 				}
+				else if (strcmp(optarg, "info") == 0)
+				{
+					this->command = OptionCmd::info;
+				}
+				else if (strcmp(optarg, "matrix") == 0)
+				{
+					this->command = OptionCmd::matrix;
+				}
 				else 
 				{
 					cout << "Unknown command '" << optarg << "'." << endl;
 					this->printHelp();
 					return;
 				}
+				break;
+			case 'q': // quiet
+				this->quiet = true;
 				break;
 			case '?': // something is wrong
 				if (optopt == 'i') 
@@ -134,7 +146,10 @@ namespace raccoon
 		"                          CMD can be one of the following:\n"
 		"                          * consistency\n"
 		"                          * classification\n"
-		"                          * realization\n\n"
+		"                          * realization\n"
+		"                          * info\n"
+		"                          * matrix\n\n"
+		"  -q, --quiet             Do not display any information but the result itself.\n"
 		"      --version           display the program's version information.\n\n";		
 		this->valid = false;
 	}

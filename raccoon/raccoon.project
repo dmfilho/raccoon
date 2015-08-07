@@ -79,6 +79,7 @@
     </VirtualDirectory>
     <VirtualDirectory Name="exceptions">
       <File Name="src/exceptions/parser_exception.h"/>
+      <File Name="src/exceptions/unsupported_feature_exception.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="test">
       <File Name="src/test/main.cpp" ExcludeProjConfig="Debug;Release"/>

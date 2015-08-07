@@ -52,36 +52,7 @@ namespace raccoon
 	{
 		for (auto c: this->clauses)
 		{
-			for (auto concept: c->concepts)
-			{
-				if (concept->neg) 
-				{
-					cout << '-';
-				}
-				cout << concept->concept.name() << ", ";
-			}
-			for (auto role: c->roles)
-			{
-				if (role->neg)
-				{
-					cout << '-';
-				}
-				cout << role->role.name();
-			}
-			for (auto universal: c->universals)
-			{
-				cout << '[';
-				if (universal->concept.neg)
-				{
-					cout << '-';
-				}
-				cout << universal->concept.concept.name() << " | ";
-				if (universal->role.neg)
-				{
-					cout << '-';
-				}
-				cout << universal->role.role.name() << "], ";
-			}
+			c->print();
 			cout << endl;
 		}	
 		cout << flush;
