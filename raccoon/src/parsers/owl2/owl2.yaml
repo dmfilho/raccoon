@@ -104,7 +104,7 @@ tokens:
   # The ABBREVIATEDIRI is equivalent to the SPARQL PNAME_LN definition
   -
     name: ABBREVIATEDIRI
-    regex: '[:PN_CHARS_BASE:]([:PN_CHARS:.]*[:PN_CHARS:])?:[:PN_CHARS_U:0-9]([:PN_CHARS:.]*[:PN_CHARS:])?'
+    regex: '([:PN_CHARS_BASE:]([:PN_CHARS:.]*[:PN_CHARS:])?)?:[:PN_CHARS_U:0-9]([:PN_CHARS:.]*[:PN_CHARS:])?'
   -
     name: NODEID
     regex: '_\:[:PN_CHARS_U:0-9]([:PN_CHARS:.]*[:PN_CHARS:])?'
