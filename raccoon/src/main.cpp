@@ -67,6 +67,10 @@ int main(int argc, char* argv[])
 			gettimeofday(&before, NULL);
 		}
 		parse_result* pr = OWL2_parse_file((char*)options.inputFileName->c_str());
+		if (pr == nullptr)
+		{
+			return 1;
+		}
 		if (!options.quiet)
 		{
 			cout << "OK [" << msecdiff(&before) <<  " ms]" << endl;
