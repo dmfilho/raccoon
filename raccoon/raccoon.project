@@ -83,7 +83,7 @@
       <File Name="src/test/main.cpp" ExcludeProjConfig="Debug;Release"/>
       <File Name="src/test/test_parsers_owl2p.cpp" ExcludeProjConfig="Debug;Release;Test"/>
       <File Name="src/test/test_parsers_owl2c.cpp" ExcludeProjConfig="Debug;Release;Test"/>
-      <File Name="src/test/test_reasoner_CMALCr_consistency.cpp"/>
+      <File Name="src/test/test_reasoner_CMALCr_consistency.cpp" ExcludeProjConfig="Debug;Release;Test"/>
     </VirtualDirectory>
     <File Name="src/main.cpp" ExcludeProjConfig="Test"/>
     <VirtualDirectory Name="misc">

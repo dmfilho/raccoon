@@ -14,6 +14,7 @@ extern "C" {
 #include "../back/CMALCr.h"
 
 using namespace std;
+using namespace raccoon;
 
 /**
  * \brief Test Acyclic TBox Inconsistency.
