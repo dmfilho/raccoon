@@ -124,5 +124,17 @@ namespace raccoon
 			cout << values[this->var]->name << ')';
 		}
 	}
+	
+	/**
+	 * Prints the concept and its sign.
+	 */
+	void ConceptRealization::print()
+	{
+		if (this->neg)
+		{
+			cout << '-';
+		}
+		cout << this->concept.name();
+	}
 }
 

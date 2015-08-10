@@ -108,7 +108,18 @@ namespace raccoon
 		this->concept.print(values);
 		cout << "]";
 	}
-
+	
+	/**
+	 * Prints the role, the concept and their sign.
+	 */
+	void UniversalRealization::print()
+	{
+		cout << '[';
+		this->role.print();
+		cout << " | ";
+		this->concept.print();
+		cout << "]";
+	}
 
 }
 

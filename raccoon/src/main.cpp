@@ -38,36 +38,45 @@ extern "C" {
 #include "misc/Options.h"
 // STL
 #include <iostream>
-#include <ctime>
+#include <sys/time.h>
 
 using namespace std;
 using namespace raccoon;
+
+double msecdiff(struct timeval *before)
+{
+	struct timeval now;
+	gettimeofday(&now, NULL);
+	return (double)(now.tv_sec - before->tv_sec) * 1000.0f +
+	       (double)(now.tv_usec - before->tv_usec) / 1000.0f;
+}
+
 int main(int argc, char* argv[])
 {
 	Options options(argc, argv);
 	Owl2 owl2;
 	Ontology ontology;
 	ClauseSet clauseSet;
-	time_t before = 0;
+	struct timeval before;
 	
 	if (options.valid)
 	{
 		if (!options.quiet) 
 		{
 			cout << "Parsing Ontology..." << flush;
-			before = time(NULL);
+			gettimeofday(&before, NULL);
 		}
 		parse_result* pr = OWL2_parse_file((char*)options.inputFileName->c_str());
 		if (!options.quiet)
 		{
-			cout << (time(NULL) - before) <<  "secs" << endl;
+			cout << "OK [" << msecdiff(&before) <<  " ms]" << endl;
 			cout << "Normalizing Ontology..." << flush;
-			before = time(NULL);
+			gettimeofday(&before, NULL);
 		}
 		owl2.parse(pr, &ontology, &clauseSet, true);
 		if (!options.quiet)
 		{
-			cout << (time(NULL) - before) <<  "secs"                                                     "\n"
+			cout << "OK [" << msecdiff(&before) <<  " ms]"                                               "\n"
 			     << "--------------------------------------"                                             "\n"
 			     << "Concepts: " << ontology.concepts.size() << " (" << ontology.conceptCount - ontology.newConceptCount << 
 					" + " <<  ontology.newConceptCount << " new)"                                        "\n"
@@ -83,7 +92,7 @@ int main(int argc, char* argv[])
 			owl2.printUnsupportedFeatures();
 			cout << endl
 			     << "--------------------------------------" << endl << endl;
-			before = time(NULL);
+			gettimeofday(&before, NULL);
 		}
 		switch (options.command)
 		{
@@ -106,18 +115,23 @@ int main(int argc, char* argv[])
 			case OptionCmd::consistency:
 			{
 				CMALCr reasoner(&clauseSet);
+				if (!options.quiet)
+				{
+					cout << "Checking Consistency..." << flush;
+				}
 				if (reasoner.consistency(&ontology))
 				{
-					cout << "true" << endl;
+					cout << "true";
 				}
 				else
 				{
-					cout << "false" << endl;
+					cout << "false";
 				}
 				if (!options.quiet)
 				{
-					cout << (time(NULL) - before) <<  "secs" << endl << flush;
+					cout << " [" << msecdiff(&before) <<  " ms]";
 				}
+				cout << endl << flush;
 				return 0;
 			}
 			case OptionCmd::matrix:

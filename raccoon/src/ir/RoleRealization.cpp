@@ -123,5 +123,17 @@ namespace raccoon
 		}
 	}
 	
+	/**
+	 * Prints the role and its sign.
+	 */
+	void RoleRealization::print()
+	{
+		if (this->neg)
+		{
+			cout << '-';
+		}
+		cout << this->role.name();
+	}
+	
 }
 

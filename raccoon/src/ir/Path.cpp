@@ -26,6 +26,9 @@
  * This file contains the implementation of the Path class.
  */
 
+// stl
+#include <iostream>
+// raccoon
 #include "Path.h"
 
 namespace raccoon
@@ -78,6 +81,18 @@ namespace raccoon
 	void Path::pop()
 	{
 		this->items.pop_back();
+	}
+	
+	/**
+	 * \brief Prints the full path.
+	 */
+	void Path::print()
+	{
+		for (ILiteralRealization* plit: this->items)
+		{
+			plit->print();
+			cout << ", ";
+		}
 	}
 	
 	/**

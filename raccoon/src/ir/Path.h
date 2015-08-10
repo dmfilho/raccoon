@@ -76,6 +76,11 @@ namespace raccoon
 		void pop();
 		
 		/**
+		 * Print the current path.
+		 */
+		void print();
+		
+		/**
 		 * Constructor. Currently does nothing.
 		 */
 		Path();

@@ -56,7 +56,7 @@ namespace raccoon
 	{
 		int c;
 		int opt_index;
-		while ((c = getopt_long(argc, argv, "i:hc:", long_options, &opt_index)) != -1) 
+		while ((c = getopt_long(argc, argv, "i:hc:q", long_options, &opt_index)) != -1) 
 		{
 			switch (c) 
 			{

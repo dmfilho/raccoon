@@ -77,7 +77,6 @@ namespace raccoon
 	
 	void Clause::print()
 	{
-		cout << "(" << this->values.size() << ")  ";
 		for (auto concept: this->concepts)
 		{
 			concept->print(this->values);

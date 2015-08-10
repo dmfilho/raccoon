@@ -66,6 +66,11 @@ namespace raccoon
 		virtual void print(std::vector<Instance*>& values) = 0;
 		
 		/**
+		 * Prints the literal realization (without its variables) accordingly.
+		 */
+		virtual void print() = 0;
+		
+		/**
 		 * Destructor. Currently does nothing.
 		 */
 		virtual ~ILiteralRealization();

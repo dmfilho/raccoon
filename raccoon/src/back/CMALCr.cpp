@@ -27,6 +27,7 @@
  */
 
 // raccoon
+#include "../misc/debug.h"
 #include "CMALCr.h"
 #include "../ir/ConnectionList.h"
 #include "../ir/ConceptRealization.h"
@@ -43,6 +44,8 @@ namespace raccoon
 	{
 		for (Clause* clause: *kb)
 		{
+			printd("\n# CMALC::consistency start clause: ");
+			calld(clause->print());
 			if (this->prove(clause))
 			{
 				return false;
@@ -104,6 +107,10 @@ namespace raccoon
 			{
 				continue;
 			}
+			printd("\n# CMALCr::connect ");
+			calld(lit->print());
+			printd(" try clause: ");
+			calld(conn->print());
 			// Try to connect
 			if (this->prove(conn))
 			{ 
@@ -118,9 +125,15 @@ namespace raccoon
 	
 	bool CMALCr::prove(Clause* objective)
 	{
+		calld(static int level = 0);
+		printd("\n# CMALCr::prove Depth: (%d) ###  Obj: ", ++level);
+		calld(objective->print());
+		printd(" ### Path: ");
+		calld(this->path.print());
 		// Check for regularity cases
 		if (this->regularity(objective))
 		{
+			calld(--level);
 			return false;
 		}
 		// Prove each concept (connect each concept) of the clause
@@ -134,6 +147,8 @@ namespace raccoon
 			// If it isn't proved already, try to prove each possible connection.
 			if (!this->connect(C, C->concept.id(), C->neg))
 			{
+				printd("\n# CMALCr::prove FAIL");
+				calld(--level);
 				return false;
 			}
 		}
@@ -148,6 +163,8 @@ namespace raccoon
 			// If it isn't proved already, try to prove each possible connection.
 			if (!this->connect(R, R->role.id(), R->neg))
 			{
+				printd("\n# CMALCr::prove FAIL");
+				calld(--level);
 				return false;
 			}
 		}
@@ -163,10 +180,14 @@ namespace raccoon
 			if (!this->connect(&U->concept, U->concept.concept.id(), U->concept.neg) &&
 				!this->connect(&U->role, U->role.role.id(), U->role.neg))
 			{
+				printd("\n# CMALCr::prove FAIL");
+				calld(--level);
 				return false;
 			}
 		}
 		// If the code reached this point, everything was proved for this clause
+		printd("\n# CMALCr::prove SUCCESS");
+		calld(--level);
 		return true;
 	}
 	

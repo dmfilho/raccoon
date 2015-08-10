@@ -95,6 +95,11 @@ namespace raccoon
 		 * Prints the role, its sign and variable, and the concept, its sign and variable.
 		 */
 		virtual void print(std::vector<Instance*>& values);
+		
+		/**
+		 * Prints the role, the concept and their sign.
+		 */
+		virtual void print();
 	};
 
 }

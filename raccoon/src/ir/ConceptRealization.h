@@ -113,6 +113,11 @@ namespace raccoon
 		 * Prints the concept, its sign and variable.
 		 */
 		virtual void print(std::vector<Instance*>& values);
+		
+		/**
+		 * Prints the concept and its sign.
+		 */
+		virtual void print();
 	};
 }
 
