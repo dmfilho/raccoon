@@ -1,0 +1,11 @@
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_inconsistency.owl>)
+Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_inconsistency.owl>
+	EquivalentClasses(:a :d)
+	EquivalentClasses(:b :e)
+	SubClassOf(:a ObjectComplementOf(:b))
+	SubClassOf(:c :d)
+	SubClassOf(ObjectComplementOf(:a) :c)
+	SubClassOf(:c :b)
+	SubClassOf(ObjectComplementOf(:e) :c)
+)

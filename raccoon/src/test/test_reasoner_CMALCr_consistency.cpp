@@ -6,7 +6,7 @@
 #include <unittest++/UnitTest++.h>
 // raccoon
 extern "C" {
-#include "../parsers/owl2/owl2_parser.h"
+	#include "../parsers/owl2/owl2_parser.h"
 }
 #include "../parsers/owl2/Owl2.h"
 #include "../ir/Ontology.h"
@@ -21,26 +21,15 @@ using namespace raccoon;
  */
 TEST(ReasonerCMALCr_AcyclicTBoxInconsistency)
 {
-	string strOntology(
-		"Prefix(owl:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_inconsistency.owl>)\n"
-		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_inconsistency.owl>\n"
-		" EquivalentClasses(:a :d)\n"
-		" EquivalentClasses(:b :e)\n"
-		" SubClassOf(:a ObjectComplementOf(:b))\n"
-		" SubClassOf(:c :d)\n"
-		" SubClassOf(ObjectComplementOf(:a) :c)\n"
-		" SubClassOf(:c :b)\n"
-		" SubClassOf(ObjectComplementOf(:e) :c)\n"
-		")\n"
-	);
 	Owl2 owl2;
 	Ontology ontology;
 	ClauseSet clauseSet;
-	parse_result* pr = OWL2_parse_string((char*)strOntology.c_str());
+	parse_result* pr = OWL2_parse_file("../../test/consistency/text_acyclic_tbox_inconsistency.owl");
+	CHECK(pr != NULL);
 	owl2.parse(pr, &ontology, &clauseSet, true);
 	CMALCr reasoner(&clauseSet);
 	CHECK(reasoner.consistency(&ontology) == false);
+	parse_result_free(pr);
 }
 
 /**
@@ -48,22 +37,47 @@ TEST(ReasonerCMALCr_AcyclicTBoxInconsistency)
  */
 TEST(ReasonerCMALCr_AcyclicTBoxAboxInconsistency)
 {
-	string strOntology(
-		"Prefix(owl:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_abox_inconsistency.owl>)\n"
-		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_abox_inconsistency.owl>\n"
-		" SubClassOf(:A :B)\n"
-		" ClassAssertion(:A :z)\n"
-		" ClassAssertion(ObjectComplementOf(:B) :z)\n"
-		")\n"
-	);
 	Owl2 owl2;
 	Ontology ontology;
 	ClauseSet clauseSet;
-	parse_result* pr = OWL2_parse_string((char*)strOntology.c_str());
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_acyclic_tbox_abox_inconsistency.owl");
+	CHECK(pr != NULL);
 	owl2.parse(pr, &ontology, &clauseSet, true);
 	CMALCr reasoner(&clauseSet);
 	CHECK(reasoner.consistency(&ontology) == false);
+	parse_result_free(pr);
+}
+
+/**
+ * \brief Test Cyclic Inconsistency.
+ */
+TEST(ReasonerCMALCr_CyclicInconsistency001)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	ClauseSet clauseSet;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_cyclic_inconsistency001.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &clauseSet, true);
+	CMALCr reasoner(&clauseSet);
+	CHECK(reasoner.consistency(&ontology) == false);
+	parse_result_free(pr);
+}
+
+/**
+ * \brief Test Cyclic Consistency.
+ */
+TEST(ReasonerCMALCr_CyclicConsistency001)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	ClauseSet clauseSet;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_cyclic_consistency001.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &clauseSet, true);
+	CMALCr reasoner(&clauseSet);
+	CHECK(reasoner.consistency(&ontology) == true);
+	parse_result_free(pr);
 }
 
 // TODO: More unit tests

@@ -1,0 +1,7 @@
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_abox_inconsistency.owl>)
+Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_abox_inconsistency.owl>
+	SubClassOf(:A :B)
+	ClassAssertion(:A :z)
+	ClassAssertion(ObjectComplementOf(:B) :z)
+)

@@ -35,8 +35,8 @@ void token_list_free(token_list* tokens);
 parse_result* parse_result_new();
 void parse_result_free(parse_result* pr);
 
-parse_result* OWL2_parse_file(char* fileName);
-parse_result* OWL2_parse_string(char* buffer);
+parse_result* OWL2_parse_file(const char* fileName);
+parse_result* OWL2_parse_string(const char* buffer);
 
 #define OWL2_IRI 1000000000
 #define OWL2_ontologyDocument 1000000001
