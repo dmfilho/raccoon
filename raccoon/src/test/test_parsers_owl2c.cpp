@@ -295,6 +295,9 @@ TEST(Owl2Conv_DisjointUnion)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the ObjectIntersectionOf
+ */
 TEST(Owl2Conv_ObjectIntersecitonOf)
 {
 	ClauseSet cs;
@@ -332,6 +335,9 @@ TEST(Owl2Conv_ObjectIntersecitonOf)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the the Negated ObjectIntersectionOf
+ */
 TEST(Owl2Conv_ObjectIntersecitonOf_Negated)
 {
 	ClauseSet cs;
@@ -373,6 +379,9 @@ TEST(Owl2Conv_ObjectIntersecitonOf_Negated)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the ObjectUnionOf
+ */
 TEST(Owl2Conv_ObjectUnionOf)
 {
 	ClauseSet cs;
@@ -399,6 +408,9 @@ TEST(Owl2Conv_ObjectUnionOf)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the Negated ObjectUnionOf
+ */
 TEST(Owl2Conv_ObjectUnionOf_Negated)
 {
 	ClauseSet cs;
@@ -427,6 +439,9 @@ TEST(Owl2Conv_ObjectUnionOf_Negated)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the ObjectComplementOf
+ */
 TEST(Owl2Conv_ObjectComplementOf)
 {
 	ClauseSet cs;
@@ -454,6 +469,9 @@ TEST(Owl2Conv_ObjectComplementOf)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the Negated ObjectComplementOf
+ */
 TEST(Owl2Conv_ObjectComplementOf_Negated)
 {
 	ClauseSet cs;
@@ -481,6 +499,9 @@ TEST(Owl2Conv_ObjectComplementOf_Negated)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the ObjectSomeValuesFrom
+ */
 TEST(Owl2Conv_ObjectSomeValuesFrom)
 {
 	ClauseSet cs;
@@ -501,6 +522,10 @@ TEST(Owl2Conv_ObjectSomeValuesFrom)
 	CHECK(cs.clauses.size() == 1);
 	CHECK(cs.clauses[0]->concepts.size() == 2);
 	CHECK(cs.clauses[0]->roles.size() == 1);
+	for (auto clause: ontology.clauseSet)
+	{
+		CHECK(clause->values.size() == 0);
+	}
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", true, 0));
 	CHECK(hasConcept(cs.clauses[0], "t:Class2", false, 1));
 	CHECK(hasRole(cs.clauses[0], "t:Role1", false, 0, 1));
@@ -509,6 +534,9 @@ TEST(Owl2Conv_ObjectSomeValuesFrom)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the Negated ObjectSomeValuesFrom
+ */
 TEST(Owl2Conv_ObjectSomeValuesFrom_Negated)
 {
 	ClauseSet cs;
@@ -529,6 +557,10 @@ TEST(Owl2Conv_ObjectSomeValuesFrom_Negated)
 	CHECK(cs.clauses.size() == 1);
 	CHECK(cs.clauses[0]->concepts.size() == 1);
 	CHECK(cs.clauses[0]->universals.size() == 1);
+	for (auto clause: ontology.clauseSet)
+	{
+		CHECK(clause->values.size() == 0);
+	}
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", false, 0));
 	CHECK(hasUniversal(cs.clauses[0], "t:Role1", "t:Class2", true, true, 0, 1));
 	CHECK(ontology.conceptCount == 2);
@@ -536,6 +568,9 @@ TEST(Owl2Conv_ObjectSomeValuesFrom_Negated)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the ObjectAllValuesFrom
+ */
 TEST(Owl2Conv_ObjectAllValuesFrom)
 {
 	ClauseSet cs;
@@ -563,6 +598,9 @@ TEST(Owl2Conv_ObjectAllValuesFrom)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the Negated ObjectAllValuesFrom
+ */
 TEST(Owl2Conv_ObjectAllValuesFrom_Negated)
 {
 	ClauseSet cs;
@@ -591,6 +629,9 @@ TEST(Owl2Conv_ObjectAllValuesFrom_Negated)
 	CHECK(ontology.instanceCount == 0);
 }
 
+/**
+ * \brief Test the conversion of the ClassAssertion
+ */
 TEST(Owl2Conv_ClassAssertion)
 {
 	ClauseSet cs;
@@ -618,15 +659,18 @@ TEST(Owl2Conv_ClassAssertion)
 	CHECK(ontology.instanceCount == 1);
 }
 
+/**
+ * \brief Test the conversion of the ObjectPropertyAssertion
+ */
 TEST(Owl2Conv_ObjectPropertyAssertion)
 {
 	ClauseSet cs;
 	Owl2 owl2;
 	string strOntology(
-		"Prefix(:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
+		"Prefix(owl:=<http://www.w3.org/2002/07/owl#>)\n"
+		"Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
 		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>\n"
-		" ObjectPropertyAssertion(t:Role1 t:Instance1 t:Instance2)\n"
+		" ObjectPropertyAssertion(:Role1 :Instance1 :Instance2)\n"
 		")"
 	);
 	Ontology ontology;
@@ -637,23 +681,26 @@ TEST(Owl2Conv_ObjectPropertyAssertion)
 	owl2.parse(pr, &ontology, &cs, true);
 	CHECK(cs.clauses.size() == 1);
 	CHECK(cs.clauses[0]->roles.size() == 1);
-	CHECK(hasRole(cs.clauses[0], "t:Role1", true, 0, 1));
-	CHECK(cs.clauses[0]->values[0] == &ontology.assertInstance("t:Instance1"));
-	CHECK(cs.clauses[0]->values[1] == &ontology.assertInstance("t:Instance2"));
+	CHECK(hasRole(cs.clauses[0], ":Role1", true, 0, 1));
+	CHECK(cs.clauses[0]->values[0] == &ontology.assertInstance(":Instance1"));
+	CHECK(cs.clauses[0]->values[1] == &ontology.assertInstance(":Instance2"));
 	CHECK(ontology.conceptCount == 0);
 	CHECK(ontology.roleCount == 1);
 	CHECK(ontology.instanceCount == 2);
 }
 
+/**
+ * \brief Test the conversion of the NegativeObjectPropertyAssertion
+ */
 TEST(Owl2Conv_NegativeObjectPropertyAssertion)
 {
 	ClauseSet cs;
 	Owl2 owl2;
 	string strOntology(
-		"Prefix(:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
+		"Prefix(owl:=<http://www.w3.org/2002/07/owl#>)\n"
+		"Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
 		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>\n"
-		" NegativeObjectPropertyAssertion(t:Role1 t:Instance1 t:Instance2)\n"
+		" NegativeObjectPropertyAssertion(:Role1 :Instance1 :Instance2)\n"
 		")"
 	);
 	Ontology ontology;
@@ -664,9 +711,9 @@ TEST(Owl2Conv_NegativeObjectPropertyAssertion)
 	owl2.parse(pr, &ontology, &cs, true);
 	CHECK(cs.clauses.size() == 1);
 	CHECK(cs.clauses[0]->roles.size() == 1);
-	CHECK(hasRole(cs.clauses[0], "t:Role1", false, 0, 1));
-	CHECK(cs.clauses[0]->values[0] == &ontology.assertInstance("t:Instance1"));
-	CHECK(cs.clauses[0]->values[1] == &ontology.assertInstance("t:Instance2"));
+	CHECK(hasRole(cs.clauses[0], ":Role1", false, 0, 1));
+	CHECK(cs.clauses[0]->values[0] == &ontology.assertInstance(":Instance1"));
+	CHECK(cs.clauses[0]->values[1] == &ontology.assertInstance(":Instance2"));
 	CHECK(ontology.conceptCount == 0);
 	CHECK(ontology.roleCount == 1);
 	CHECK(ontology.instanceCount == 2);

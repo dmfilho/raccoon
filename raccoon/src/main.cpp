@@ -34,7 +34,7 @@ extern "C" {
 #include "parsers/owl2/Owl2.h"
 #include "ir/Ontology.h"
 #include "ir/ClauseSet.h"
-#include "back/fm/FreitasMelo.h"
+#include "back/CMALCr.h"
 #include "misc/Options.h"
 // STL
 #include <iostream>
@@ -93,17 +93,19 @@ int main(int argc, char* argv[])
 			}
 			case OptionCmd::realization:
 			{
+				// TODO: implement ontology realization, issue #4
 				cout << "The realization is not implemented yet." << endl;
 				return 1;
 			}
 			case OptionCmd::classification:
 			{
+				// TODO: implement ontology classification, issue #3
 				cout << "The classification is not implemented yet." << endl;
 				return 1;
 			}
 			case OptionCmd::consistency:
 			{
-				FreitasMelo reasoner(&clauseSet);
+				CMALCr reasoner(&clauseSet);
 				if (reasoner.consistency(&ontology))
 				{
 					cout << "true" << endl;

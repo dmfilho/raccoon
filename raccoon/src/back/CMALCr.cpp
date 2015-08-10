@@ -23,23 +23,23 @@
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
  * \date 2015-02-17
  * \file
- * This file contains the declaration of the FreitasMelo reasoner class.
+ * This file contains the implementation of the CM-ALC (with regularity) reasoner class.
  */
 
 // raccoon
-#include "FreitasMelo.h"
-#include "../../ir/ConnectionList.h"
-#include "../../ir/ConceptRealization.h"
-#include "../../ir/RoleRealization.h"
-#include "../../ir/UniversalRealization.h"
-#include "../../ir/Clause.h"
-#include "../../ir/ClauseSet.h"
+#include "CMALCr.h"
+#include "../ir/ConnectionList.h"
+#include "../ir/ConceptRealization.h"
+#include "../ir/RoleRealization.h"
+#include "../ir/UniversalRealization.h"
+#include "../ir/Clause.h"
+#include "../ir/ClauseSet.h"
 
 #include <iostream>
 
 namespace raccoon
 {
-	bool FreitasMelo::consistency(Ontology* ontology)
+	bool CMALCr::consistency(Ontology* ontology)
 	{
 		for (Clause* clause: *kb)
 		{
@@ -51,7 +51,7 @@ namespace raccoon
 		return true;
 	}
 	
-	bool FreitasMelo::query(ClauseSet* query)
+	bool CMALCr::query(ClauseSet* query)
 	{
 		this->path.clear();
 		for (Clause* clause: *query)
@@ -64,7 +64,7 @@ namespace raccoon
 		return false;
 	}
 	
-	bool FreitasMelo::regularity(Clause* objective)
+	bool CMALCr::regularity(Clause* objective)
 	{
 		// Check regularity for all concepts of the clause
 		for (ConceptRealization* C: objective->concepts)
@@ -93,7 +93,7 @@ namespace raccoon
 		return false;
 	}
 	
-	bool FreitasMelo::connect(ILiteralRealization* lit, unsigned int id, bool neg)
+	bool CMALCr::connect(ILiteralRealization* lit, unsigned int id, bool neg)
 	{
 		this->path.push(lit);
 		ConnectionList* connList = kb->getConnections(id, neg);
@@ -116,7 +116,7 @@ namespace raccoon
 		return false;
 	}
 	
-	bool FreitasMelo::prove(Clause* objective)
+	bool CMALCr::prove(Clause* objective)
 	{
 		// Check for regularity cases
 		if (this->regularity(objective))
@@ -170,12 +170,12 @@ namespace raccoon
 		return true;
 	}
 	
-	FreitasMelo::FreitasMelo(ClauseSet* kb)
+	CMALCr::CMALCr(ClauseSet* kb)
 	 : kb(kb)
 	{
 	}
 
-	FreitasMelo::~FreitasMelo()
+	CMALCr::~CMALCr()
 	{
 	}
 }

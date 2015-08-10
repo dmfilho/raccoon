@@ -1,9 +1,6 @@
-raccoon/Debug
 .clang
 .codelite
 Makefile
 /raccoon/raccoon.mk
 /raccoon/raccoon.txt
-raccoon/Release
-raccoon/Debug
-raccoon/Test
+/raccoon/build

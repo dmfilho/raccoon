@@ -23,21 +23,21 @@
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
  * \date 2015-02-17
  * \file
- * This file contains the declaration of the FreitasMelo reasoner class.
+ * This file contains the declaration of the CM-ALC (with regularity) reasoner class.
  */
 
-#ifndef __RACCOON_BACK_FM_FREITASMELO_H
-#define __RACCOON_BACK_FM_FREITASMELO_H
+#ifndef __RACCOON_BACK_CMALCr_H
+#define __RACCOON_BACK_CMALCr_H
 
 // raccoon
-#include "../../ir/Path.h"
-#include "../../ir/ClauseSet.h"
-#include "../../ir/Clause.h"
-#include "../../ir/Ontology.h"
+#include "../ir/Path.h"
+#include "../ir/ClauseSet.h"
+#include "../ir/Clause.h"
+#include "../ir/Ontology.h"
 
 namespace raccoon
 {
-	class FreitasMelo
+	class CMALCr
 	{
 	private:
 		ClauseSet* kb;
@@ -49,9 +49,9 @@ namespace raccoon
 		bool connect(ILiteralRealization* lit, unsigned int id, bool neg);
 		bool prove(Clause* objective);
 		
-		FreitasMelo(ClauseSet* kb);
-		~FreitasMelo();
+		CMALCr(ClauseSet* kb);
+		~CMALCr();
 	};
 }
 
-#endif // __RACCOON_BACK_FM_FREITASMELO_H
+#endif /* __RACCOON_BACK_CMALCr_H */

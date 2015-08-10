@@ -51,8 +51,8 @@ TEST(ParserOwl2P_EquivalentClasses)
 {
 	string owl2(
 		"Prefix(:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
-		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>\n"
+		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_equivalentclasses.owl>)\n"
+		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_equivalentclasses.owl>\n"
 		" EquivalentClasses(t:Class1 t:Class2 t:Class3)\n"
 		")"
 	);
@@ -88,8 +88,8 @@ TEST(ParserOwl2P_DisjointClasses)
 {
 	string owl2(
 		"Prefix(:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
-		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>\n"
+		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_disjointclasses.owl>)\n"
+		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_disjointclasses.owl>\n"
 		" DisjointClasses(t:Class1 t:Class2 t:Class3)\n"
 		")"
 	);
@@ -125,8 +125,8 @@ TEST(ParserOwl2P_DisjointUnion)
 {
 	string owl2(
 		"Prefix(:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
-		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>\n"
+		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_disjointunion.owl>)\n"
+		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_disjointunion.owl>\n"
 		" DisjointUnion(t:Class1 t:Class2 t:Class3)\n"
 		")"
 	);
@@ -162,8 +162,8 @@ TEST(ParserOwl2P_ObjectIntersectionOf)
 {
 	string owl2(
 		"Prefix(:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
-		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>\n"
+		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_objectintersectionof.owl>)\n"
+		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_objectintersectionof.owl>\n"
 		" SubClassOf(ObjectIntersectionOf(t:Class1 t:Class2 t:Class3) t:Class4)\n"
 		")"
 	);
@@ -204,8 +204,8 @@ TEST(ParserOwl2P_ObjectUnionOf)
 {
 	string owl2(
 		"Prefix(:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
-		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>\n"
+		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_objectunionof.owl>)\n"
+		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_objectunionof.owl>\n"
 		" SubClassOf(ObjectUnionOf(t:Class1 t:Class2 t:Class3) t:Class4)\n"
 		")"
 	);
@@ -246,8 +246,8 @@ TEST(ParserOwl2P_ObjectComplementOf)
 {
 	string owl2(
 		"Prefix(:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
-		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>\n"
+		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_objectcomplementof.owl>)\n"
+		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_objectcomplementof.owl>\n"
 		" SubClassOf(ObjectComplementOf(t:Class1) t:Class2)\n"
 		")"
 	);
@@ -282,8 +282,8 @@ TEST(ParserOwl2P_ObjectSomeValuesFrom)
 {
 	string owl2(
 		"Prefix(:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
-		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>\n"
+		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_objectsomevaluesfrom.owl>)\n"
+		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_objectsomevaluesfrom.owl>\n"
 		" SubClassOf(ObjectSomeValuesFrom(t:Role1 t:Class1) t:Class2)\n"
 		")"
 	);
@@ -321,8 +321,8 @@ TEST(ParserOwl2P_ObjectAllValuesFrom)
 {
 	string owl2(
 		"Prefix(:=<http://www.w3.org/2002/07/owl#>)\n"
-		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>)\n"
-		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_subclassof.owl>\n"
+		"Prefix(t:=<http://cin.ufpe.br/~dldmf/raccoon/test_objectallvaluesfrom.owl>)\n"
+		"Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_objectallvaluesfrom.owl>\n"
 		" SubClassOf(ObjectAllValuesFrom(t:Role1 t:Class1) t:Class2)\n"
 		")"
 	);
