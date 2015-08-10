@@ -25,7 +25,12 @@
  * \file
  * This file contains the implementation of the ConceptRealization class.
  */
- 
+
+// stl
+#include <iostream>
+#include <vector>
+// raccoon
+#include "Instance.h"
 #include "ConceptRealization.h"
 
 namespace raccoon
@@ -98,6 +103,26 @@ namespace raccoon
 			reinterpret_cast<ConceptRealization*>(L)->concept == this->concept &&	// if their conceptiDs are the same
 			reinterpret_cast<ConceptRealization*>(L)->neg == this->neg				// both are neg'd or both aren't
 		);
+	}
+	
+	/**
+	 * Prints the concept, its sign and variables.
+	 */
+	void ConceptRealization::print(std::vector<Instance*>& values)
+	{
+		if (this->neg)
+		{
+			cout << '-';
+		}
+		cout << this->concept.name() << '(';
+		if (values[this->var] == nullptr)
+		{
+			cout << "?" << this->var << ')';
+		}
+		else
+		{
+			cout << values[this->var]->name << ')';
+		}
 	}
 }
 

@@ -29,6 +29,10 @@
 #ifndef __RACCOON_IR_UNIVERSALREALIZATION_H
 #define __RACCOON_IR_UNIVERSALREALIZATION_H
 
+// stl
+#include <vector>
+// raccoon
+#include "Instance.h"
 #include "ILiteralRealization.h" // Base class: raccoon::ILiteralRealization
 #include "RoleRealization.h"
 #include "ConceptRealization.h"
@@ -86,6 +90,11 @@ namespace raccoon
 		 * \returns true when the given ILiteralRealization is equivalent to this one.
 		 */
 		virtual bool equivalentTo(ILiteralRealization* L);
+		
+		/**
+		 * Prints the role, its sign and variable, and the concept, its sign and variable.
+		 */
+		virtual void print(std::vector<Instance*>& values);
 	};
 
 }

@@ -25,7 +25,11 @@
  * \file
  * This file contains the implementation of the RoleRealization class.
  */
-
+// stl
+#include <vector>
+#include <iostream>
+// raccoon
+#include "Instance.h"
 #include "RoleRealization.h"
 
 namespace raccoon
@@ -89,6 +93,34 @@ namespace raccoon
 			reinterpret_cast<RoleRealization*>(L)->role == this->role &&	// if their roleIDs are the same
 			reinterpret_cast<RoleRealization*>(L)->neg == this->neg			// both are neg'd or both aren't
 		);
+	}
+	
+	/**
+	 * Prints the role, its sign and variables.
+	 */
+	void RoleRealization::print(std::vector<Instance*>& values)
+	{
+		if (this->neg)
+		{
+			cout << '-';
+		}
+		cout << this->role.name() << '(';
+		if (values[this->var1] == nullptr)
+		{
+			cout << '?' << this->var1 << ',';
+		}
+		else
+		{
+			cout << values[this->var1]->name << ',';
+		}
+		if (values[this->var2] == nullptr)
+		{
+			cout << '?' << this->var2 << ')';
+		}
+		else
+		{
+			cout << values[this->var2]->name << ')';
+		}
 	}
 	
 }

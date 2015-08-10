@@ -29,6 +29,11 @@
 #ifndef __RACCOON_IR_ILITERALREALIZATION_H
 #define __RACCOON_IR_ILITERALREALIZATION_H
 
+// stl
+#include <vector>
+// raccoon
+#include "Instance.h"
+
 namespace raccoon
 {
 	class ILiteralRealization
@@ -54,6 +59,11 @@ namespace raccoon
 		 * \returns true when the current Literal realization is equivalent to another literal realization.
 		 */
 		virtual bool equivalentTo(ILiteralRealization* L) = 0;
+		
+		/**
+		 * Prints the literal realization accordingly.
+		 */
+		virtual void print(std::vector<Instance*>& values) = 0;
 		
 		/**
 		 * Destructor. Currently does nothing.

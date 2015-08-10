@@ -26,6 +26,11 @@
  * This file contains the implementation of the UniversalRealization class.
  */
  
+// stl
+#include <iostream>
+#include <vector>
+// raccoon
+#include "Instance.h"
 #include "UniversalRealization.h"
 
 namespace raccoon
@@ -90,6 +95,18 @@ namespace raccoon
 			reinterpret_cast<UniversalRealization*>(L)->concept.equivalentTo(&this->concept) && // with equivalent concepts
 			reinterpret_cast<UniversalRealization*>(L)->role.equivalentTo(&this->role)			// and equivalent roles
 		);
+	}
+	
+	/**
+	 * Prints the role, its sign and variable, and the concept, its sign and variable.
+	 */
+	void UniversalRealization::print(std::vector<Instance*>& values)
+	{
+		cout << '[';
+		this->role.print(values);
+		cout << " | ";
+		this->concept.print(values);
+		cout << "]";
 	}
 
 

@@ -112,7 +112,7 @@ namespace raccoon
 		// Check the root node
 		if (node == nullptr || node->tokenId != OWL2_ontologyDocument)
 		{
-			throw parser_exception("OWL2 Parser Error: Invalid OWL2 document. Please make sure the document is in the OWL2 Functional Syntax.");
+			throw parser_exception("OWL2 Parser Error: Invalid OWL2 document. Invalid ROOT node?.");
 		}
 		// Find the "Ontology" node.
 		node = findChild(node, OWL2_Ontology);
@@ -763,7 +763,14 @@ namespace raccoon
 		{
 			clause->values[0] = getIndividualInstance(source->firstChild);
 		}
-		clause->values.push_back(getIndividualInstance(target->firstChild));
+		if (clause->values.size() <= 1)
+		{
+			clause->values.push_back(getIndividualInstance(target->firstChild));
+		}
+		else
+		{
+			clause->values[1] = getIndividualInstance(target->firstChild);
+		}
 			
 		clauseSet->add(clause);
 	}

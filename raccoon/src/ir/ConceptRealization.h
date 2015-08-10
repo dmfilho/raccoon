@@ -29,6 +29,8 @@
 #ifndef __RACCOON_IR_CONCEPTREALIZATION_H
 #define __RACCOON_IR_CONCEPTREALIZATION_H
 
+// stl
+#include <vector>
 // raccoon
 #include "Instance.h"
 #include "Literal.h"
@@ -106,6 +108,11 @@ namespace raccoon
 		 * \returns true when the given ILiteralRealization is equivalent to this one.
 		 */
 		virtual bool equivalentTo(ILiteralRealization* L);
+		
+		/**
+		 * Prints the concept, its sign and variable.
+		 */
+		virtual void print(std::vector<Instance*>& values);
 	};
 }
 
