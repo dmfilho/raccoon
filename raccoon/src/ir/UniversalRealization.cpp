@@ -108,7 +108,33 @@ namespace raccoon
 		this->concept.print(values);
 		cout << "]";
 	}
-
+	
+	/**
+	 * \brief Prints the role, its sign and variables, the concept, its sign and variable.
+	 * \param inst1 The instance corresponding to the first variable, or nullptr if no instance
+	 * \param inst2 The instance corresponding to the second variable, or nullptr if no instance
+	 * \remark if there are no instances in any inst parameter, the variable reference will be printed instead.
+	 */
+	void UniversalRealization::print(Instance* inst1, Instance* inst2)
+	{
+		cout << '[';
+		this->role.print(inst1, inst2);
+		cout << ',';
+		this->concept.print(inst2, nullptr);
+		cout << ']';
+	}
+	
+	/**
+	 * Prints the role, the concept and their sign.
+	 */
+	void UniversalRealization::print()
+	{
+		cout << '[';
+		this->role.print();
+		cout << " | ";
+		this->concept.print();
+		cout << "]";
+	}
 
 }
 

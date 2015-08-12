@@ -34,6 +34,8 @@
 #include "../ir/ClauseSet.h"
 #include "../ir/Clause.h"
 #include "../ir/Ontology.h"
+#include "../ir/Instance.h"
+
 
 namespace raccoon
 {
@@ -42,12 +44,18 @@ namespace raccoon
 	private:
 		ClauseSet* kb;
 		Path path;
+		#ifdef _DEBUG
+			int clauseDepth;
+			int literalIndex;
+		#endif
 	public:
 		bool consistency(Ontology* ontology);
 		bool query(ClauseSet* query);
-		bool regularity(Clause* objective);
-		bool connect(ILiteralRealization* lit, unsigned int id, bool neg);
-		bool prove(Clause* objective);
+		bool regularity(Connection* obj);
+		bool proveClause(Clause* obj, Instance** inst0, int inst0idx, Instance** inst1, int inst1idx);
+		bool proveNextConcept(Clause* obj, unsigned int i, Instance* instances[]);
+		bool proveNextRole(Clause* obj, unsigned int i, Instance* instances[]);
+		bool proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[]);
 		
 		CMALCr(ClauseSet* kb);
 		~CMALCr();

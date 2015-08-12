@@ -110,19 +110,36 @@ namespace raccoon
 	 */
 	void ConceptRealization::print(std::vector<Instance*>& values)
 	{
-		if (this->neg)
-		{
-			cout << '-';
-		}
-		cout << this->concept.name() << '(';
-		if (values[this->var] == nullptr)
+		this->print(values[this->var], nullptr);
+	}
+	
+	/**
+	 * Prints the concept, its sign and variables.
+	 */
+	void ConceptRealization::print(Instance* inst1, Instance* inst2)
+	{
+		this->print();
+		cout << '(';
+		if (inst1 == nullptr)
 		{
 			cout << "?" << this->var << ')';
 		}
 		else
 		{
-			cout << values[this->var]->name << ')';
+			cout << inst1->name << ')';
 		}
+	}		
+	
+	/**
+	 * Prints the concept and its sign.
+	 */
+	void ConceptRealization::print()
+	{
+		if (this->neg)
+		{
+			cout << '-';
+		}
+		cout << this->concept.name();
 	}
 }
 

@@ -21,11 +21,13 @@
  * The author can be reached by e-mail: dldmf@cin.ufpe.br.
  * 
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
- * \date 2015-02-17
+ * \date 2015-08-11
  * \file
  * This file contains the implementation of the CM-ALC (with regularity) reasoner class.
  */
 
+// stl
+#include <iostream>
 // raccoon
 #include "CMALCr.h"
 #include "../ir/ConnectionList.h"
@@ -34,58 +36,94 @@
 #include "../ir/UniversalRealization.h"
 #include "../ir/Clause.h"
 #include "../ir/ClauseSet.h"
+#include "../misc/debug.h"
 
-#include <iostream>
+// TODO: algorithm level and C++ level optimization.
 
 namespace raccoon
-{
+{	
+	
+	/**
+	 * \brief Checks the consistency of the ontology.
+	 * \param ontology
+	 * \return true when the ontology is consistent, false otherwise.
+	 */
 	bool CMALCr::consistency(Ontology* ontology)
 	{
+		Instance* inst1 = nullptr;
+		Instance* inst2 = nullptr;
 		for (Clause* clause: *kb)
 		{
-			if (this->prove(clause))
+			printd("\n# CMALCr::consistency start clause: ");
+			calld(clause->print());
+			if (this->proveClause(clause, &inst1, 0, &inst2, -1))
 			{
+				printd("\n# CMALCr::consistency end (INCONSISTENT)\n");
 				return false;
 			}
+			inst1 = nullptr;
+			inst2 = nullptr;
 		}
+		printd("\n# CMALCr::consistency end (CONSISTENT)\n");
 		return true;
 	}
 	
+	/**
+	 * \brief Query an hypothesis to the ontology.
+	 * \param query The hypothesis
+	 * \return true if the ontology entails the hypothesis, false otherwise.
+	 */
 	bool CMALCr::query(ClauseSet* query)
 	{
+		Instance* inst1 = nullptr;
+		Instance* inst2 = nullptr;
 		this->path.clear();
 		for (Clause* clause: *query)
 		{
-			if (this->prove(clause))
+			printd("\n# CMALCr::query start clause: ");
+			if (this->proveClause(clause, &inst1, 0, &inst2, -1))
 			{
+				printd("\n # CMALCr::query end\n");
 				return true;
 			}
+			inst1 = nullptr;
+			inst2 = nullptr;
 		}
+		printd("\n # CMALCr::query end\n");
 		return false;
 	}
 	
-	bool CMALCr::regularity(Clause* objective)
+	/**
+	 * \brief Checks the regularity of the clause of a given possible connection.
+	 * For all purposes a regularity occurs when the clause contains the path and the connection clause contains the
+	 * exact same literal with the exact same instances.
+	 * \param conn The connection to check.
+	 * \return true when the clause contains a regular literal.
+	 */
+	bool CMALCr::regularity(Connection* conn)
 	{
+		Clause* obj = conn->clause;
 		// Check regularity for all concepts of the clause
-		for (ConceptRealization* C: objective->concepts)
+		for (ConceptRealization* C: obj->concepts)
 		{
-			if (this->path.contains(C))
+			if (path.containsConcept(C, obj->values[C->var]))
 			{
 				return true;
 			}
 		}
 		// Check regularity for all roles of the clause
-		for (RoleRealization* R: objective->roles)
+		for (RoleRealization* R: obj->roles)
 		{
-			if (this->path.contains(R))
+			if (path.containsRole(R, obj->values[R->var1], obj->values[R->var2]))
 			{
 				return true;
 			}
 		}
 		// Check regularity for all universals of the clause
-		for (UniversalRealization* U: objective->universals)
+		for (UniversalRealization* U: obj->universals)
 		{
-			if (this->path.contains(&U->concept) && this->path.contains(&U->role))
+			if (path.containsConcept(&U->concept, obj->values[U->concept.var]) || 
+			    path.containsRole(&U->role, obj->values[U->role.var1], obj->values[U->role.var2]))
 			{
 				return true;
 			}
@@ -93,86 +131,326 @@ namespace raccoon
 		return false;
 	}
 	
-	bool CMALCr::connect(ILiteralRealization* lit, unsigned int id, bool neg)
+	/**
+	 * \brief Prove a clause considering the current path and at max two instances with their respective connection 
+	 * indexes. Consider the term "this clause" to be the clause that we want to prove, and "connecting clause" the 
+	 * clause that has a literal that is trying to connect to this clause.
+	 * \param obj The clause to prove
+	 * \param inst0 The pointer to the instance that is used by the "connecting clause" to connect to "this clause".
+	 * \param inst0idx The number of the variable of "this clause" to set to inst0
+	 * \param inst1 The pointer to the other instance (in case it is a role) that is used by the "connecting clause" to
+	 * conect to "this clause".
+	 * \param inst1idx The number of the variable of "this clause" to set to inst1
+	 * \return true if able to connect everything, false otherwise.
+	 */
+	bool CMALCr::proveClause(Clause* obj, Instance** inst0, int inst0idx, Instance** inst1, int inst1idx)
 	{
-		this->path.push(lit);
-		ConnectionList* connList = kb->getConnections(id, neg);
-		for (Clause* conn: *connList)
+		int varcount = obj->varCount();
+		printd("\n# proveClause (%d): ", ++clauseDepth);
+		calld(obj->print());
+		printd(" // PATH: ");
+		calld(path.print());
+		// Check if it is possible to match the instances of the variables
+		if (obj->values[inst0idx] != *inst0 && obj->values[inst0idx] != nullptr && *inst0 != nullptr)
 		{
-			// Make sure the clause isn't ignored
-			if (conn->ignore)
-			{
-				continue;
-			}
-			// Try to connect
-			if (this->prove(conn))
-			{ 
-				this->path.pop();
-				return true;
-			}
-			//conn->ignore = true;
-		}
-		this->path.pop();
-		return false;
-	}
-	
-	bool CMALCr::prove(Clause* objective)
-	{
-		// Check for regularity cases
-		if (this->regularity(objective))
-		{
+			printd("\n# proveClause (%d): FAIL (incompatible first variable) - backtrack", clauseDepth--);
 			return false;
 		}
-		// Prove each concept (connect each concept) of the clause
-		for (ConceptRealization* C: objective->concepts)
+		if (inst1idx != -1 && obj->values[inst1idx] != *inst1 && obj->values[inst1idx] != nullptr && *inst1 != nullptr)
 		{
-			// If the negation of the Literal is in the path, this literal is proved, skip it.
-			if (this->path.containsNegationOf(C))
+			printd("\n# proveClause (%d): FAIL (incompatible second variable) - backtrack", clauseDepth--);
+			return false;
+		}
+		// Initialize a new list of instances of variables for the clause
+		Instance** instances = new Instance*[varcount];
+		for (int i = 0; i < varcount; ++i)
+		{
+			instances[i] = obj->values[i];
+		}
+		// Set variables accordingly
+		if (instances[inst0idx] == nullptr)
+		{
+			if (*inst0 != nullptr)
+			{
+				instances[inst0idx] = *inst0;
+			}
+		}
+		else
+		{
+			if (*inst0 == nullptr)
+			{
+				*inst0 = instances[inst0idx];
+			}
+		}
+		if (inst1idx != -1 && instances[inst1idx] == nullptr)
+		{
+			if (*inst1 != nullptr)
+			{
+				instances[inst1idx] = *inst1;
+			}
+		}
+		else
+		{
+			if (*inst1 == nullptr)
+			{
+				*inst1 = instances[inst1idx];
+			}
+		}
+		// Try to prove the clause, go prove its first concept
+		if (this->proveNextConcept(obj, 0, instances))
+		{
+			if (instances[inst0idx] != nullptr)
+			{
+				*inst0 = instances[inst0idx];
+			}
+			if (inst1idx != -1 && instances[inst1idx] != nullptr && inst1 != nullptr)
+			{
+				*inst1 = instances[inst1idx];
+			}
+			printd("\n# proveClause (%d): SUCCESS", clauseDepth--);
+			return true;
+		}
+		printd("\n# proveClause (%d): FAIL (no valid connections found) - backtrack", clauseDepth--);
+		return false;
+	}
+	
+	/**
+	 * \brief Prove the next concept of the clause.
+	 * \param obj The objective clause
+	 * \param i The index of the concept on the clause
+	 * \param instances The instance set to consider for this usage of the clause, this allows the same clause to be
+	 * used again in the same path with differing instances.
+	 * \return true when able to connect every LITERAL of the clause, including concepts, roles and universals 
+	 * (see remark). It returns false otherwise.
+	 * \remark after all subsequent concepts are connected, the method proceeds to call proveNextRole for the first role 
+	 * on the clause. After all subsequent roles are connected, the proveNextRole method proceeds to call 
+	 * proveNextUniversal to prove the first universal quantifier on the clause. Once all subsequent universals are 
+	 * proved, it returns true. the truth is returned in a chain when all literals are connected.
+	 */
+	bool CMALCr::proveNextConcept(Clause* obj, unsigned int i, Instance* instances[])
+	{
+		// If this concept index is beyond the last concept, go prove the first role
+		if (i >= obj->concepts.size())
+		{
+			return proveNextRole(obj, 0, instances);
+		}
+		// Print debug information when in debug mode
+		printd("\n# proveNextConcept (%d,%d): ", clauseDepth, ++literalIndex);
+		calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
+		// Save the pointer of the instance for the variable of the concept, and its original value
+		Instance** instptr = &instances[obj->concepts[i]->var];
+		Instance* insttemp = nullptr;
+		Instance* instorig = *instptr;
+		// Check if this concept already appears on the path
+		if (path.containsNegationOfConcept(obj->concepts[i], instorig))
+		{
+			printd("\n# proveNextConcept (%d,%d): SUCCESS (complement in path), trying next concept", clauseDepth, literalIndex--);
+			return this->proveNextConcept(obj, i+1, instances);
+		}
+		// Try to connect the concept
+		path.pushConcept(obj->concepts[i], instptr);
+		ConnectionList* connList = kb->getConnections(obj->concepts[i]->concept.id(), obj->concepts[i]->neg);
+		for (Connection* conn: *connList)
+		{
+			printd("\n# proveNextConcept (%d,%d): Clause: ", clauseDepth, literalIndex);
+			calld(conn->clause->print());
+			if (this->regularity(conn))
+			{
+				printd("\n# proveNextConcept(%d,%d): Regular Clause", clauseDepth, literalIndex);
+				continue;
+			}
+			// Try to prove the connection, if it succeeds try to prove the next concept, if it succeeds, return true
+			if (this->proveClause(conn->clause, instptr, conn->var1, &insttemp, conn->var2))
+			{
+				printd("\n# proveNextConcept (%d,%d): valid connection found, trying next literal)", clauseDepth, literalIndex);
+				path.popConcept();
+				if (this->proveNextConcept(obj, i+1, instances))
+				{
+					printd("\n# proveNextConcept (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex--);
+					return true;
+				}
+				printd("\n# proveNextConcept (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
+				path.pushConcept(obj->concepts[i], instptr);
+			}
+			// if something fail, restore the original instance of the variable of the concept, just in case it was
+			// changed by the connection
+			printd("\n# proveNextConcept (%d,%d): STILL ", clauseDepth, literalIndex);
+			calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
+			*instptr = instorig;
+			insttemp = nullptr;
+		}
+		path.popConcept();
+		printd("\n# proveNextConcept (%d,%d): FAIL (no valid connections) - backtrack", clauseDepth, literalIndex--);
+		return false;
+	}
+	
+	/**
+	 * \brief Prove the next role of the clause.
+	 * \param obj The objective clause
+	 * \param i The index of the role on the clause
+	 * \param instances The instance set to consider for this usage of the clause, this allows the same clause to be
+	 * used again in the same path with differing instances.
+	 * \return true when able to connect every role and universal quantifier of the clause, false otherwise.
+	 * \remark after all subsequent roles are connected, the method proceeds to call proveNextUniversal for the first 
+	 * role on the clause.
+	 */
+	bool CMALCr::proveNextRole(Clause* obj, unsigned int i, Instance* instances[])
+	{
+		// If this role index is beyond the last role, go prove the first universal quantifier
+		if (i >= obj->roles.size())
+		{
+			return proveNextUniversal(obj, 0, instances);
+		}
+		// Print debug information when in debug mode
+		printd("\n# proveNextRole (%d,%d): ", clauseDepth, ++literalIndex);
+		calld(obj->roles[i]->print(instances[obj->roles[i]->var1], instances[obj->roles[i]->var2]));
+		// Save the poitners of the instances for the variables of the role, and their original values
+		Instance** instptr1 = &instances[obj->roles[i]->var1];
+		Instance** instptr2 = &instances[obj->roles[i]->var2];
+		Instance* instorig1 = *instptr1;
+		Instance* instorig2 = *instptr2;
+		// Check if the role already appears in the path
+		if (path.containsNegationOfRole(obj->roles[i], instorig1, instorig2))
+		{
+			printd("\n# proveNextRole (%d,%d): SUCCESS (complement in path), trying next role", clauseDepth, literalIndex--);
+			return this->proveNextRole(obj, i+1, instances);
+		}
+		// Try to connect the role
+		path.pushRole(obj->roles[i], instptr1, instptr2);
+		ConnectionList* connList = kb->getConnections(obj->roles[i]->role.id(), obj->roles[i]->neg);
+		for (Connection* conn: *connList)
+		{
+			if (this->regularity(conn))
 			{
 				continue;
 			}
-			// If it isn't proved already, try to prove each possible connection.
-			if (!this->connect(C, C->concept.id(), C->neg))
+			// Try to prove the connection, if it succeeds try to prove the next role, if it succeeds, return true
+			if (this->proveClause(conn->clause, instptr1, conn->var1, instptr2, conn->var2))
 			{
-				return false;
+				printd("\n# proveNextRole (%d,%d): valid connection found, trying next literal)", clauseDepth, literalIndex);
+				path.popRole();
+				if (this->proveNextRole(obj, i+1, instances))
+				{
+					printd("\n# proveNextRole (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex--);
+					return true;
+				}
+				printd("\n# proveNextRole (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
+				path.pushRole(obj->roles[i], instptr1, instptr2);
 			}
+			// if something fail, restore the original instances of the variables of the role, just in case it was
+			// changed by the connection
+			printd("\n# proveNextRole (%d,%d): STILL ", clauseDepth, literalIndex);
+			calld(obj->roles[i]->print(instances[obj->roles[i]->var1], instances[obj->roles[i]->var2]));
+			*instptr1 = instorig1;
+			*instptr2 = instorig2;
 		}
-		// If the code reaches this point, it's because all Concepts were proved. Now we need to prove the roles.
-		for (RoleRealization* R: objective->roles)
+		path.popRole();
+		printd("\n# proveNextRole (%d,%d): FAIL (no valid connection) - backtrack", clauseDepth, literalIndex--);
+		return false;			
+	}
+	
+	/**
+	 * \brief Prove the next universal quantifier of the clause.
+	 * \param obj The objective clause
+	 * \param i The index of the universal quantifier on the clause
+	 * \param instances The instance set to consider for this usage of the clause, this allows the same clause to be
+	 * used again in the same path with differing instances.
+	 * \return true when able to connect every universal quantifier on the clause, false otherwise.
+	 * \remark after all subsequent universal quantifiers are connected, the method returns true.
+	 */
+	bool CMALCr::proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[])
+	{
+		// If this universal index is beyond the last universal, everything was proved. Return true.
+		if (i >= obj->universals.size())
 		{
-			// If the negation of the Literal is in the path, this literal is proved, skip it.
-			if (this->path.containsNegationOf(R))
+			printd("\n# proveNextUniversal (%d): SUCCESS (no more literals on clause)", clauseDepth);
+			return true;
+		}
+		// Print debug information when in debug mode
+		printd("\n# proveNextUniversal (%d,%d): ", clauseDepth, ++literalIndex);
+		calld(obj->universals[i]->print(instances[obj->universals[i]->role.var1], instances[obj->universals[i]->role.var2]));
+		// Save the poitners of the instances for the variables of the universal, and their original values
+		Instance** instptr1 = &instances[obj->universals[i]->role.var1];
+		Instance** instptr2 = &instances[obj->universals[i]->role.var2];
+		Instance* instorig1 = *instptr1;
+		Instance* instorig2 = *instptr2;
+		Instance* insttemp = nullptr;
+		// Check if the universal's concept or role already appear in the path
+		if (path.containsNegationOfConcept(&obj->universals[i]->concept, instorig2) ||
+			path.containsNegationOfRole(&obj->universals[i]->role, instorig1, instorig2))
+		{
+			printd("\n# proveNextUniversal(%d,%d): SUCCESS (complement in path), trying next universal", clauseDepth, literalIndex--);
+			return this->proveNextUniversal(obj, i+1, instances);
+		}
+		// Try to connect the concept pf the universal
+		path.pushConcept(&obj->universals[i]->concept, instptr2);
+		ConnectionList* connList = kb->getConnections(obj->universals[i]->concept.concept.id(), obj->universals[i]->concept.neg);
+		for (Connection* conn: *connList)
+		{
+			if (this->regularity(conn))
 			{
 				continue;
 			}
-			// If it isn't proved already, try to prove each possible connection.
-			if (!this->connect(R, R->role.id(), R->neg))
+			// Try to prove the connection, if it succeeds try to prove the next concept, if it succeeds, return true
+			if (this->proveClause(conn->clause, instptr2, conn->var1, &insttemp, conn->var2))
 			{
-				return false;
+				printd("\n# proveNextUniversal (%d,%d): (valid concept connection found), trying next literal", clauseDepth, literalIndex);
+				path.popConcept();
+				if (this->proveNextUniversal(obj, i+1, instances))
+				{
+					printd("\n# proveNextUniversal (%d,%d): SUCCESS (valid concept connection)", clauseDepth, literalIndex--);
+					return true;
+				}
+				printd("\n# proveNextUniversal (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
+				path.pushConcept(&obj->universals[i]->concept, instptr2);
 			}
+			// if something fail, restore the original instance of the variable of the concept, just in case it was
+			// changed by the connection
+			printd("\n# proveNextUniversal (%d,%d): STILL CONCEPT ", clauseDepth, ++literalIndex);
+			calld(obj->universals[i]->print(instances[obj->universals[i]->role.var1], instances[obj->universals[i]->role.var2]));
+			*instptr2 = instorig2;
+			insttemp = nullptr;
 		}
-		// If the code reaches this point, it's because all Roles were proved. Now we need to prove the Universals.
-		for (UniversalRealization* U: objective->universals)
+		path.popConcept();
+		// Try to connect the role of the universal
+		path.pushRole(&obj->universals[i]->role, instptr1, instptr2);
+		connList = kb->getConnections(obj->universals[i]->role.role.id(), obj->universals[i]->role.neg);
+		for (Connection* conn: *connList)
 		{
-			// If the negation of the concept or the role is in the path, this universal is proved, skip it.
-			if (this->path.containsNegationOf(&U->concept) || this->path.containsNegationOf(&U->role))
+			if (this->regularity(conn))
 			{
 				continue;
 			}
-			// If it isn't proved already, try to prove each possible connection.
-			if (!this->connect(&U->concept, U->concept.concept.id(), U->concept.neg) &&
-				!this->connect(&U->role, U->role.role.id(), U->role.neg))
+			// Try to prove the connection, if it succeeds try to prove the next role, if it succeeds, return true
+			if (this->proveClause(conn->clause, instptr1, conn->var1, instptr2, conn->var2))
 			{
-				return false;
+				printd("\n# proveNextUniversal (%d,%d): valid role connection found, trying next literal)", clauseDepth, literalIndex);
+				path.popRole();
+				if (this->proveNextUniversal(obj, i+1, instances))
+				{
+					printd("\n# proveNextUniversal (%d,%d): SUCCESS (valid role connection)", clauseDepth, literalIndex--);
+					return true;
+				}
+				printd("\n# proveNextUniversal (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
+				path.pushRole(&obj->universals[i]->role, instptr1, instptr2);
 			}
+			// if something fail, restore the original instances of the variables of the role, just in case it was
+			// changed by the connection
+			printd("\n# proveNextUniversal (%d,%d): STILL ROLE ", clauseDepth, ++literalIndex);
+		calld(obj->universals[i]->print(instances[obj->universals[i]->role.var1], instances[obj->universals[i]->role.var2]));
+			*instptr1 = instorig1;
+			*instptr2 = instorig2;
 		}
-		// If the code reached this point, everything was proved for this clause
-		return true;
+		path.popRole();
+		printd("\n# proveNextUniversal (%d,%d): FAIL (no connection found) - backtrack", clauseDepth, literalIndex--);
+		return false;	
 	}
 	
 	CMALCr::CMALCr(ClauseSet* kb)
 	 : kb(kb)
 	{
+		calld(this->clauseDepth = 0);
+		calld(this->literalIndex = 0);
 	}
 
 	CMALCr::~CMALCr()

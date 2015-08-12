@@ -32,26 +32,38 @@
 namespace raccoon
 {
 	
-	bool Clause::contains(unsigned int id, bool negated)
+	bool Clause::contains(unsigned int id, bool negated, int* var1, int* var2)
 	{
 		for (ConceptRealization* concept: this->concepts)
 		{
-			if (concept->concept.id() == id)
+			if (concept->concept.id() == id && concept->neg == negated)
 			{
+				*var1 = concept->var;
+				*var2 = -1;
 				return true;
 			}
 		}
 		for (RoleRealization* role: this->roles)
 		{
-			if (role->role.id() == id)
+			if (role->role.id() == id && role->neg == negated)
 			{
+				*var1 = role->var1;
+				*var2 = role->var2;
 				return true;
 			}
 		}
 		for (UniversalRealization* universal: this->universals)
 		{
-			if (universal->concept.concept.id() == id || universal->role.role.id() == id)
+			if (universal->concept.concept.id() == id && universal->concept.neg == negated)
 			{
+				*var1 = universal->concept.var;
+				*var2 = -1;
+				return true;
+			}
+			if (universal->role.role.id() == id && universal->role.neg == negated)
+			{
+				*var1 = universal->role.var1;
+				*var2 = universal->role.var2;
 				return true;
 			}
 		}
@@ -77,7 +89,6 @@ namespace raccoon
 	
 	void Clause::print()
 	{
-		cout << "(" << this->values.size() << ")  ";
 		for (auto concept: this->concepts)
 		{
 			concept->print(this->values);

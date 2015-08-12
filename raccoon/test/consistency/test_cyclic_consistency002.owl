@@ -1,0 +1,10 @@
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_cyclic_consistency002.owl>)
+Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_cyclic_consistency002.owl>
+  SubClassOf(ObjectSomeValuesFrom(:R :A) :B)
+  SubClassOf(ObjectSomeValuesFrom(:R :B) :C)
+  ClassAssertion(:A :a)
+  ObjectPropertyAssertion(:R :b :a)
+  ObjectPropertyAssertion(:R :x :y)
+  ClassAssertion(ObjectComplementOf(:C) :a)
+)

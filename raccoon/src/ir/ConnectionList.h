@@ -9,12 +9,16 @@
 using namespace std;
 namespace raccoon
 {
-	class ConnectionList
-	 : public unordered_set<Clause*>
+	typedef struct _Connection
 	{
-	public:
-		ConnectionList();
-		~ConnectionList();
+		Clause* clause;
+		int var1;
+		int var2;
+	} Connection;
+	
+	class ConnectionList
+	 : public unordered_set<Connection*>
+	{
 	};
 }
 
