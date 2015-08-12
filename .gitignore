@@ -4,3 +4,4 @@ Makefile
 /raccoon/raccoon.mk
 /raccoon/raccoon.txt
 /raccoon/build
+/.tern-project
