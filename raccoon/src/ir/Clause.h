@@ -72,10 +72,10 @@ namespace raccoon
 		vector<UniversalRealization*> universals;	// List of universal quantifiers of the clause
 		
 		/**
-		 * List of instances associated to each variable by default. This is only used by assertions, since they are
-		 * bound to an instance from the beggining.
+		 * List of list of instances, each list of instances contains the instances used within a usage of the clause
+		 * on the proof.
 		 */
-		vector<Instance*> values;					// List of instances assigned to each variable by default
+		vector<Instance*> values;
 		
 		/**
 		 * Return the number of variables used by the current clause.
@@ -88,7 +88,7 @@ namespace raccoon
 		/**
 		 * \returns true when the clause contains the specified literal.
 		 */
-		bool contains(unsigned int id, bool negated);
+		bool contains(unsigned int id, bool negated, int* var1, int* var2);
 		
 		/**
 		 * \brief Negates each literal of the clause.

@@ -32,20 +32,50 @@
 // STL
 #include <vector>
 // raccoon
-#include "ILiteralRealization.h"
+#include "ConceptRealization.h"
+#include "RoleRealization.h"
+#include "Instance.h"
 
 using namespace std;
 namespace raccoon
 {
+	/**
+	 * \brief This structure defines the basic concept storage for the path (a concept and its instance).
+	 */
+	typedef struct _PathItemConcept
+	{
+		ConceptRealization* concept;
+		Instance** inst;
+	} PathItemConcept;
+	
+	/**
+	 * \brief This structure defines the basic role storage for the path (a role and its instances).
+	 */
+	typedef struct _PathItemRole
+	{
+		RoleRealization* role;
+		Instance** inst1;
+		Instance** inst2;
+	} PathItemRole;
+	
+	/**
+	 * \class Path
+	 * \brief Defines a walked path, containing concepts and roles.
+	 */
 	class Path
 	{
 	private:
 		/**
-		 * Contains the list of items on the path.
-		 * Each item is a pointer to a ILiteralRealization.
+		 * Contains the concepts on the path.
 		 * The path does NOT own the pointers, thus it is not responsible for calling their destructors.
 		 */
-		vector<ILiteralRealization*> items;
+		vector<PathItemConcept*> concepts;
+		
+		/**
+		 * Contains the roles on the path.
+		 * The path does NOT own the pointers, thus it is not responsible for calling their destructors.
+		 */
+		vector<PathItemRole*> roles;
 		
 	public:		
 		/**
@@ -54,29 +84,74 @@ namespace raccoon
 		void clear();
 		
 		/**
-		 * Tells wether the path contains a specific ILiteralRealization.
-		 * \param lit the ILiteralRealization to check for.
+		 * \brief Tells whether the path contains a specific role with specific instances.
+		 * If some instance is nullptr it is ignored while comparing.
+		 * @param role The role to find on path
+		 * @param inst1 The instance of the first variable of the role, or nullptr to ignore.
+		 * @param inst2 The instance of the second variable of the role, or nullptr to ignore.
+		 * @return true if the path contains the role.
 		 */
-		bool contains(ILiteralRealization* lit);
+		bool containsRole(RoleRealization* role, Instance* inst1, Instance* inst2);
 		
 		/**
-		 * Tells wether the path contains the negation of a specific ILiteralRealization.
-		 * \param lit the ILiteralRealization to check for.
+		 * \brief Tells whether the path contains the negation of a specific role with specific instances.
+		 * If some instance is nullptr it is ignored while comparing.
+		 * @param role The role to find on path
+		 * @param inst1 The instance of the first variable of the role, or nullptr to ignore.
+		 * @param inst2 The instance of the second variable of the role, or nullptr to ignore.
+		 * @return true if the path contains the negation of the given role.
 		 */
-		bool containsNegationOf(ILiteralRealization* lit);
+		bool containsNegationOfRole(RoleRealization* role, Instance* inst1, Instance* inst2);
 		
 		/**
-		 * Push a literal realization to the end of the path
+		 * \brief Push a specific role with specific instances to the path.
+		 * If some instance is nullptr it is treated as a variable (i.e. ignored).
+		 * @param role The role to push to the path
+		 * @param inst1 The instance of the first variable of the role, or nullptr to leave as a variable.
+		 * @param inst2 The instance of hte second variable of the role, or nullptr to leave as a variable.
 		 */
-		void push(ILiteralRealization* lit);
+		void pushRole(RoleRealization* role, Instance** inst1, Instance** inst2);
 		
 		/**
-		 * Pop a literal realization from the end of the path.
+		 * \brief Pop the topmost role from the path.
+		 * \remark This is different from popConcept (i.e. work on a different stack).
 		 */
-		void pop();
+		void popRole();
 		
 		/**
-		 * Print the current path.
+		 * \brief Tells whether the path contains a specific concept with a specific instance.
+		 * If the instance is nullptr it is treated as a variable and is ignored on the comaprison.
+		 * @param concept The concept to check if it is in the path.
+		 * @param inst The instance of the concept, or nullptr to ignore.
+		 * @return true if the concept with its respective instance is in the path.
+		 */
+		bool containsConcept(ConceptRealization* concept, Instance* inst);
+		
+		/**
+		 * \brief Tells whether the path contains the negation of a specific concept with a specific instance.
+		 * If the instance is nullptr it is treated as a variable and is ignored on the comparison.
+		 * @param concept The concept to check if it is in the path.
+		 * @param inst The instance of the concept, or nullptr to ignore.
+		 * @return true if a negation of the concept with its respective instance is in the path.
+		 */
+		bool containsNegationOfConcept(ConceptRealization* concept, Instance* inst);
+		
+		/**
+		 * \brief Push a concept to the top of the path, with the given instance.
+		 * if the instance is nullptr, it is treated as a variable (i.e. ignored).
+		 * @param concept The concept to push to the top of the path.
+		 * @param inst The instance of the concept, or nullptr to ignore.
+		 */
+		void pushConcept(ConceptRealization* concept, Instance** inst);
+		
+		/**
+		 * \brief Pop a concept from the top of the path.
+		 * \remark this is different from popRole, i.e. uses a different stack.
+		 */
+		void popConcept();
+		
+		/**
+		 * \brief Prints the whole path.
 		 */
 		void print();
 		
