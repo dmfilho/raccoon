@@ -1,6 +1,6 @@
 .clang
 .codelite
-Makefile
+/Makefile
 /raccoon/raccoon.mk
 /raccoon/raccoon.txt
 /raccoon/build

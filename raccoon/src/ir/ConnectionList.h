@@ -15,12 +15,10 @@ namespace raccoon
 		int var1;
 		int var2;
 	} Connection;
+	
 	class ConnectionList
 	 : public unordered_set<Connection*>
 	{
-	public:
-		ConnectionList();
-		~ConnectionList();
 	};
 }
 
