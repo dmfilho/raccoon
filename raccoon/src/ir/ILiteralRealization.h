@@ -66,6 +66,11 @@ namespace raccoon
 		virtual void print(std::vector<Instance*>& values) = 0;
 		
 		/**
+		 * Prints the literal realization with the given instances, accordingly.
+		 */
+		virtual void print(Instance* inst1, Instance* inst2) = 0;
+		
+		/**
 		 * Prints the literal realization (without its variables) accordingly.
 		 */
 		virtual void print() = 0;

@@ -56,13 +56,13 @@ namespace raccoon
 		 * The identifier of the first variable of the role (the leftmost variable) which should be the same variable
 		 * of the clause.
 		 */
-		unsigned int var1;
+		int var1;
 		
 		/**
 		 * The identifier of the second variable of the role (the rightmost variable) which should be different from
 		 * the variable of the clause.
 		 */
-		unsigned int var2;
+		int var2;
 		
 		/**
 		 * The instance of the first variable.
@@ -116,6 +116,14 @@ namespace raccoon
 		 * Prints the role, its sign and variables.
 		 */
 		virtual void print(std::vector<Instance*>& values);
+		
+		/**
+		 * \brief Prints the role, its sign and variables.
+		 * \param inst1 The instance corresponding to the first variable, or nullptr if no instance
+		 * \param inst2 The instance corresponding to the second variable, or nullptr if no instance
+		 * \remark if there are no instances in any inst parameter, the variable reference will be printed instead.
+		 */
+		virtual void print(Instance* inst1, Instance* inst2);
 		
 		/**
 		 * Prints the role and its sign.

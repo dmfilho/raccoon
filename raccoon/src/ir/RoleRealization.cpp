@@ -100,26 +100,33 @@ namespace raccoon
 	 */
 	void RoleRealization::print(std::vector<Instance*>& values)
 	{
-		if (this->neg)
-		{
-			cout << '-';
-		}
-		cout << this->role.name() << '(';
-		if (values[this->var1] == nullptr)
+		this->print(values[this->var1], values[this->var2]);
+	}
+	/**
+	 * \brief Prints the role, its sign and variables.
+	 * \param inst1 The instance corresponding to the first variable, or nullptr if no instance
+	 * \param inst2 The instance corresponding to the second variable, or nullptr if no instance
+	 * \remark if there are no instances in any inst parameter, the variable reference will be printed instead.
+	 */
+	void RoleRealization::print(Instance* inst1, Instance* inst2)
+	{
+		this->print();
+		cout << '(';
+		if (inst1== nullptr)
 		{
 			cout << '?' << this->var1 << ',';
 		}
 		else
 		{
-			cout << values[this->var1]->name << ',';
+			cout << inst1->name << ',';
 		}
-		if (values[this->var2] == nullptr)
+		if (inst2 == nullptr)
 		{
 			cout << '?' << this->var2 << ')';
 		}
 		else
 		{
-			cout << values[this->var2]->name << ')';
+			cout << inst2->name << ')';
 		}
 	}
 	

@@ -58,7 +58,7 @@ namespace raccoon
 		 * This field is useful on cases where quantifiers where normalized to the clausal form, to tell wether the
 		 * concept refers to the default variable of the clause or other variable.
 		 */
-		unsigned int var;
+		int var;
 		
 		/**
 		 * True when the Concpt is negated on the clause that it belongs.
@@ -113,6 +113,11 @@ namespace raccoon
 		 * Prints the concept, its sign and variable.
 		 */
 		virtual void print(std::vector<Instance*>& values);
+		
+		/**
+		 * Prints the concept, its sign and variable.
+		 */
+		virtual void print(Instance* inst1, Instance* inst2);
 		
 		/**
 		 * Prints the concept and its sign.
