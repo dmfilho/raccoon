@@ -7,6 +7,15 @@ The reasoner is developed on C++ abiding to the C++11 standard.
 
 It is currently under development. For now, it is able to to perform consistency checking on the ALC subset of OWL 2.
 
+Download
+======
+
+Compiled binaries are available for the following Operating Systems:
+
+Operating System | Platform
+:---------------:|:--------:
+Debian<br>Ubuntu<br>Mint|[amd64](https://drive.google.com/file/d/0B4CJaYm24URxcnFadUgwUTFsdkE/view?usp=sharing)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxSklSYmh1QUQ2ZUk/view?usp=sharing)
+
 How to Compile
 ======
 
@@ -15,7 +24,7 @@ Requirements:
 * make
 
 Instructions:
-* Using a terminal, change to raccoon subdirectory and type 'make'.
+* Using a terminal, change to the raccoon subdirectory and type 'make amd64' or 'make i386' depending on your target platform.
 * Two binaries will be built (raccoon and raccoon_dbg). raccoon_dbg outputs debugging information during the parsing.
 
 
