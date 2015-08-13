@@ -4,4 +4,8 @@
 /raccoon/raccoon.mk
 /raccoon/raccoon.txt
 /raccoon/build
+/raccoon/bin
 /.tern-project
+/dist/debian-amd64/usr
+/dist/debian-i386/usr
+/dist/raccoon-*.deb

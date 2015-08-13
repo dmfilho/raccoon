@@ -5,19 +5,27 @@ Raccoon is an experimental automated reasoner for OWL 2, which uses a connection
 
 The reasoner is developed on C++ abiding to the C++11 standard.
 
-It is currently udner development. For now, it is able to to perform consistency checking on the ALC subset of OWL 2.
+It is currently under development. For now, it is able to to perform consistency checking on the ALC subset of OWL 2.
 
+Download
+======
+
+Compiled binaries are available for the following Operating Systems:
+
+Operating System | Platform
+:---------------:|:--------:
+Debian<br>Ubuntu<br>Mint|[amd64](https://drive.google.com/file/d/0B4CJaYm24URxcnFadUgwUTFsdkE/view?usp=sharing)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxSklSYmh1QUQ2ZUk/view?usp=sharing)
 
 How to Compile
 ======
 
 Requirements:
-	* gcc (and g++) with C++11 standard support
-	* make
+* gcc (and g++) with C++11 standard support
+* make
 
 Instructions:
-	1. Using a terminal, change to raccoon subdirectory and type 'make'.
-	2. Two binaries will be built (raccoon and raccoon_dbg). raccoon_dbg outputs debugging information during the parsing.
+* Using a terminal, change to the raccoon subdirectory and type 'make amd64' or 'make i386' depending on your target platform.
+* Two binaries will be built (raccoon and raccoon_dbg). raccoon_dbg outputs debugging information during the parsing.
 
 
 Windows and osx are supported, however there are no automated building scripts for those platforms yet, building has to
@@ -26,7 +34,7 @@ be done manually.
 Usage Examples
 ======
 
-Currently raccoon only provides support to consistency checking.
+Currently raccoon only supports consistency checking.
 To perform consistency checking use:
 ```
 raccoon -c consistency -i ontology.owl
