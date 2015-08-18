@@ -46,7 +46,7 @@ namespace raccoon
 		/**
 		 * This is the value returned by the ConceptRealization::type() method.
 		 */
-		const int TYPE = 1;
+		static const int TYPE = 1;
 		
 		/**
 		 * Reference to the concept of this realization.

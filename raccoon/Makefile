@@ -25,6 +25,7 @@ OBJECTS = CMALCr.o \
           RoleRealization.o \
           UniversalRealization.o \
           Options.o \
+          time.o \
           Owl2.o \
           owl2_parser.o \
           main.o

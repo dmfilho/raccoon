@@ -89,6 +89,8 @@
       <File Name="src/misc/Options.cpp"/>
       <File Name="src/misc/Options.h"/>
       <File Name="src/misc/debug.h"/>
+      <File Name="src/misc/time.h"/>
+      <File Name="src/misc/time.cpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>

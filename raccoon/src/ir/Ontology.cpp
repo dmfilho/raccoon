@@ -54,7 +54,7 @@ namespace raccoon
 	{
 		char uniqueName[32];
 		memset(uniqueName, 0, sizeof(uniqueName));
-		sprintf(uniqueName, "\$U%lu", this->skolemInstanceCount++);
+		sprintf(uniqueName, "$U%u", this->skolemInstanceCount++);
 		return assertInstance(uniqueName);
 	}
 	

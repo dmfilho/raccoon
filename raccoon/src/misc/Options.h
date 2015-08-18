@@ -30,8 +30,15 @@
 #ifndef OPTIONS_H_
 #define OPTIONS_H_
 
-#include <getopt.h>
 #include <string>
+
+struct option
+{
+	const char *name;
+	int has_arg;
+	int *flag;
+	int val;
+};
 
 namespace raccoon 
 {
@@ -54,7 +61,7 @@ namespace raccoon
 		bool writeGetSymbolNameMethod;
 		bool valid;
 		bool quiet;
-		Options(int argc, char* argv[]);
+		Options(int argc, const char* argv[]);
 		virtual ~Options();
 
 		void printHelp();

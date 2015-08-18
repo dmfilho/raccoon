@@ -45,7 +45,7 @@ namespace raccoon
 		/**
 		 * This is the value returned by the RoleRealization::type() method.
 		 */
-		const int TYPE = 2;
+		static const int TYPE = 2;
 		
 		/**
 		 * The literal that represents the role.

@@ -28,12 +28,93 @@
  */
  
 // STL
-#include <unistd.h>
 #include <string>
 #include <iostream>
 #include <cstring>
 // raccoon
 #include "Options.h"
+
+#define no_argument 0
+#define required_argument 1
+
+static const char* optopt = NULL;
+static const char* optarg = NULL;
+
+/**
+ * \brief Implementation of getopt_long for compatibility with other Operating systems
+ * \param argc number of elements on argv
+ * \param argv list of arguments
+ * \param opt the option structure array
+ * \param opt_index (out) the index of the matched option.
+ * @return the code of the matched option, '?' if some error happened or -1 if end of arguments was reached.
+ */
+int _getopt_long(int argc, const char* argv[], const struct option *opt, int *opt_index)
+{
+	static int a = 1;
+	const struct option *copt = opt;
+	int len;
+	
+	if (a >= argc)
+	{
+		return -1;
+	}
+	optopt = argv[a++];
+	len = strlen(optopt);
+	if (len <= 1 || *optopt != '-' || opt == NULL)
+	{
+		return '?';
+	}
+	++optopt;
+	if (*optopt == '-') {
+		++optopt;
+		// full argument name
+		*opt_index = 0;
+		while (copt->name != 0)
+		{
+			if (strcmp(optopt, copt->name) == 0)
+			{
+				if (copt->has_arg)
+				{
+					if (a >= argc)
+					{
+						return '?';
+					}
+					optarg = argv[a++];
+					return copt->val;
+				} else {
+					optarg = NULL;
+					return copt->val;
+				}				
+			}
+			++copt;
+			++(*opt_index);
+		}
+	} else {
+		// short argument name
+		*opt_index = 0;
+		while (copt->name != 0)
+		{
+			if (*optopt == (int) copt->val)
+			{
+				if (copt->has_arg)
+				{
+					if (a >= argc)
+					{
+						return '?';
+					}
+					optarg = argv[a++];
+					return copt->val;
+				} else {
+					optarg = NULL;
+					return copt->val;
+				}				
+			}
+			++copt;
+			++(*opt_index);
+		}
+	}
+	return '?';
+}
 
 using namespace std;
 namespace raccoon 
@@ -48,7 +129,7 @@ namespace raccoon
 		{0,	        0,                 0,  0}
 	};
 	
-	Options::Options(int argc, char* argv[])
+	Options::Options(int argc, const char* argv[])
 	 : inputFileName(nullptr)
 	 , command(invalid_command)
 	 , writeGetSymbolNameMethod(false)
@@ -56,7 +137,7 @@ namespace raccoon
 	{
 		int c;
 		int opt_index;
-		while ((c = getopt_long(argc, argv, "i:hc:q", long_options, &opt_index)) != -1) 
+		while ((c = _getopt_long(argc, argv, long_options, &opt_index)) != -1) 
 		{
 			switch (c) 
 			{
@@ -109,7 +190,7 @@ namespace raccoon
 				this->quiet = true;
 				break;
 			case '?': // something is wrong
-				if (optopt == 'i') 
+				if (strcmp(optopt,"i") == 0) 
 				{
 					cout << "The --input option requires a parameter (the input file name)." << endl;
 				} 
@@ -121,9 +202,17 @@ namespace raccoon
 				return;
 			}
 		}
-		if (this->inputFileName == nullptr || this->command == OptionCmd::invalid_command)
+		if (this->inputFileName == nullptr)
 		{
+			cout << "You MUST specify an input file with the -i option." << endl;
 			this->printHelp();
+			return;
+		}
+		if (this->command == OptionCmd::invalid_command)
+		{
+			cout << "Invalid parameter" << endl;
+			this->printHelp();
+			return;
 		}
 	}
 
@@ -141,8 +230,8 @@ namespace raccoon
 		"Usage: raccoon -i <input_file> -c <command> [options]\n"
 		"Options:\n"
 		"  -h, --help              display this help information.\n"
-		"  -i, --input=FILENAME    the input file.\n"
-		"  -c, --command=CMD       perform the CMD action.\n"
+		"  -i, --input FILENAME    the input file.\n"
+		"  -c, --command CMD       perform the CMD action.\n"
 		"                          CMD can be one of the following:\n"
 		"                          * consistency\n"
 		"                          * classification\n"
