@@ -1,8 +1,8 @@
 Package: raccoon
-Version: 0.1.1-1
+Version: 0.1.2-1
 Section: base
 Priority: optional
-Architecture: i386
+Architecture: ${ARCH}
 Depends: libc6, libstdc++6, libgcc1
 Maintainer: Dimas Melo Filho <dmelofilho@gmail.com>
 Description: automated reasoner for OWL 2

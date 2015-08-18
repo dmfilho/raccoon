@@ -58,7 +58,6 @@
       <File Name="src/ir/ILiteralRealization.h"/>
       <File Name="src/ir/ILiteralRealization.cpp"/>
       <File Name="src/ir/ConnectionList.h"/>
-      <File Name="src/ir/ConnectionList.cpp"/>
       <File Name="src/ir/ClauseSet.cpp"/>
       <File Name="src/ir/ClauseSet.h"/>
       <File Name="src/ir/Ontology.h"/>
