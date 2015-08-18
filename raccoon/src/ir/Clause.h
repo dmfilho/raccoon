@@ -100,9 +100,9 @@ namespace raccoon
 		 */
 		inline void add(ConceptRealization* cr, bool newvar = false)
 		{
-			// Do not add !Thing nor Nothing since they don't change the value of disjunctions.
-			if ((cr->concept.name() == "owl:Thing" && cr->neg == true) ||
-			   (cr->concept.name() == "owl:Nothing" && cr->neg == false))
+			// Do not add Thing nor !Nothing since they don't change the value of disjunctions.
+			if ((cr->concept.name() == "owl:Thing" && cr->neg == false) ||
+			   (cr->concept.name() == "owl:Nothing" && cr->neg == true))
 			{
 				delete cr;
 				return;

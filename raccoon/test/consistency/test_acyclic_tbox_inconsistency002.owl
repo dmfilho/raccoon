@@ -1,0 +1,5 @@
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_inconsistency002.owl>)
+Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_inconsistency002.owl>
+	SubClassOf(owl:Thing owl:Nothing)
+)

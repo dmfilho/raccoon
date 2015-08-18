@@ -17,7 +17,6 @@ OBJECTS = CMALCr.o \
           Clause.o \
           ClauseSet.o \
           ConceptRealization.o \
-          ConnectionList.o \
           ILiteralRealization.o \
           Instance.o \
           Literal.o \
