@@ -21,7 +21,7 @@
  * The author can be reached by e-mail: dldmf@cin.ufpe.br.
  * 
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
- * \date 2015-02-04
+ * \date 2015-08-18
  * \file
  * This file contains the implementation of the Options Class. The Options class is responsible for parsing the command
  * line options and displaying help information to the user.
@@ -157,7 +157,7 @@ namespace raccoon
 	void Options::printVersion()
 	{
 		cout << 
-		"raccoon 0.1.0\n"
+		"raccoon 0.1.2\n"
 		"Copyright (C) 2015 Dimas Melo Filho.\n"
 		"raccoon comes with ABSOLUTELY NO WARRANTY; for details\n"
 		"run raccoon --warranty. This is free software, and you are\n"
