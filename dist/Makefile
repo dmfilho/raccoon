@@ -34,10 +34,10 @@ raccoon-$(VERSION)_$(DEBVER)-i386.deb: debian-i386/DEBIAN/control debian-i386/co
 debian-i386/usr/local/bin/raccoon: ../raccoon/bin/raccoon32
 	rm -rf debian-i386/usr/local/bin/racooon
 	mkdir -p debian-i386/usr/local/bin
-	cp ../raccoon/bin/raccoon debian-i386/usr/local/bin/raccoon
+	cp ../raccoon/bin/raccoon32 debian-i386/usr/local/bin/raccoon
 
 debian-i386/DEBIAN/control: debian-i386/DEBIAN debian/control
-	debian/arch.sh debian/control debian-amd64/DEBIAN/control i386
+	debian/arch.sh debian/control debian-i386/DEBIAN/control i386
 
 debian-i386/DEBIAN:
 	mkdir -p debian-i386/DEBIAN
@@ -49,6 +49,7 @@ debian-i386/%: debian/%
 	make -C ../raccoon -f ../raccoon/Makefile clean i386
 
 clean:
+	make -C ../raccoon -f ../raccoon/Makefile clean
 	rm -rf *.deb
 	rm -rf debian-amd64
 	rm -rf debian-i386
