@@ -13,8 +13,8 @@ Download
 Compiled binaries are available for the following Operating Systems:
 
 Version | Operating System | Platform
-:-------:---------------:|:--------:
-0.1.2|Debian<br>Ubuntu<br>Mint|[amd64](https://drive.google.com/file/d/0B4CJaYm24URxMU9XSjJfUjVXRms/view?usp=sharing)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxWXUzNllub0pYRlU/view?usp=sharing)
+:------:|:----------------:|:--------:
+0.1.2 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxMU9XSjJfUjVXRms/view?usp=sharing)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxWXUzNllub0pYRlU/view?usp=sharing)
 
 How to Compile
 ======
