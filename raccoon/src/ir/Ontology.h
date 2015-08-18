@@ -21,6 +21,7 @@ namespace raccoon
 		unsigned int newInstanceCount;
 		unsigned int newConceptCount;
 		unsigned int newRoleCount;
+		unsigned int skolemInstanceCount;
 		
 		ClauseSet clauseSet;
 		unordered_map<string, Instance*> instances;
@@ -38,6 +39,7 @@ namespace raccoon
 		 */
 		Instance& assertInstance(string& name);
 		Instance& assertInstance(const char* name);
+		Instance& newUniqueInstance();
 		Literal& assertConcept(string& name);
 		Literal& assertConcept(const char* name);
 		Literal& assertRole(string& name);
@@ -52,6 +54,7 @@ namespace raccoon
 		 , newInstanceCount(0)
 		 , newConceptCount(0)
 		 , newRoleCount(0)
+		 , skolemInstanceCount(0)
 		{
 		}
 		

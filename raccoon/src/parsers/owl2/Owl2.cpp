@@ -580,6 +580,7 @@ namespace raccoon
 			Clause* c = new Clause();
 			Literal& newConcept = ontology->newConcept();
 			clause->add(new UniversalRealization(*roleLit, var, 0, negRole, newConcept, negConcept));
+			clause->values[clause->varCount()-1] = &ontology->newUniqueInstance();
 			c->add(new ConceptRealization(newConcept, 0, !negConcept));
 			parseClassExpression(conceptNode, negConcept, c, 0);
 			clauseSet->add(c);
@@ -587,7 +588,8 @@ namespace raccoon
 		else
 		{
 			Literal& concept = ontology->assertConcept(conceptNode->firstChild->firstChild->firstChild->data);
-			clause->add(new UniversalRealization(*roleLit, var, 0, negRole, concept, negConcept));
+			clause->add(new UniversalRealization(*roleLit, var, 0, negRole, concept, negConcept));						// variable 2 id is set withihn clause->add
+			clause->values[clause->varCount()-1] = &ontology->newUniqueInstance();
 		}
 	}
 	

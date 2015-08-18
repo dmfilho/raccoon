@@ -565,7 +565,7 @@ TEST(Owl2Conv_ObjectSomeValuesFrom_Negated)
 	CHECK(hasUniversal(cs.clauses[0], "t:Role1", "t:Class2", true, true, 0, 1));
 	CHECK(ontology.conceptCount == 2);
 	CHECK(ontology.roleCount == 1);
-	CHECK(ontology.instanceCount == 0);
+	CHECK(ontology.instanceCount == 1);
 }
 
 /**
@@ -595,7 +595,7 @@ TEST(Owl2Conv_ObjectAllValuesFrom)
 	CHECK(hasUniversal(cs.clauses[0], "t:Role1", "t:Class2", true, false, 0, 1));
 	CHECK(ontology.conceptCount == 2);
 	CHECK(ontology.roleCount == 1);
-	CHECK(ontology.instanceCount == 0);
+	CHECK(ontology.instanceCount == 1);
 }
 
 /**
