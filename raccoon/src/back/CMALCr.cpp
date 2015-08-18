@@ -100,13 +100,12 @@ namespace raccoon
 	 * \param conn The connection to check.
 	 * \return true when the clause contains a regular literal.
 	 */
-	bool CMALCr::regularity(Connection* conn)
+	bool CMALCr::regularity(Clause* obj, Instance** instances)
 	{
-		Clause* obj = conn->clause;
 		// Check regularity for all concepts of the clause
 		for (ConceptRealization* C: obj->concepts)
 		{
-			if (path.containsConcept(C, obj->values[C->var]))
+			if (path.containsConcept(C, instances[C->var]))
 			{
 				return true;
 			}
@@ -114,7 +113,7 @@ namespace raccoon
 		// Check regularity for all roles of the clause
 		for (RoleRealization* R: obj->roles)
 		{
-			if (path.containsRole(R, obj->values[R->var1], obj->values[R->var2]))
+			if (path.containsRole(R, instances[R->var1], instances[R->var2]))
 			{
 				return true;
 			}
@@ -122,8 +121,8 @@ namespace raccoon
 		// Check regularity for all universals of the clause
 		for (UniversalRealization* U: obj->universals)
 		{
-			if (path.containsConcept(&U->concept, obj->values[U->concept.var]) || 
-			    path.containsRole(&U->role, obj->values[U->role.var1], obj->values[U->role.var2]))
+			if (path.containsConcept(&U->concept, instances[U->concept.var]) || 
+			    path.containsRole(&U->role, instances[U->role.var1], instances[U->role.var2]))
 			{
 				return true;
 			}
@@ -196,6 +195,11 @@ namespace raccoon
 				*inst1 = instances[inst1idx];
 			}
 		}
+		if (this->regularity(obj, instances))
+		{
+			printd("\n# proveClause(%d,%d): Regular Clause", clauseDepth, literalIndex);
+			return false;
+		}
 		// Try to prove the clause, go prove its first concept
 		if (this->proveNextConcept(obj, 0, instances))
 		{
@@ -254,11 +258,6 @@ namespace raccoon
 		{
 			printd("\n# proveNextConcept (%d,%d): Clause: ", clauseDepth, literalIndex);
 			calld(conn->clause->print());
-			if (this->regularity(conn))
-			{
-				printd("\n# proveNextConcept(%d,%d): Regular Clause", clauseDepth, literalIndex);
-				continue;
-			}
 			// Try to prove the connection, if it succeeds try to prove the next concept, if it succeeds, return true
 			if (this->proveClause(conn->clause, instptr, conn->var1, &insttemp, conn->var2))
 			{
@@ -320,10 +319,6 @@ namespace raccoon
 		ConnectionList* connList = kb->getConnections(obj->roles[i]->role.id(), obj->roles[i]->neg);
 		for (Connection* conn: *connList)
 		{
-			if (this->regularity(conn))
-			{
-				continue;
-			}
 			// Try to prove the connection, if it succeeds try to prove the next role, if it succeeds, return true
 			if (this->proveClause(conn->clause, instptr1, conn->var1, instptr2, conn->var2))
 			{
@@ -387,10 +382,6 @@ namespace raccoon
 		ConnectionList* connList = kb->getConnections(obj->universals[i]->concept.concept.id(), obj->universals[i]->concept.neg);
 		for (Connection* conn: *connList)
 		{
-			if (this->regularity(conn))
-			{
-				continue;
-			}
 			// Try to prove the connection, if it succeeds try to prove the next concept, if it succeeds, return true
 			if (this->proveClause(conn->clause, instptr2, conn->var1, &insttemp, conn->var2))
 			{
@@ -417,10 +408,6 @@ namespace raccoon
 		connList = kb->getConnections(obj->universals[i]->role.role.id(), obj->universals[i]->role.neg);
 		for (Connection* conn: *connList)
 		{
-			if (this->regularity(conn))
-			{
-				continue;
-			}
 			// Try to prove the connection, if it succeeds try to prove the next role, if it succeeds, return true
 			if (this->proveClause(conn->clause, instptr1, conn->var1, instptr2, conn->var2))
 			{

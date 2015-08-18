@@ -51,7 +51,7 @@ namespace raccoon
 	public:
 		bool consistency(Ontology* ontology);
 		bool query(ClauseSet* query);
-		bool regularity(Connection* obj);
+		bool regularity(Clause* obj, Instance** instances);
 		bool proveClause(Clause* obj, Instance** inst0, int inst0idx, Instance** inst1, int inst1idx);
 		bool proveNextConcept(Clause* obj, unsigned int i, Instance* instances[]);
 		bool proveNextRole(Clause* obj, unsigned int i, Instance* instances[]);
