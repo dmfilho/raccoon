@@ -50,6 +50,11 @@ namespace raccoon
 		info,            //< Display information about the ontology
 		matrix           //< Display the parsed ontology in matrix form
 	};
+	
+	enum OptionReasoner {
+		cmalc_r,		//< Use CM-ALC with regularity
+		cmalc_rp		//< Use CM-ALC with regularity and PURE reduction
+	};
 		
 	class Options 
 	{
@@ -58,6 +63,7 @@ namespace raccoon
 	public:
 		std::string* inputFileName;
 		OptionCmd command;
+		OptionReasoner reasoner;
 		bool writeGetSymbolNameMethod;
 		bool valid;
 		bool quiet;

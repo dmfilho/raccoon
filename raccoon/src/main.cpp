@@ -35,6 +35,7 @@ extern "C" {
 #include "ir/Ontology.h"
 #include "ir/ClauseSet.h"
 #include "back/CMALCr.h"
+#include "back/CMALCrp.h"
 #include "misc/Options.h"
 #include "misc/time.h"
 // STL
@@ -110,18 +111,24 @@ int main(int argc, char* argv[])
 			}
 			case OptionCmd::consistency:
 			{
-				CMALCr reasoner(&clauseSet);
 				if (!options.quiet)
 				{
 					cout << "Checking Consistency..." << flush;
 				}
-				if (reasoner.consistency(&ontology))
+				switch (options.reasoner)
 				{
-					cout << "true";
-				}
-				else
-				{
-					cout << "false";
+					case OptionReasoner::cmalc_r:
+					{
+						CMALCr reasoner(&clauseSet);
+						cout << reasoner.consistency(&ontology);
+						break;
+					}
+					default:
+					{
+						CMALCrp reasoner(&clauseSet);
+						cout << reasoner.consistency(&ontology);
+						break;
+					}
 				}
 				if (!options.quiet)
 				{

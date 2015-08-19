@@ -126,12 +126,14 @@ namespace raccoon
 		{"warranty",no_argument,       0,  0},
 		{"command", required_argument, 0, 'c'},
 		{"quiet",   no_argument,       0, 'q'},
+		{"reasoner",required_argument, 0, 'r'},
 		{0,	        0,                 0,  0}
 	};
 	
 	Options::Options(int argc, const char* argv[])
 	 : inputFileName(nullptr)
 	 , command(invalid_command)
+	 , reasoner(cmalc_rp)
 	 , writeGetSymbolNameMethod(false)
 	 , valid(true)
 	{
@@ -189,11 +191,36 @@ namespace raccoon
 			case 'q': // quiet
 				this->quiet = true;
 				break;
+			case 'r': // reasoner (select a different reasoner)
+				if (strcmp(optarg, "CMALCr") == 0)
+				{
+					this->reasoner = OptionReasoner::cmalc_r;
+				}
+				else if (strcmp(optarg, "CMALCrp") == 0)
+				{
+					this->reasoner = OptionReasoner::cmalc_rp;
+				}
+				else
+				{
+					cout << "Unknown reasoner '" << optarg << "'." << endl;
+					this->printHelp();
+					return;
+				}
+				break;
 			case '?': // something is wrong
 				if (strcmp(optopt,"i") == 0) 
 				{
 					cout << "The --input option requires a parameter (the input file name)." << endl;
 				} 
+				else if (strcmp(optopt,"c") == 0)
+				{
+					cout << "The --command option requires a parameter (the command/task name to execute)." << endl;
+				}
+				else if (strcmp(optopt,"r") == 0)
+				{
+					cout << "The --reasoner option requires a parameter (the name of the reasoner).\n"
+							"Nonetheless, this option is not required to run the reasoner, try ignoring this option.\n";
+				}
 				else 
 				{
 					cout << "Unknown option '" << optopt << "'." << endl;
@@ -229,24 +256,28 @@ namespace raccoon
 		cout << 
 		"Usage: raccoon -i <input_file> -c <command> [options]\n"
 		"Options:\n"
-		"  -h, --help              display this help information.\n"
-		"  -i, --input FILENAME    the input file.\n"
-		"  -c, --command CMD       perform the CMD action.\n"
-		"                          CMD can be one of the following:\n"
-		"                          * consistency\n"
-		"                          * classification\n"
-		"                          * realization\n"
-		"                          * info\n"
-		"                          * matrix\n\n"
-		"  -q, --quiet             Do not display any information but the result itself.\n"
-		"      --version           display the program's version information.\n\n";		
+		"  -h, --help               display this help information.\n"
+		"  -i, --input FILENAME     the input file.\n"
+		"  -c, --command CMD        perform the CMD action.\n"
+		"                           CMD can be one of the following:\n"
+		"                           * consistency\n"
+		"                           * classification\n"
+		"                           * realization\n"
+		"                           * info\n"
+		"                           * matrix\n\n"
+		"  -r, --reasoner REASONER  use the selected REASONER.\n"
+		"                           REASONER can be one of the following:\n"
+		"                           * CMALCr - CM-ALC with regularity.\n"
+		"                           * CMALCrp - CM-ALC with regularity and PURE reduciton.\n"
+		"  -q, --quiet              Do not display any information but the result itself.\n"
+		"      --version            display the program's version information.\n\n";		
 		this->valid = false;
 	}
 	
 	void Options::printVersion()
 	{
 		cout << 
-		"raccoon 0.1.2\n"
+		"raccoon 0.1.3\n"
 		"Copyright (C) 2015 Dimas Melo Filho.\n"
 		"raccoon comes with ABSOLUTELY NO WARRANTY; for details\n"
 		"run raccoon --warranty. This is free software, and you are\n"
