@@ -23,14 +23,14 @@
  * \author Dimas Melo Filho <dldmf@cin.ufpe.br>
  * \date 2015-08-11
  * \file
- * This file contains the implementation of the CM-ALC (with regularity) reasoner class.
+ * This file contains the implementation of the CM-ALC (with regularity and PURE reduction) reasoner class.
  */
 
 // stl
 #include <iostream>
 #include <vector>
 // raccoon
-#include "CMALCr.h"
+#include "CMALCrp.h"
 #include "../ir/Path.h"
 #include "../ir/Connection.h"
 #include "../ir/ConceptRealization.h"
@@ -40,8 +40,6 @@
 #include "../ir/ClauseSet.h"
 #include "../misc/debug.h"
 
-// TODO: algorithm level and C++ level optimization.
-
 namespace raccoon
 {	
 	
@@ -50,7 +48,7 @@ namespace raccoon
 	 * \param ontology
 	 * \return true when the ontology is consistent, false otherwise.
 	 */
-	bool CMALCr::consistency(Ontology* ontology)
+	bool CMALCrp::consistency(Ontology* ontology)
 	{
 		Instance* inst1 = nullptr;
 		Instance* inst2 = nullptr;
@@ -75,7 +73,7 @@ namespace raccoon
 	 * \param query The hypothesis
 	 * \return true if the ontology entails the hypothesis, false otherwise.
 	 */
-	bool CMALCr::query(ClauseSet* query)
+	bool CMALCrp::query(ClauseSet* query)
 	{
 		Instance* inst1 = nullptr;
 		Instance* inst2 = nullptr;
@@ -102,7 +100,7 @@ namespace raccoon
 	 * \param conn The connection to check.
 	 * \return true when the clause contains a regular literal.
 	 */
-	bool CMALCr::regularity(Clause* obj, Instance** instances)
+	bool CMALCrp::regularity(Clause* obj, Instance** instances)
 	{
 		// Check regularity for all concepts of the clause
 		for (ConceptRealization* C: obj->concepts)
@@ -144,8 +142,10 @@ namespace raccoon
 	 * \param inst1idx The number of the variable of "this clause" to set to inst1
 	 * \return true if able to connect everything, false otherwise.
 	 */
-	bool CMALCr::proveClause(Clause* obj, Instance** inst0, int inst0idx, Instance** inst1, int inst1idx)
+	bool CMALCrp::proveClause(Clause* obj, Instance** inst0, int inst0idx, Instance** inst1, int inst1idx)
 	{
+		// Return in case the clause was removed by a reduction.
+		if (obj->ignore) return false;
 		int varcount = obj->varCount();
 		printd("\n# proveClause (%d): ", ++clauseDepth);
 		calld(obj->print());
@@ -233,7 +233,7 @@ namespace raccoon
 	 * proveNextUniversal to prove the first universal quantifier on the clause. Once all subsequent universals are 
 	 * proved, it returns true. the truth is returned in a chain when all literals are connected.
 	 */
-	bool CMALCr::proveNextConcept(Clause* obj, unsigned int i, Instance* instances[])
+	bool CMALCrp::proveNextConcept(Clause* obj, unsigned int i, Instance* instances[])
 	{
 		// If this concept index is beyond the last concept, go prove the first role
 		if (i >= obj->concepts.size())
@@ -255,6 +255,12 @@ namespace raccoon
 		}
 		// Try to connect the concept
 		vector<Connection*> * connList = obj->concepts[i]->concept.getconns(obj->concepts[i]->neg);
+		// If PURE literal, ignore clause from now on.
+		if (connList->size() <= 0)
+		{
+			obj->ignore = true;
+			return false;
+		}
 		PathItemConcept pathConcept = {
 			.concept = obj->concepts[i],
 			.inst = instptr
@@ -299,7 +305,7 @@ namespace raccoon
 	 * \remark after all subsequent roles are connected, the method proceeds to call proveNextUniversal for the first 
 	 * role on the clause.
 	 */
-	bool CMALCr::proveNextRole(Clause* obj, unsigned int i, Instance* instances[])
+	bool CMALCrp::proveNextRole(Clause* obj, unsigned int i, Instance* instances[])
 	{
 		// If this role index is beyond the last role, go prove the first universal quantifier
 		if (i >= obj->roles.size())
@@ -322,6 +328,11 @@ namespace raccoon
 		}
 		// Try to connect the role
 		vector<Connection*> * connList = obj->roles[i]->role.getconns(obj->roles[i]->neg);
+		// If PURE literal, ignore clause from now on.
+		if (connList->size() <= 0) {
+			obj->ignore = true;
+			return false;
+		}
 		PathItemRole pathRole = {
 			.role = obj->roles[i],
 			.inst1 = instptr1,
@@ -364,7 +375,7 @@ namespace raccoon
 	 * \return true when able to connect every universal quantifier on the clause, false otherwise.
 	 * \remark after all subsequent universal quantifiers are connected, the method returns true.
 	 */
-	bool CMALCr::proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[])
+	bool CMALCrp::proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[])
 	{
 		// If this universal index is beyond the last universal, everything was proved. Return true.
 		if (i >= obj->universals.size())
@@ -390,6 +401,8 @@ namespace raccoon
 		}
 		// Try to connect the concept pf the universal
 		vector<Connection*> * connList = obj->universals[i]->concept.concept.getconns(obj->universals[i]->concept.neg);
+		// Save number of connections of concept for PURE checking later
+		int connSize = connList->size();
 		PathItemConcept pathConcept = {
 			.concept = &obj->universals[i]->concept,
 			.inst = instptr2
@@ -420,6 +433,13 @@ namespace raccoon
 		path.popConcept();
 		// Try to connect the role of the universal
 		connList = obj->universals[i]->role.role.getconns(obj->universals[i]->role.neg);
+		// If both literals from universal restriciton are PURE literals, ignore clause from now on.
+		connSize += connList->size();
+		if (connSize <= 0)
+		{
+			obj->ignore = true;
+			return false;
+		}
 		PathItemRole pathRole = {
 			.role = &obj->universals[i]->role,
 			.inst1 = instptr1,
@@ -453,14 +473,14 @@ namespace raccoon
 		return false;	
 	}
 	
-	CMALCr::CMALCr(ClauseSet* kb)
+	CMALCrp::CMALCrp(ClauseSet* kb)
 	 : kb(kb)
 	{
 		calld(this->clauseDepth = 0);
 		calld(this->literalIndex = 0);
 	}
 
-	CMALCr::~CMALCr()
+	CMALCrp::~CMALCrp()
 	{
 	}
 }

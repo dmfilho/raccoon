@@ -110,7 +110,7 @@ namespace raccoon
 		 * @param inst1 The instance of the first variable of the role, or nullptr to leave as a variable.
 		 * @param inst2 The instance of hte second variable of the role, or nullptr to leave as a variable.
 		 */
-		void pushRole(RoleRealization* role, Instance** inst1, Instance** inst2);
+		void pushRole(PathItemRole *pathRole);
 		
 		/**
 		 * \brief Pop the topmost role from the path.
@@ -142,7 +142,7 @@ namespace raccoon
 		 * @param concept The concept to push to the top of the path.
 		 * @param inst The instance of the concept, or nullptr to ignore.
 		 */
-		void pushConcept(ConceptRealization* concept, Instance** inst);
+		void pushConcept(PathItemConcept *pathCocnept);
 		
 		/**
 		 * \brief Pop a concept from the top of the path.

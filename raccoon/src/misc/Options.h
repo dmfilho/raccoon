@@ -30,8 +30,15 @@
 #ifndef OPTIONS_H_
 #define OPTIONS_H_
 
-#include <getopt.h>
 #include <string>
+
+struct option
+{
+	const char *name;
+	int has_arg;
+	int *flag;
+	int val;
+};
 
 namespace raccoon 
 {
@@ -43,6 +50,11 @@ namespace raccoon
 		info,            //< Display information about the ontology
 		matrix           //< Display the parsed ontology in matrix form
 	};
+	
+	enum OptionReasoner {
+		cmalc_r,		//< Use CM-ALC with regularity
+		cmalc_rp		//< Use CM-ALC with regularity and PURE reduction
+	};
 		
 	class Options 
 	{
@@ -51,10 +63,11 @@ namespace raccoon
 	public:
 		std::string* inputFileName;
 		OptionCmd command;
+		OptionReasoner reasoner;
 		bool writeGetSymbolNameMethod;
 		bool valid;
 		bool quiet;
-		Options(int argc, char* argv[]);
+		Options(int argc, const char* argv[]);
 		virtual ~Options();
 
 		void printHelp();

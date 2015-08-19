@@ -1,6 +1,8 @@
 
 // STL
 #include <sstream>
+#include <cstring>
+#include <cstdlib>
 // raccoon
 #include "Literal.h"
 #include "Ontology.h"
@@ -42,6 +44,18 @@ namespace raccoon
 	{
  		string strName(name);
 		return assertInstance(strName);
+	}
+	
+	/**
+	 * @brief Creates a new unique skolem instance.
+	 * @return A new uniqu skolem instance.
+	 */
+	Instance& Ontology::newUniqueInstance()
+	{
+		char uniqueName[32];
+		memset(uniqueName, 0, sizeof(uniqueName));
+		sprintf(uniqueName, "$U%u", this->skolemInstanceCount++);
+		return assertInstance(uniqueName);
 	}
 	
 	/**

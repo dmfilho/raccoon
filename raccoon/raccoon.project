@@ -41,6 +41,8 @@
     <VirtualDirectory Name="back">
       <File Name="src/back/CMALCr.cpp"/>
       <File Name="src/back/CMALCr.h"/>
+      <File Name="src/back/CMALCrp.cpp"/>
+      <File Name="src/back/CMALCrp.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="ir">
       <File Name="src/ir/Clause.h"/>
@@ -57,13 +59,13 @@
       <File Name="src/ir/Path.cpp"/>
       <File Name="src/ir/ILiteralRealization.h"/>
       <File Name="src/ir/ILiteralRealization.cpp"/>
-      <File Name="src/ir/ConnectionList.h"/>
       <File Name="src/ir/ClauseSet.cpp"/>
       <File Name="src/ir/ClauseSet.h"/>
       <File Name="src/ir/Ontology.h"/>
       <File Name="src/ir/Ontology.cpp"/>
       <File Name="src/ir/UniversalRealization.h"/>
       <File Name="src/ir/UniversalRealization.cpp"/>
+      <File Name="src/ir/Connection.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="parsers">
       <VirtualDirectory Name="owl2">
@@ -89,6 +91,8 @@
       <File Name="src/misc/Options.cpp"/>
       <File Name="src/misc/Options.h"/>
       <File Name="src/misc/debug.h"/>
+      <File Name="src/misc/time.h"/>
+      <File Name="src/misc/time.cpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>

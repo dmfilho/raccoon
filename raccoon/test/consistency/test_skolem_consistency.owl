@@ -1,0 +1,8 @@
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_skolem_consistency.owl>)
+Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_skolem_consistency.owl>
+	SubClassOf(:C ObjectSomeValuesFrom(:R :A))
+	SubClassOf(:B ObjectSomeValuesFrom(:R2 ObjectComplementOf(:A)))
+	ClassAssertion(:C :a)
+	ClassAssertion(:B :a)
+)

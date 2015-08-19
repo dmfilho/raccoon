@@ -35,36 +35,29 @@ extern "C" {
 #include "ir/Ontology.h"
 #include "ir/ClauseSet.h"
 #include "back/CMALCr.h"
+#include "back/CMALCrp.h"
 #include "misc/Options.h"
+#include "misc/time.h"
 // STL
 #include <iostream>
-#include <sys/time.h>
 
 using namespace std;
 using namespace raccoon;
 
-double msecdiff(struct timeval *before)
-{
-	struct timeval now;
-	gettimeofday(&now, NULL);
-	return (double)(now.tv_sec - before->tv_sec) * 1000.0f +
-	       (double)(now.tv_usec - before->tv_usec) / 1000.0f;
-}
-
 int main(int argc, char* argv[])
 {
-	Options options(argc, argv);
+	Options options(argc, (const char**)argv);
 	Owl2 owl2;
 	Ontology ontology;
 	ClauseSet clauseSet;
-	struct timeval before;
+	raccoon_time before;
 	
 	if (options.valid)
 	{
 		if (!options.quiet) 
 		{
 			cout << "Parsing Ontology..." << flush;
-			gettimeofday(&before, NULL);
+			gettime(&before);
 		}
 		parse_result* pr = OWL2_parse_file((char*)options.inputFileName->c_str());
 		if (pr == nullptr)
@@ -75,7 +68,7 @@ int main(int argc, char* argv[])
 		{
 			cout << "OK [" << msecdiff(&before) <<  " ms]" << endl;
 			cout << "Normalizing Ontology..." << flush;
-			gettimeofday(&before, NULL);
+			gettime(&before);
 		}
 		owl2.parse(pr, &ontology, &clauseSet, true);
 		if (!options.quiet)
@@ -96,7 +89,7 @@ int main(int argc, char* argv[])
 			owl2.printUnsupportedFeatures();
 			cout << endl
 			     << "--------------------------------------" << endl << endl;
-			gettimeofday(&before, NULL);
+			gettime(&before);
 		}
 		switch (options.command)
 		{
@@ -118,18 +111,24 @@ int main(int argc, char* argv[])
 			}
 			case OptionCmd::consistency:
 			{
-				CMALCr reasoner(&clauseSet);
 				if (!options.quiet)
 				{
 					cout << "Checking Consistency..." << flush;
 				}
-				if (reasoner.consistency(&ontology))
+				switch (options.reasoner)
 				{
-					cout << "true";
-				}
-				else
-				{
-					cout << "false";
+					case OptionReasoner::cmalc_r:
+					{
+						CMALCr reasoner(&clauseSet);
+						cout << reasoner.consistency(&ontology);
+						break;
+					}
+					default:
+					{
+						CMALCrp reasoner(&clauseSet);
+						cout << reasoner.consistency(&ontology);
+						break;
+					}
 				}
 				if (!options.quiet)
 				{

@@ -29,6 +29,11 @@
 #ifndef __RACCOON_IR_CONCEPTREALIZATION_H
 #define __RACCOON_IR_CONCEPTREALIZATION_H
 
+namespace raccoon
+{
+	class ConceptRealization;
+}
+
 // stl
 #include <vector>
 // raccoon
@@ -46,7 +51,7 @@ namespace raccoon
 		/**
 		 * This is the value returned by the ConceptRealization::type() method.
 		 */
-		const int TYPE = 1;
+		static const int TYPE = 1;
 		
 		/**
 		 * Reference to the concept of this realization.

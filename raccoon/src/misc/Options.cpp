@@ -28,12 +28,93 @@
  */
  
 // STL
-#include <unistd.h>
 #include <string>
 #include <iostream>
 #include <cstring>
 // raccoon
 #include "Options.h"
+
+#define no_argument 0
+#define required_argument 1
+
+static const char* optopt = NULL;
+static const char* optarg = NULL;
+
+/**
+ * \brief Implementation of getopt_long for compatibility with other Operating systems
+ * \param argc number of elements on argv
+ * \param argv list of arguments
+ * \param opt the option structure array
+ * \param opt_index (out) the index of the matched option.
+ * @return the code of the matched option, '?' if some error happened or -1 if end of arguments was reached.
+ */
+int _getopt_long(int argc, const char* argv[], const struct option *opt, int *opt_index)
+{
+	static int a = 1;
+	const struct option *copt = opt;
+	int len;
+	
+	if (a >= argc)
+	{
+		return -1;
+	}
+	optopt = argv[a++];
+	len = strlen(optopt);
+	if (len <= 1 || *optopt != '-' || opt == NULL)
+	{
+		return '?';
+	}
+	++optopt;
+	if (*optopt == '-') {
+		++optopt;
+		// full argument name
+		*opt_index = 0;
+		while (copt->name != 0)
+		{
+			if (strcmp(optopt, copt->name) == 0)
+			{
+				if (copt->has_arg)
+				{
+					if (a >= argc)
+					{
+						return '?';
+					}
+					optarg = argv[a++];
+					return copt->val;
+				} else {
+					optarg = NULL;
+					return copt->val;
+				}				
+			}
+			++copt;
+			++(*opt_index);
+		}
+	} else {
+		// short argument name
+		*opt_index = 0;
+		while (copt->name != 0)
+		{
+			if (*optopt == (int) copt->val)
+			{
+				if (copt->has_arg)
+				{
+					if (a >= argc)
+					{
+						return '?';
+					}
+					optarg = argv[a++];
+					return copt->val;
+				} else {
+					optarg = NULL;
+					return copt->val;
+				}				
+			}
+			++copt;
+			++(*opt_index);
+		}
+	}
+	return '?';
+}
 
 using namespace std;
 namespace raccoon 
@@ -45,18 +126,20 @@ namespace raccoon
 		{"warranty",no_argument,       0,  0},
 		{"command", required_argument, 0, 'c'},
 		{"quiet",   no_argument,       0, 'q'},
+		{"reasoner",required_argument, 0, 'r'},
 		{0,	        0,                 0,  0}
 	};
 	
-	Options::Options(int argc, char* argv[])
+	Options::Options(int argc, const char* argv[])
 	 : inputFileName(nullptr)
 	 , command(invalid_command)
+	 , reasoner(cmalc_rp)
 	 , writeGetSymbolNameMethod(false)
 	 , valid(true)
 	{
 		int c;
 		int opt_index;
-		while ((c = getopt_long(argc, argv, "i:hc:q", long_options, &opt_index)) != -1) 
+		while ((c = _getopt_long(argc, argv, long_options, &opt_index)) != -1) 
 		{
 			switch (c) 
 			{
@@ -108,11 +191,36 @@ namespace raccoon
 			case 'q': // quiet
 				this->quiet = true;
 				break;
+			case 'r': // reasoner (select a different reasoner)
+				if (strcmp(optarg, "CMALCr") == 0)
+				{
+					this->reasoner = OptionReasoner::cmalc_r;
+				}
+				else if (strcmp(optarg, "CMALCrp") == 0)
+				{
+					this->reasoner = OptionReasoner::cmalc_rp;
+				}
+				else
+				{
+					cout << "Unknown reasoner '" << optarg << "'." << endl;
+					this->printHelp();
+					return;
+				}
+				break;
 			case '?': // something is wrong
-				if (optopt == 'i') 
+				if (strcmp(optopt,"i") == 0) 
 				{
 					cout << "The --input option requires a parameter (the input file name)." << endl;
 				} 
+				else if (strcmp(optopt,"c") == 0)
+				{
+					cout << "The --command option requires a parameter (the command/task name to execute)." << endl;
+				}
+				else if (strcmp(optopt,"r") == 0)
+				{
+					cout << "The --reasoner option requires a parameter (the name of the reasoner).\n"
+							"Nonetheless, this option is not required to run the reasoner, try ignoring this option.\n";
+				}
 				else 
 				{
 					cout << "Unknown option '" << optopt << "'." << endl;
@@ -121,9 +229,17 @@ namespace raccoon
 				return;
 			}
 		}
-		if (this->inputFileName == nullptr || this->command == OptionCmd::invalid_command)
+		if (this->inputFileName == nullptr)
 		{
+			cout << "You MUST specify an input file with the -i option." << endl;
 			this->printHelp();
+			return;
+		}
+		if (this->command == OptionCmd::invalid_command)
+		{
+			cout << "Invalid parameter" << endl;
+			this->printHelp();
+			return;
 		}
 	}
 
@@ -140,24 +256,28 @@ namespace raccoon
 		cout << 
 		"Usage: raccoon -i <input_file> -c <command> [options]\n"
 		"Options:\n"
-		"  -h, --help              display this help information.\n"
-		"  -i, --input=FILENAME    the input file.\n"
-		"  -c, --command=CMD       perform the CMD action.\n"
-		"                          CMD can be one of the following:\n"
-		"                          * consistency\n"
-		"                          * classification\n"
-		"                          * realization\n"
-		"                          * info\n"
-		"                          * matrix\n\n"
-		"  -q, --quiet             Do not display any information but the result itself.\n"
-		"      --version           display the program's version information.\n\n";		
+		"  -h, --help               display this help information.\n"
+		"  -i, --input FILENAME     the input file.\n"
+		"  -c, --command CMD        perform the CMD action.\n"
+		"                           CMD can be one of the following:\n"
+		"                           * consistency\n"
+		"                           * classification\n"
+		"                           * realization\n"
+		"                           * info\n"
+		"                           * matrix\n\n"
+		"  -r, --reasoner REASONER  use the selected REASONER.\n"
+		"                           REASONER can be one of the following:\n"
+		"                           * CMALCr - CM-ALC with regularity.\n"
+		"                           * CMALCrp - CM-ALC with regularity and PURE reduciton.\n"
+		"  -q, --quiet              Do not display any information but the result itself.\n"
+		"      --version            display the program's version information.\n\n";		
 		this->valid = false;
 	}
 	
 	void Options::printVersion()
 	{
 		cout << 
-		"raccoon 0.1.2\n"
+		"raccoon 0.1.3\n"
 		"Copyright (C) 2015 Dimas Melo Filho.\n"
 		"raccoon comes with ABSOLUTELY NO WARRANTY; for details\n"
 		"run raccoon --warranty. This is free software, and you are\n"

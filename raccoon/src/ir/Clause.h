@@ -36,6 +36,7 @@
 #include "ConceptRealization.h"
 #include "RoleRealization.h"
 #include "UniversalRealization.h"
+#include "Connection.h"
 
 using namespace std;
 namespace raccoon
@@ -106,13 +107,14 @@ namespace raccoon
 			{
 				delete cr;
 				return;
-			}			   
+			}
 			this->concepts.push_back(cr);
 			if (newvar)
 			{
 				cr->var = _varCount++;
 				values.push_back(nullptr);
 			}
+			cr->concept.addconn(new Connection(this, cr->var, 0), cr->neg);
 		}
 		
 		/**
@@ -123,6 +125,7 @@ namespace raccoon
 			this->roles.push_back(rr);
 			rr->var2 = _varCount++;
 			values.push_back(nullptr);
+			rr->role.addconn(new Connection(this, rr->var1, rr->var2), rr->neg);
 		}
 		
 		/**
@@ -135,6 +138,8 @@ namespace raccoon
 			ur->concept.var = var2;
 			ur->role.var2 = var2;
 			values.push_back(nullptr);
+			ur->concept.concept.addconn(new Connection(this, var2, 0), ur->concept.neg);
+			ur->role.role.addconn(new Connection(this, ur->role.var1, var2), ur->role.neg);
 		}
 		
 		/**

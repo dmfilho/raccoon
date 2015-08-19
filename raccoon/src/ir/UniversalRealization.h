@@ -46,7 +46,7 @@ namespace raccoon
 		/**
 		 * This is the value returned by the UniversalRealization::type() method.
 		 */
-		const int TYPE = 3;
+		static const int TYPE = 3;
 		
 		/**
 		 * The realization that represents the role of the universal quantifier.

@@ -95,13 +95,9 @@ namespace raccoon
 	 * @param inst1 The instance of the first variable of the role, or nullptr to leave as a variable.
 	 * @param inst2 The instance of hte second variable of the role, or nullptr to leave as a variable.
 	 */
-	void Path::pushRole(RoleRealization* role, Instance** inst1, Instance** inst2)
+	void Path::pushRole(PathItemRole * pathRole)
 	{
-		PathItemRole* item = new PathItemRole;
-		item->role = role;
-		item->inst1 = inst1;
-		item->inst2 = inst2;
-		this->roles.push_back(item);
+		this->roles.push_back(pathRole);
 	}
 	
 	/**
@@ -110,8 +106,6 @@ namespace raccoon
 	 */
 	void Path::popRole()
 	{
-		PathItemRole* item = this->roles.back();
-		delete item;
 		this->roles.pop_back();
 	}
 	
@@ -159,12 +153,9 @@ namespace raccoon
 	 * @param concept The concept to push to the top of the path.
 	 * @param inst The instance of the concept, or nullptr to ignore.
 	 */
-	void Path::pushConcept(ConceptRealization* concept, Instance** inst)
+	void Path::pushConcept(PathItemConcept * concept)
 	{
-		PathItemConcept* item = new PathItemConcept;
-		item->concept = concept;
-		item->inst = inst;
-		this->concepts.push_back(item);
+		this->concepts.push_back(concept);
 	}
 	
 	/**
@@ -173,8 +164,6 @@ namespace raccoon
 	 */
 	void Path::popConcept()
 	{
-		PathItemConcept* item = this->concepts.back();
-		delete item;
 		this->concepts.pop_back();
 	}
 	

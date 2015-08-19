@@ -14,6 +14,7 @@ DBG_CXX_FLAGS32 = -m32 -std=c++11 -O0 -g -D _DEBUG
 DBG_CC_FLAGS32 = -m32 -O0 -g -D _DEBUG
 
 OBJECTS = CMALCr.o \
+		  CMALCrp.o \
           Clause.o \
           ClauseSet.o \
           ConceptRealization.o \
@@ -25,6 +26,7 @@ OBJECTS = CMALCr.o \
           RoleRealization.o \
           UniversalRealization.o \
           Options.o \
+          time.o \
           Owl2.o \
           owl2_parser.o \
           main.o
