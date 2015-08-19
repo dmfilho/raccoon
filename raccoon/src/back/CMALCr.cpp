@@ -28,9 +28,10 @@
 
 // stl
 #include <iostream>
+#include <vector>
 // raccoon
 #include "CMALCr.h"
-#include "../ir/ConnectionList.h"
+#include "../ir/Connection.h"
 #include "../ir/ConceptRealization.h"
 #include "../ir/RoleRealization.h"
 #include "../ir/UniversalRealization.h"
@@ -253,7 +254,7 @@ namespace raccoon
 		}
 		// Try to connect the concept
 		path.pushConcept(obj->concepts[i], instptr);
-		ConnectionList* connList = kb->getConnections(obj->concepts[i]->concept.id(), obj->concepts[i]->neg);
+		vector<Connection*> * connList = obj->concepts[i]->concept.getconns(obj->concepts[i]->neg);
 		for (Connection* conn: *connList)
 		{
 			printd("\n# proveNextConcept (%d,%d): Clause: ", clauseDepth, literalIndex);
@@ -316,7 +317,7 @@ namespace raccoon
 		}
 		// Try to connect the role
 		path.pushRole(obj->roles[i], instptr1, instptr2);
-		ConnectionList* connList = kb->getConnections(obj->roles[i]->role.id(), obj->roles[i]->neg);
+		vector<Connection*> * connList = obj->roles[i]->role.getconns(obj->roles[i]->neg);
 		for (Connection* conn: *connList)
 		{
 			// Try to prove the connection, if it succeeds try to prove the next role, if it succeeds, return true
@@ -379,7 +380,7 @@ namespace raccoon
 		}
 		// Try to connect the concept pf the universal
 		path.pushConcept(&obj->universals[i]->concept, instptr2);
-		ConnectionList* connList = kb->getConnections(obj->universals[i]->concept.concept.id(), obj->universals[i]->concept.neg);
+		vector<Connection*> * connList = obj->universals[i]->concept.concept.getconns(obj->universals[i]->concept.neg);
 		for (Connection* conn: *connList)
 		{
 			// Try to prove the connection, if it succeeds try to prove the next concept, if it succeeds, return true
@@ -405,7 +406,7 @@ namespace raccoon
 		path.popConcept();
 		// Try to connect the role of the universal
 		path.pushRole(&obj->universals[i]->role, instptr1, instptr2);
-		connList = kb->getConnections(obj->universals[i]->role.role.id(), obj->universals[i]->role.neg);
+		connList = obj->universals[i]->role.role.getconns(obj->universals[i]->role.neg);
 		for (Connection* conn: *connList)
 		{
 			// Try to prove the connection, if it succeeds try to prove the next role, if it succeeds, return true

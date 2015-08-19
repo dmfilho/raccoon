@@ -8,7 +8,7 @@
 #include <array>
 // raccoon
 #include "Clause.h"
-#include "ConnectionList.h"
+#include "Connection.h"
 
 using namespace std;
 namespace raccoon
@@ -17,11 +17,7 @@ namespace raccoon
 	{
 	private:
 		vector<Clause*> clauses;
-		unordered_map<unsigned int, ConnectionList*> pconnections;
-		unordered_map<unsigned int, ConnectionList*> nconnections;
 	public:
-		ConnectionList* getConnections(unsigned int id, bool negated);
-		ConnectionList* cacheConnectionsOf(unsigned int id, bool negated);
 	
 		ClauseSet();
 		~ClauseSet();

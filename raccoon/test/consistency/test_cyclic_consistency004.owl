@@ -1,0 +1,6 @@
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_cyclic_consistency004.owl>)
+Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_cyclic_consistency004.owl>
+  SubClassOf(:E ObjectSomeValuesFrom(:r :E))
+  ClassAssertion(:E :a)
+)

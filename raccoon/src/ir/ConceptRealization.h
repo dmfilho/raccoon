@@ -29,6 +29,11 @@
 #ifndef __RACCOON_IR_CONCEPTREALIZATION_H
 #define __RACCOON_IR_CONCEPTREALIZATION_H
 
+namespace raccoon
+{
+	class ConceptRealization;
+}
+
 // stl
 #include <vector>
 // raccoon

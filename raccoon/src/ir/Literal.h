@@ -29,8 +29,16 @@
 #ifndef __RACCOON_IR_LITERAL_H
 #define __RACCOON_IR_LITERAL_H
 
+namespace raccoon
+{
+	class Connection;
+}
+
 // STL
 #include <string>
+#include <vector>
+// raccoon
+#include "Connection.h"
 
 using namespace std;
 namespace raccoon
@@ -53,6 +61,27 @@ namespace raccoon
 		 * True when the literal is original from the ontology. False when it was created during normalization.
 		 */
 		bool original;
+		
+		vector<Connection*> pconn;
+		
+		vector<Connection*> nconn;
+		
+		inline void addconn(Connection* conn, bool neg)
+		{
+			if (neg)
+			{
+				nconn.push_back(conn);
+			}
+			else
+			{
+				pconn.push_back(conn);
+			}
+		}
+		
+		inline vector<Connection*> * getconns(bool neg)
+		{
+			return (neg ? &pconn : &nconn);
+		}
 		
 		/**
 		 * Gets the concept name.
