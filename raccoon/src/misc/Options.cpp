@@ -136,6 +136,7 @@ namespace raccoon
 	 , reasoner(cmalc_rp)
 	 , writeGetSymbolNameMethod(false)
 	 , valid(true)
+	 , quiet(false)
 	{
 		int c;
 		int opt_index;
