@@ -61,6 +61,7 @@ namespace raccoon
 				printd("\n# CMALCr::consistency end (INCONSISTENT)\n");
 				return false;
 			}
+			clause->ignore = true;
 			inst1 = nullptr;
 			inst2 = nullptr;
 		}
@@ -203,7 +204,7 @@ namespace raccoon
 			return false;
 		}
 		// Try to prove the clause, go prove its first concept
-		if (this->proveNextConcept(obj, 0, instances))
+		if (this->proveNextRole(obj, 0, instances))
 		{
 			if (instances[inst0idx] != nullptr)
 			{
@@ -238,7 +239,7 @@ namespace raccoon
 		// If this concept index is beyond the last concept, go prove the first role
 		if (i >= obj->concepts.size())
 		{
-			return proveNextRole(obj, 0, instances);
+			return proveNextUniversal(obj, 0, instances);
 		}
 		// Print debug information when in debug mode
 		printd("\n# proveNextConcept (%d,%d): ", clauseDepth, ++literalIndex);
@@ -310,7 +311,7 @@ namespace raccoon
 		// If this role index is beyond the last role, go prove the first universal quantifier
 		if (i >= obj->roles.size())
 		{
-			return proveNextUniversal(obj, 0, instances);
+			return proveNextConcept(obj, 0, instances);
 		}
 		// Print debug information when in debug mode
 		printd("\n# proveNextRole (%d,%d): ", clauseDepth, ++literalIndex);
