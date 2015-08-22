@@ -36,7 +36,7 @@ namespace raccoon
 
 // STL
 #include <string>
-#include <vector>
+#include <list>
 // raccoon
 #include "Connection.h"
 
@@ -62,25 +62,60 @@ namespace raccoon
 		 */
 		bool original;
 		
-		vector<Connection*> pconn;
+		/**
+		 * List of positive connections. Instanced clauses are added to the front of the list, whilst variable clauses
+		 * are added to the back of the list. This is to correctly order the proof, avoiding cycles.
+		 */
+		list<Connection*> pconn;
 		
-		vector<Connection*> nconn;
+		/**
+		 * List of negative connections. Instanced clauses are added to the front of the list, whilst variable clauses
+		 * are added to the back of the list. This is to correctly order the proof, avoiding cycles.
+		 */
+		list<Connection*> nconn;
 		
-		inline void addconn(Connection* conn, bool neg)
+		/**
+		 * \brief Add a connection to the correct connection list at the correct position.
+		 * \param conn The connection to add
+		 * \param neg Whether the literal appears negative on the clause or not.
+		 * \param hasInstance it is used only to tell if the literal is instanced or not.
+		 */
+		inline void addconn(Connection* conn, bool neg, bool hasInstance)
 		{
 			if (neg)
 			{
-				nconn.push_back(conn);
+				if (hasInstance) 
+					nconn.push_front(conn);
+				else
+					nconn.push_back(conn);
 			}
 			else
 			{
-				pconn.push_back(conn);
+				if (hasInstance)
+					pconn.push_front(conn);
+				else
+					pconn.push_back(conn);
 			}
 		}
 		
-		inline vector<Connection*> * getconns(bool neg)
+		/**
+		 * \brief Returns the list of connections (negated or not)
+		 * \param neg True if the user wants the connections for a negated literal (i.e. the user has a negated
+		 * literal). False otherwise.
+		 * \return a list of connections for the literal
+		 */
+		inline list<Connection*> * getconns(bool neg)
 		{
 			return (neg ? &pconn : &nconn);
+		}
+		
+		/**
+		 * \brief Returns true if the literal is pure (i.e. it lacks complements).
+		 * \return 
+		 */
+		inline bool pure()
+		{
+			return (pconn.size() == 0 || nconn.size() == 0);
 		}
 		
 		/**

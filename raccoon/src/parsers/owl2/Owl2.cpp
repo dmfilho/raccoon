@@ -601,7 +601,7 @@ namespace raccoon
 		{
 			case OWL2_ObjectProperty:
 				lit = &ontology->assertRole(roleNode->firstChild->firstChild->data);
-				clause->add(new RoleRealization(*lit, var, 0, negRole));
+				clause->add(new RoleRealization(*lit, var, 0, negRole), false);
 				break;
 			case OWL2_InverseObjectProperty: // inverse as in inverse function
 				throw unsupported_feature_exception(
@@ -747,7 +747,7 @@ namespace raccoon
 		{
 			case OWL2_ObjectProperty:
 				lit = &ontology->assertRole(roleNode->firstChild->firstChild->data);
-				clause->add(new RoleRealization(*lit, 0, 1, neg));
+				clause->add(new RoleRealization(*lit, 0, 1, neg), true);
 				break;
 			case OWL2_InverseObjectProperty:
 				throw unsupported_feature_exception(

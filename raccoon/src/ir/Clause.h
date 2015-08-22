@@ -101,7 +101,7 @@ namespace raccoon
 		 */
 		inline void add(ConceptRealization* cr, bool newvar = false)
 		{
-			// Do not add Thing nor !Nothing since they don't change the value of disjunctions.
+			// Do not add Thing neither !Nothing since they don't change the value of disjunctions.
 			if ((cr->concept.name() == "owl:Thing" && cr->neg == false) ||
 			   (cr->concept.name() == "owl:Nothing" && cr->neg == true))
 			{
@@ -114,18 +114,21 @@ namespace raccoon
 				cr->var = _varCount++;
 				values.push_back(nullptr);
 			}
-			cr->concept.addconn(new Connection(this, cr->var, 0), cr->neg);
+			cr->concept.addconn(new Connection(this, cr->var, 0), cr->neg, (values[cr->var] != nullptr));
 		}
 		
 		/**
 		 * \brief Adds a RoleRealization to the concepts vector.
+		 * \param rr The RoleRealization object
+		 * \param assertion true if adding an assertion (i.e. role with instances). this is used to order the
+		 * connections for the role.
 		 */
-		inline void add(RoleRealization* rr)
+		inline void add(RoleRealization* rr, bool assertion)
 		{
 			this->roles.push_back(rr);
 			rr->var2 = _varCount++;
 			values.push_back(nullptr);
-			rr->role.addconn(new Connection(this, rr->var1, rr->var2), rr->neg);
+			rr->role.addconn(new Connection(this, rr->var1, rr->var2), rr->neg, assertion);
 		}
 		
 		/**
@@ -138,8 +141,8 @@ namespace raccoon
 			ur->concept.var = var2;
 			ur->role.var2 = var2;
 			values.push_back(nullptr);
-			ur->concept.concept.addconn(new Connection(this, var2, 0), ur->concept.neg);
-			ur->role.role.addconn(new Connection(this, ur->role.var1, var2), ur->role.neg);
+			ur->concept.concept.addconn(new Connection(this, var2, 0), ur->concept.neg, false);
+			ur->role.role.addconn(new Connection(this, ur->role.var1, var2), ur->role.neg, false);
 		}
 		
 		/**

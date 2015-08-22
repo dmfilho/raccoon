@@ -21,7 +21,7 @@ using namespace raccoon;
  * @param var What is the variable id of the concept?
  * @return True when the specified concept is found within the clauseset.
  */
-bool hasConcept(Clause* clause, const char* name, bool neg, unsigned int var)
+bool hasConcept(Clause* clause, const char* name, bool neg, int var)
 {
 	for (auto concept: clause->concepts)
 	{
@@ -44,7 +44,7 @@ bool hasConcept(Clause* clause, const char* name, bool neg, unsigned int var)
  * @param var2 What is the second variable id of the role?
  * @return True when the specified role is found within the clauseset.
  */
-bool hasRole(Clause* clause, const char* name, bool neg, unsigned int var1, unsigned int var2)
+bool hasRole(Clause* clause, const char* name, bool neg, int var1, int var2)
 {
 	for (auto role: clause->roles)
 	{
@@ -71,7 +71,7 @@ bool hasRole(Clause* clause, const char* name, bool neg, unsigned int var1, unsi
  * @return True when the specified role is found within the clauseset.
  */
 bool hasUniversal(Clause* clause, const char* roleName, const char* conceptName, bool roleNeg, bool conceptNeg, 
-	unsigned int var1, unsigned int var2)
+	int var1, int var2)
 {
 	for (auto universal: clause->universals)
 	{

@@ -28,7 +28,7 @@
 
 // stl
 #include <iostream>
-#include <vector>
+#include <list>
 // raccoon
 #include "CMALCrp.h"
 #include "../ir/Path.h"
@@ -255,7 +255,7 @@ namespace raccoon
 			return this->proveNextConcept(obj, i+1, instances);
 		}
 		// Try to connect the concept
-		vector<Connection*> * connList = obj->concepts[i]->concept.getconns(obj->concepts[i]->neg);
+		list<Connection*> * connList = obj->concepts[i]->concept.getconns(obj->concepts[i]->neg);
 		// If PURE literal, ignore clause from now on.
 		if (connList->size() <= 0)
 		{
@@ -328,7 +328,7 @@ namespace raccoon
 			return this->proveNextRole(obj, i+1, instances);
 		}
 		// Try to connect the role
-		vector<Connection*> * connList = obj->roles[i]->role.getconns(obj->roles[i]->neg);
+		list<Connection*> * connList = obj->roles[i]->role.getconns(obj->roles[i]->neg);
 		// If PURE literal, ignore clause from now on.
 		if (connList->size() <= 0) {
 			obj->ignore = true;
@@ -401,7 +401,7 @@ namespace raccoon
 			return this->proveNextUniversal(obj, i+1, instances);
 		}
 		// Try to connect the concept pf the universal
-		vector<Connection*> * connList = obj->universals[i]->concept.concept.getconns(obj->universals[i]->concept.neg);
+		list<Connection*> * connList = obj->universals[i]->concept.concept.getconns(obj->universals[i]->concept.neg);
 		// Save number of connections of concept for PURE checking later
 		int connSize = connList->size();
 		PathItemConcept pathConcept = {

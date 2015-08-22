@@ -28,7 +28,7 @@
 
 // stl
 #include <iostream>
-#include <vector>
+#include <list>
 // raccoon
 #include "CMALCr.h"
 #include "../ir/Path.h"
@@ -254,7 +254,7 @@ namespace raccoon
 			return this->proveNextConcept(obj, i+1, instances);
 		}
 		// Try to connect the concept
-		vector<Connection*> * connList = obj->concepts[i]->concept.getconns(obj->concepts[i]->neg);
+		list<Connection*> * connList = obj->concepts[i]->concept.getconns(obj->concepts[i]->neg);
 		PathItemConcept pathConcept = {
 			.concept = obj->concepts[i],
 			.inst = instptr
@@ -321,7 +321,7 @@ namespace raccoon
 			return this->proveNextRole(obj, i+1, instances);
 		}
 		// Try to connect the role
-		vector<Connection*> * connList = obj->roles[i]->role.getconns(obj->roles[i]->neg);
+		list<Connection*> * connList = obj->roles[i]->role.getconns(obj->roles[i]->neg);
 		PathItemRole pathRole = {
 			.role = obj->roles[i],
 			.inst1 = instptr1,
@@ -389,7 +389,7 @@ namespace raccoon
 			return this->proveNextUniversal(obj, i+1, instances);
 		}
 		// Try to connect the concept pf the universal
-		vector<Connection*> * connList = obj->universals[i]->concept.concept.getconns(obj->universals[i]->concept.neg);
+		list<Connection*> * connList = obj->universals[i]->concept.concept.getconns(obj->universals[i]->concept.neg);
 		PathItemConcept pathConcept = {
 			.concept = &obj->universals[i]->concept,
 			.inst = instptr2
