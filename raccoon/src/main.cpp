@@ -117,12 +117,6 @@ int main(int argc, char* argv[])
 				}
 				switch (options.reasoner)
 				{
-					case OptionReasoner::cmalc_r:
-					{
-						CMALCr reasoner(&clauseSet);
-						cout << (reasoner.consistency(&ontology) ? "true" : "false");
-						break;
-					}
 					default:
 					{
 						CMALCrp reasoner(&clauseSet);

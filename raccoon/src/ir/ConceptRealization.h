@@ -36,10 +36,12 @@ namespace raccoon
 
 // stl
 #include <vector>
+#include <list>
 // raccoon
 #include "Instance.h"
 #include "Literal.h"
 #include "ILiteralRealization.h"
+#include "Connection.h"
 
 namespace raccoon
 {
@@ -52,6 +54,8 @@ namespace raccoon
 		 * This is the value returned by the ConceptRealization::type() method.
 		 */
 		static const int TYPE = 1;
+		
+		list<Connection*>::iterator conn_ptr;
 		
 		/**
 		 * Reference to the concept of this realization.

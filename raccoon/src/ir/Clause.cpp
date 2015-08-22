@@ -108,7 +108,7 @@ namespace raccoon
 	
 	Clause::Clause()
 	 : _varCount(1)
-	 , ignore(false)
+	 , blocked(false)
 	{
 		values.push_back(nullptr);
 	}

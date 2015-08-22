@@ -151,6 +151,12 @@ namespace raccoon
 		void popConcept();
 		
 		/**
+		 * \brief Returns true if the path itself contains regular literals.
+		 * \return true if the path contains regular literals.
+		 */
+		bool regular();
+		
+		/**
 		 * \brief Prints the whole path.
 		 */
 		void print();

@@ -30,10 +30,85 @@
 #include <string>
 // raccoon
 #include "Literal.h"
+#include "Clause.h"
 
 using namespace std;
 namespace raccoon
 {
+	
+	/**
+	 * \brief Block all clauses containing this literal.
+	 */
+	int Literal::block()
+	{
+		int cblock = 0;
+		static vector<Connection*> vconn;
+		for (Connection* conn: pconn)
+		{
+			if (!conn->universal)
+			{
+				vconn.push_back(conn);
+				++cblock;
+			}
+		}
+		for (Connection* conn: nconn)
+		{
+			if (!conn->universal)
+			{
+				vconn.push_back(conn);
+				++cblock;
+			}
+		}
+		while (vconn.size() > 0)
+		{
+			Connection* conn = vconn.back();
+			vconn.pop_back();
+			conn->clause->block();
+		}
+		return cblock;
+	}
+	
+	list<Connection*>::iterator Literal::addconn(Connection* conn, bool neg, bool hasInstance)
+	{
+		if (neg)
+		{
+			if (hasInstance)
+			{
+				nconn.push_front(conn);
+				return nconn.begin();
+			}
+			else
+			{
+				nconn.push_back(conn);
+				return --nconn.end();
+			}
+		}
+		else
+		{
+			if (hasInstance)
+			{
+				pconn.push_front(conn);
+				return pconn.begin();
+			}
+			else
+			{
+				pconn.push_back(conn);
+				return --pconn.end();
+			}
+		}
+	}
+	
+	void Literal::delconn(list<Connection*>::iterator conn_it, bool neg)
+	{
+		if (neg)
+		{
+			nconn.erase(conn_it);
+		}
+		else
+		{
+			pconn.erase(conn_it);
+		}
+	}
 	
 	/**
 	 * Creates a new concept. The creator should provide the name and id of the concept.

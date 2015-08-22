@@ -38,11 +38,11 @@
 #include "../ir/UniversalRealization.h"
 #include "../ir/Clause.h"
 #include "../ir/ClauseSet.h"
+#include "../misc/time.h"
 #include "../misc/debug.h"
 
 namespace raccoon
-{	
-	
+{		
 	/**
 	 * \brief Checks the consistency of the ontology.
 	 * \param ontology
@@ -52,6 +52,11 @@ namespace raccoon
 	{
 		Instance* inst1 = nullptr;
 		Instance* inst2 = nullptr;
+		raccoon_time before;
+		cout << endl << "Performing PURE reduction..." << endl;
+		gettime(&before);
+		ontology->pureReduction();
+		cout << "End of PURE reduction... [" << msecdiff(&before) << "ms]" << endl;
 		for (Clause* clause: *kb)
 		{
 			printd("\n# CMALCr::consistency start clause: ");
@@ -61,7 +66,7 @@ namespace raccoon
 				printd("\n# CMALCr::consistency end (INCONSISTENT)\n");
 				return false;
 			}
-			clause->ignore = true;
+			//clause->blocked = true;
 			inst1 = nullptr;
 			inst2 = nullptr;
 		}
@@ -103,6 +108,11 @@ namespace raccoon
 	 */
 	bool CMALCrp::regularity(Clause* obj, Instance** instances)
 	{
+		// Check if the path itself contains a regular literal.
+		if (path.regular())
+		{
+			return true;
+		}
 		// Check regularity for all concepts of the clause
 		for (ConceptRealization* C: obj->concepts)
 		{
@@ -146,7 +156,7 @@ namespace raccoon
 	bool CMALCrp::proveClause(Clause* obj, Instance** inst0, int inst0idx, Instance** inst1, int inst1idx)
 	{
 		// Return in case the clause was removed by a reduction.
-		if (obj->ignore) return false;
+		if (obj->blocked) return false;
 		int varcount = obj->varCount();
 		printd("\n# proveClause (%d): ", ++clauseDepth);
 		calld(obj->print());
@@ -204,7 +214,7 @@ namespace raccoon
 			return false;
 		}
 		// Try to prove the clause, go prove its first concept
-		if (this->proveNextRole(obj, 0, instances))
+		if (this->proveNextConcept(obj, 0, instances))
 		{
 			if (instances[inst0idx] != nullptr)
 			{
@@ -239,7 +249,7 @@ namespace raccoon
 		// If this concept index is beyond the last concept, go prove the first role
 		if (i >= obj->concepts.size())
 		{
-			return proveNextUniversal(obj, 0, instances);
+			return proveNextRole(obj, 0, instances);
 		}
 		// Print debug information when in debug mode
 		printd("\n# proveNextConcept (%d,%d): ", clauseDepth, ++literalIndex);
@@ -256,12 +266,6 @@ namespace raccoon
 		}
 		// Try to connect the concept
 		list<Connection*> * connList = obj->concepts[i]->concept.getconns(obj->concepts[i]->neg);
-		// If PURE literal, ignore clause from now on.
-		if (connList->size() <= 0)
-		{
-			obj->ignore = true;
-			return false;
-		}
 		PathItemConcept pathConcept = {
 			.concept = obj->concepts[i],
 			.inst = instptr
@@ -311,7 +315,7 @@ namespace raccoon
 		// If this role index is beyond the last role, go prove the first universal quantifier
 		if (i >= obj->roles.size())
 		{
-			return proveNextConcept(obj, 0, instances);
+			return proveNextUniversal(obj, 0, instances);
 		}
 		// Print debug information when in debug mode
 		printd("\n# proveNextRole (%d,%d): ", clauseDepth, ++literalIndex);
@@ -329,11 +333,6 @@ namespace raccoon
 		}
 		// Try to connect the role
 		list<Connection*> * connList = obj->roles[i]->role.getconns(obj->roles[i]->neg);
-		// If PURE literal, ignore clause from now on.
-		if (connList->size() <= 0) {
-			obj->ignore = true;
-			return false;
-		}
 		PathItemRole pathRole = {
 			.role = obj->roles[i],
 			.inst1 = instptr1,
@@ -436,11 +435,6 @@ namespace raccoon
 		connList = obj->universals[i]->role.role.getconns(obj->universals[i]->role.neg);
 		// If both literals from universal restriciton are PURE literals, ignore clause from now on.
 		connSize += connList->size();
-		if (connSize <= 0)
-		{
-			obj->ignore = true;
-			return false;
-		}
 		PathItemRole pathRole = {
 			.role = &obj->universals[i]->role,
 			.inst1 = instptr1,

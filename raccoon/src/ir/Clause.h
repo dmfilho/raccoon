@@ -49,7 +49,7 @@ namespace raccoon
 		/**
 		 * When true, the clause is not used on the reasoning process.
 		 */
-		bool ignore;
+		bool blocked;
 		
 		/**
 		 * List of concept realizations of the clause. A concept realization is a concept coupled to an instance when
@@ -114,7 +114,7 @@ namespace raccoon
 				cr->var = _varCount++;
 				values.push_back(nullptr);
 			}
-			cr->concept.addconn(new Connection(this, cr->var, 0), cr->neg, (values[cr->var] != nullptr));
+			cr->conn_ptr = cr->concept.addconn(new Connection(this, cr->var, 0, false), cr->neg, (values[cr->var] != nullptr));
 		}
 		
 		/**
@@ -128,7 +128,7 @@ namespace raccoon
 			this->roles.push_back(rr);
 			rr->var2 = _varCount++;
 			values.push_back(nullptr);
-			rr->role.addconn(new Connection(this, rr->var1, rr->var2), rr->neg, assertion);
+			rr->conn_ptr = rr->role.addconn(new Connection(this, rr->var1, rr->var2, false), rr->neg, assertion);
 		}
 		
 		/**
@@ -141,8 +141,36 @@ namespace raccoon
 			ur->concept.var = var2;
 			ur->role.var2 = var2;
 			values.push_back(nullptr);
-			ur->concept.concept.addconn(new Connection(this, var2, 0), ur->concept.neg, false);
-			ur->role.role.addconn(new Connection(this, ur->role.var1, var2), ur->role.neg, false);
+			ur->concept.conn_ptr = ur->concept.concept.addconn(new Connection(this, var2, 0, true), ur->concept.neg, false);
+			ur->role.conn_ptr = ur->role.role.addconn(new Connection(this, ur->role.var1, var2, true), ur->role.neg, false);
+		}
+		
+		inline int blockIfPureUniversal()
+		{
+			int cblocked = 0;
+			for (UniversalRealization* u: universals)
+			{
+				if (u->concept.concept.pure() && u->role.role.pure())
+				{
+					++cblocked;
+					this->block();
+				}
+			}
+			return cblocked;
+		}
+		
+		inline void block()
+		{
+			blocked = true;
+			for (ConceptRealization* c: concepts)
+				c->concept.delconn(c->conn_ptr, c->neg);
+			for (RoleRealization* r: roles)
+				r->role.delconn(r->conn_ptr, r->neg);
+			for (UniversalRealization* u: universals)
+			{
+				u->concept.concept.delconn(u->concept.conn_ptr, u->concept.neg);
+				u->role.role.delconn(u->role.conn_ptr, u->role.neg);
+			}
 		}
 		
 		/**

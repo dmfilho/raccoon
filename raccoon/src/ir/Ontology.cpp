@@ -11,6 +11,31 @@
 namespace raccoon
 {
 	/**
+	 * \brief Performs the PURE reduction on the ontology. Mark all clauses containing PURE literals as ignored.
+	 */
+	void Ontology::pureReduction()
+	{
+		int blocked;
+		do
+		{
+			blocked = 0;
+			for (auto c: concepts)
+			{
+				Literal* concept = c.second;
+				if (concept->pure())
+					blocked += concept->block();
+			}
+			for (auto r: roles)
+			{
+				Literal* role = r.second;
+				if (role->pure())
+					blocked += role->block();
+			}
+			blocked += clauseSet.blockPureClauses();
+		} while (blocked > 0);
+	}
+	
+	/**
 	 * Asserts that an instance is on the ontology instance map.
 	 * If it is not, it gets added to it.
 	 * \param name the name of the instance.

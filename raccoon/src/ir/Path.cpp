@@ -167,6 +167,39 @@ namespace raccoon
 		this->concepts.pop_back();
 	}
 	
+	bool Path::regular()
+	{
+		if (concepts.size() > 0)
+		{
+			PathItemConcept* lastConcept = concepts.back();
+			ConceptRealization* c = lastConcept->concept;
+			for (auto it = concepts.end()-1; it != concepts.begin(); )
+			{
+				--it;
+				if (c->equivalentTo((*it)->concept) && *(lastConcept->inst) == *((*it)->inst))
+				{
+					return true;
+				}
+			}
+		}
+		if (roles.size() > 0)
+		{
+			PathItemRole* lastRole = roles.back();
+			RoleRealization* r = lastRole->role;
+			for (auto it = roles.end()-1; it != roles.begin(); )
+			{
+				--it;
+				if (r->equivalentTo((*it)->role) && 
+					*(lastRole->inst1) == *((*it)->inst1) && 
+					*(lastRole->inst2) == *((*it)->inst2))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * \brief Prints the full path.
 	 */

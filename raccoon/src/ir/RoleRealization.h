@@ -31,10 +31,12 @@
 
 // stl
 #include <vector>
+#include <list>
 // raccoon
 #include "Instance.h"
 #include "Literal.h"
 #include "ILiteralRealization.h"
+#include "Connection.h"
 
 namespace raccoon
 {
@@ -46,6 +48,8 @@ namespace raccoon
 		 * This is the value returned by the RoleRealization::type() method.
 		 */
 		static const int TYPE = 2;
+		
+		list<Connection*>::iterator conn_ptr;
 		
 		/**
 		 * The literal that represents the role.

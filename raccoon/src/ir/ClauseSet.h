@@ -32,6 +32,16 @@ namespace raccoon
 			clauses.clear();
 		}
 		
+		inline int blockPureClauses()
+		{
+			int blocked = 0; 
+			for (Clause* clause: clauses)
+			{
+				blocked += clause->blockIfPureUniversal();
+			}
+			return blocked;
+		}
+		
 		inline vector<Clause*>::iterator begin()
 		{
 			return clauses.begin();

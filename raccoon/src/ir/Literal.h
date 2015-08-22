@@ -80,23 +80,9 @@ namespace raccoon
 		 * \param neg Whether the literal appears negative on the clause or not.
 		 * \param hasInstance it is used only to tell if the literal is instanced or not.
 		 */
-		inline void addconn(Connection* conn, bool neg, bool hasInstance)
-		{
-			if (neg)
-			{
-				if (hasInstance) 
-					nconn.push_front(conn);
-				else
-					nconn.push_back(conn);
-			}
-			else
-			{
-				if (hasInstance)
-					pconn.push_front(conn);
-				else
-					pconn.push_back(conn);
-			}
-		}
+		list<Connection*>::iterator addconn(Connection* conn, bool neg, bool hasInstance);
+		
+		void delconn(list<Connection*>::iterator conn_it, bool neg);
 		
 		/**
 		 * \brief Returns the list of connections (negated or not)
@@ -117,6 +103,11 @@ namespace raccoon
 		{
 			return (pconn.size() == 0 || nconn.size() == 0);
 		}
+		
+		/**
+		 * \brief Block all clauses containing this literal.
+		 */
+		int block();
 		
 		/**
 		 * Gets the concept name.
