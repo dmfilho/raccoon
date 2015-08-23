@@ -52,6 +52,11 @@ namespace raccoon
 		bool blocked;
 		
 		/**
+		 * If this flag is false, a proof can't start by this clause.
+		 */
+		bool start;
+		
+		/**
 		 * List of concept realizations of the clause. A concept realization is a concept coupled to an instance when
 		 * necessary. Since a clause can deal with multiple variables, the realization also tells which var of the 
 		 * clause the concept deals with.

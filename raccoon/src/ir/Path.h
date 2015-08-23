@@ -44,6 +44,7 @@ namespace raccoon
 	 */
 	typedef struct _PathItemConcept
 	{
+		Clause* clause;
 		ConceptRealization* concept;
 		Instance** inst;
 	} PathItemConcept;
@@ -53,6 +54,7 @@ namespace raccoon
 	 */
 	typedef struct _PathItemRole
 	{
+		Clause* clause;
 		RoleRealization* role;
 		Instance** inst1;
 		Instance** inst2;

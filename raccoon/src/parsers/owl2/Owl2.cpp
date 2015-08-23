@@ -582,6 +582,8 @@ namespace raccoon
 			clause->add(new UniversalRealization(*roleLit, var, 0, negRole, newConcept, negConcept));
 			clause->values[clause->varCount()-1] = &ontology->newUniqueInstance();
 			c->add(new ConceptRealization(newConcept, 0, !negConcept));
+			// this new clause can't be used to start the reasoning
+			c->start = false;
 			parseClassExpression(conceptNode, negConcept, c, 0);
 			clauseSet->add(c);
 		}
@@ -619,6 +621,7 @@ namespace raccoon
 			Literal& newConcept = ontology->newConcept();
 			clause->add(new ConceptRealization(newConcept, roleVar, false));
 			c->add(new ConceptRealization(newConcept, 0, true));
+			c->start = false;
 			parseClassExpression(conceptNode, negConcept, c, 0);
 			clauseSet->add(c);
 		}

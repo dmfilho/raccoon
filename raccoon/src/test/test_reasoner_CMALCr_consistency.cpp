@@ -177,6 +177,22 @@ TEST(ReasonerCMALCrp_CyclicConsistency004)
 }
 
 /**
+ * \brief Test Cyclic Consistency.
+ */
+TEST(ReasonerCMALCrp_CyclicConsistency005_Slow)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	ClauseSet clauseSet;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_cyclic_consistency005_slow.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &clauseSet, true);
+	CMALCrp reasoner(&clauseSet);
+	CHECK(reasoner.consistency(&ontology) == true);
+	parse_result_free(pr);
+}
+
+/**
  * \brief Test Skolem Consistency.
  */
 TEST(ReasonerCMALCrp_CyclicPure)

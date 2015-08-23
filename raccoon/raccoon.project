@@ -39,8 +39,6 @@
   <Dependencies/>
   <VirtualDirectory Name="src">
     <VirtualDirectory Name="back">
-      <File Name="src/back/CMALCr.cpp"/>
-      <File Name="src/back/CMALCr.h"/>
       <File Name="src/back/CMALCrp.cpp"/>
       <File Name="src/back/CMALCrp.h"/>
     </VirtualDirectory>

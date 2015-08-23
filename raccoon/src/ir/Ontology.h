@@ -30,7 +30,7 @@ namespace raccoon
 		unordered_map<unsigned int, Instance*> instancesById;
 		unordered_map<unsigned int, Literal*> conceptsById;
 		unordered_map<unsigned int, Literal*> rolesById;
-		
+
 		void pureReduction();
 		/**
 		 * Asserts that an instance is on the ontology instance map.

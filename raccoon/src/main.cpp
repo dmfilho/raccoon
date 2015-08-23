@@ -34,7 +34,6 @@ extern "C" {
 #include "parsers/owl2/Owl2.h"
 #include "ir/Ontology.h"
 #include "ir/ClauseSet.h"
-#include "back/CMALCr.h"
 #include "back/CMALCrp.h"
 #include "misc/Options.h"
 #include "misc/time.h"
