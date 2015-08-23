@@ -161,6 +161,7 @@ namespace raccoon
 		
 		inline void block()
 		{
+			if (blocked) return;																						// This is required because the same clause can be connection for both L and -L.
 			blocked = true;
 			for (ConceptRealization* c: concepts)
 				c->concept.delconn(c->conn_ptr, c->neg);

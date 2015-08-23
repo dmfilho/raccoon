@@ -1,0 +1,22 @@
+Test Ontologies
+=======
+
+This directory contains test ontologies. They are in subfolders according to their task. The files are named after their purpose.
+Ontologies here are supposed to be as simple as possible, to test specific features or cases.
+
+consistency
+=====
+
+The consistency directory contains ontologies for testing the consistency checker.
+
+test_acyclic_inconsistency - ontologies that begin with this name contains inconsistent acyclic ontologies. They are meant to test if the reasoner is able to find inconsistency on acyclic ontologies.
+test_acyclic_tbox_abox_inconsistency - contains an inconsistent acyclic ontology, which its inconsistency can only be proven if the reasoner works with both TBox and ABox simultaneously.
+test_acyclic_tbox_inconsistency - inconsistent acyclic ontologies having inconsistencies depending only on the TBox.
+test_cyclic_consistency - consistent cyclic ontologies, to test if the reasoner knows how to avoid cycling forever.
+test_cyclic_inconsistent - inconsistent cyclic ontologies, in which completing the proof depends on following a cycle.
+test_cyclic_pure - test a specific case of the PURE
+test_skolem_consistency - test if the reasoner is able to prove consistency using skolem constants.
+
+
+
+
