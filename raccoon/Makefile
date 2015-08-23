@@ -1,14 +1,14 @@
 CXX = g++
 CC = gcc
 
-CXX_FLAGS = -m64 -std=c++11 -O3
-CC_FLAGS = -m64 -O3
+CXX_FLAGS = -m64 -std=c++11 -Ofast -march=native
+CC_FLAGS = -m64 -Ofast -march=native
 
 DBG_CXX_FLAGS = -m64 -std=c++11 -O0 -g -D _DEBUG
 DBG_CC_FLAGS = -m64 -O0 -g -D _DEBUG
 
-CXX_FLAGS32 = -m32 -std=c++11 -O3
-CC_FLAGS32 = -m32 -O3
+CXX_FLAGS32 = -m32 -std=c++11 -Ofast -march=native
+CC_FLAGS32 = -m32 -Ofast -march=native
 
 DBG_CXX_FLAGS32 = -m32 -std=c++11 -O0 -g -D _DEBUG
 DBG_CC_FLAGS32 = -m32 -O0 -g -D _DEBUG
