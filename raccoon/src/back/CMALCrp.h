@@ -44,6 +44,7 @@ namespace raccoon
 	private:
 		ClauseSet* kb;
 		Path path;
+		bool pure;
 		#ifdef _DEBUG
 			int clauseDepth;
 			int literalIndex;
@@ -57,7 +58,7 @@ namespace raccoon
 		bool proveNextRole(Clause* obj, unsigned int i, Instance* instances[]);
 		bool proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[]);
 		
-		CMALCrp(ClauseSet* kb);
+		CMALCrp(ClauseSet* kb, bool pure);
 		~CMALCrp();
 	};
 }

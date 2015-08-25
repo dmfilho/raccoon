@@ -67,6 +67,7 @@ namespace raccoon
 		bool writeGetSymbolNameMethod;
 		bool valid;
 		bool quiet;
+		bool pure;
 		Options(int argc, const char* argv[]);
 		virtual ~Options();
 

@@ -127,6 +127,7 @@ namespace raccoon
 		{"command", required_argument, 0, 'c'},
 		{"quiet",   no_argument,       0, 'q'},
 		{"reasoner",required_argument, 0, 'r'},
+		{"pure",    no_argument,       0, 'p'},
 		{0,	        0,                 0,  0}
 	};
 	
@@ -137,6 +138,7 @@ namespace raccoon
 	 , writeGetSymbolNameMethod(false)
 	 , valid(true)
 	 , quiet(false)
+	 , pure(true)
 	{
 		int c;
 		int opt_index;
@@ -208,6 +210,9 @@ namespace raccoon
 					return;
 				}
 				break;
+			case 'p': // disable pure reduction
+				pure = false;
+				break;
 			case '?': // something is wrong
 				if (strcmp(optopt,"i") == 0) 
 				{
@@ -271,6 +276,7 @@ namespace raccoon
 		"                           * CMALCr - CM-ALC with regularity.\n"
 		"                           * CMALCrp - CM-ALC with regularity and PURE reduciton.\n"
 		"  -q, --quiet              Do not display any information but the result itself.\n"
+		"  -p, --pure               Disable PURE reduction.\n"
 		"      --version            display the program's version information.\n\n";		
 		this->valid = false;
 	}

@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 				{
 					default:
 					{
-						CMALCrp reasoner(&clauseSet);
+						CMALCrp reasoner(&clauseSet, options.pure);
 						cout << (reasoner.consistency(&ontology) ? "true" : "false");
 						break;
 					}

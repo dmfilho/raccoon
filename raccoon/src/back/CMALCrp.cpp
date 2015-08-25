@@ -53,10 +53,13 @@ namespace raccoon
 		Instance* inst1 = nullptr;
 		Instance* inst2 = nullptr;
 		raccoon_time before;
-		cout << endl << "Performing PURE reduction..." << endl;
-		gettime(&before);
-		ontology->pureReduction();
-		cout << "End of PURE reduction... [" << msecdiff(&before) << "ms]" << endl;
+		if (this->pure)
+		{
+			cout << endl << "Performing PURE reduction..." << endl;
+			gettime(&before);
+			ontology->pureReduction();
+			cout << "End of PURE reduction... [" << msecdiff(&before) << "ms]" << endl;
+		}
 		for (Clause* clause: *kb)
 		{
 			printd("\n# CMALCr::consistency start clause: ");
@@ -504,8 +507,9 @@ namespace raccoon
 		return false;	
 	}
 	
-	CMALCrp::CMALCrp(ClauseSet* kb)
+	CMALCrp::CMALCrp(ClauseSet* kb, bool pure)
 	 : kb(kb)
+	 , pure(pure)
 	{
 		calld(this->clauseDepth = 0);
 		calld(this->literalIndex = 0);
