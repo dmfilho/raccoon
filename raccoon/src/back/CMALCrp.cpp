@@ -131,7 +131,7 @@ namespace raccoon
 		// Check regularity for all universals of the clause
 		for (UniversalRealization* U: obj->universals)
 		{
-			if (path.containsConcept(&U->concept, instances[U->concept.var]) || 
+			if (path.containsConcept(&U->concept, instances[U->concept.var]) && 
 			    path.containsRole(&U->role, instances[U->role.var1], instances[U->role.var2]))
 			{
 				return true;
@@ -211,7 +211,7 @@ namespace raccoon
 			return false;
 		}
 		// Try to prove the clause, go prove its first concept
-		if (this->proveNextUniversal(obj, 0, instances))
+		if (this->proveNextConcept(obj, 0, instances))
 		{
 			if (instances[inst0idx] != nullptr)
 			{
@@ -246,9 +246,7 @@ namespace raccoon
 		// If this concept index is beyond the last concept, go prove the first role
 		if (i >= obj->concepts.size())
 		{
-			printd("\n# CLAUSE SUCCESS");
-			return true;
-			// return proveNextRole(obj, 0, instances);
+			return proveNextRole(obj, 0, instances);
 		}
 		// Print debug information when in debug mode
 		printd("\n# proveNextConcept (%d,%d): ", clauseDepth, ++literalIndex);
@@ -288,6 +286,11 @@ namespace raccoon
 					printd("\n# proveNextConcept (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex--);
 					return true;
 				}
+				if (*instptr == instorig) // the failure wasn't because of an instantiation.
+				{
+					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
+					return false;
+				}
 				printd("\n# proveNextConcept (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
 				path.pushConcept(&pathConcept);
 			}
@@ -318,7 +321,7 @@ namespace raccoon
 		// If this role index is beyond the last role, go prove the first universal quantifier
 		if (i >= obj->roles.size())
 		{
-			return proveNextConcept(obj, 0, instances);
+			return proveNextUniversal(obj, 0, instances);
 		}
 		// Print debug information when in debug mode
 		printd("\n# proveNextRole (%d,%d): ", clauseDepth, ++literalIndex);
@@ -361,6 +364,11 @@ namespace raccoon
 					printd("\n# proveNextRole (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex--);
 					return true;
 				}
+				if (*instptr1 == instorig1) // the failure wasn't because of an instantiation.
+				{
+					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
+					return false;
+				}
 				printd("\n# proveNextRole (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
 				path.pushRole(&pathRole);
 			}
@@ -390,8 +398,7 @@ namespace raccoon
 		// If this universal index is beyond the last universal, everything was proved. Return true.
 		if (i >= obj->universals.size())
 		{
-			return proveNextRole(obj, 0, instances);
-			//printd("\n# proveNextUniversal (%d): SUCCESS (no more literals on clause)", clauseDepth);
+			printd("\n# proveNextUniversal (%d): SUCCESS (no more literals on clause)", clauseDepth);
 			return true;
 		}
 		// Print debug information when in debug mode
@@ -437,8 +444,9 @@ namespace raccoon
 					printd("\n# proveNextUniversal (%d,%d): SUCCESS (valid concept connection)", clauseDepth, literalIndex--);
 					return true;
 				}
-				printd("\n# proveNextUniversal (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
-				path.pushConcept(&pathConcept);
+				break;
+				//printd("\n# proveNextUniversal (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
+				//path.pushConcept(&pathConcept);
 			}
 			// if something fail, restore the original instance of the variable of the concept, just in case it was
 			// changed by the connection
@@ -475,6 +483,11 @@ namespace raccoon
 				{
 					printd("\n# proveNextUniversal (%d,%d): SUCCESS (valid role connection)", clauseDepth, literalIndex--);
 					return true;
+				}
+				if (*instptr1 == instorig1) // the failure wasn't because of an instantiation.
+				{
+					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
+					return false;
 				}
 				printd("\n# proveNextUniversal (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
 				path.pushRole(&pathRole);
