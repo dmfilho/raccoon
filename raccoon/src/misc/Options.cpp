@@ -138,7 +138,7 @@ namespace raccoon
 	 , writeGetSymbolNameMethod(false)
 	 , valid(true)
 	 , quiet(false)
-	 , pure(true)
+	 , pure(false)
 	{
 		int c;
 		int opt_index;
@@ -276,7 +276,7 @@ namespace raccoon
 		"                           * CMALCr - CM-ALC with regularity.\n"
 		"                           * CMALCrp - CM-ALC with regularity and PURE reduciton.\n"
 		"  -q, --quiet              Do not display any information but the result itself.\n"
-		"  -p, --pure               Disable PURE reduction.\n"
+		"  -p, --pure               Enable PURE reduction.\n"
 		"      --version            display the program's version information.\n\n";		
 		this->valid = false;
 	}
