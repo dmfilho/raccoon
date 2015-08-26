@@ -119,7 +119,6 @@ namespace raccoon
 				cr->var = _varCount++;
 				values.push_back(nullptr);
 			}
-			if (cr->neg) this->start = true;
 			cr->conn_ptr = cr->concept.addconn(new Connection(this, cr->var, 0, false), cr->neg, (values[cr->var] != nullptr));
 		}
 		
@@ -134,7 +133,6 @@ namespace raccoon
 			this->roles.push_back(rr);
 			rr->var2 = _varCount++;
 			values.push_back(nullptr);
-			if (rr->neg) this->start = true;
 			rr->conn_ptr = rr->role.addconn(new Connection(this, rr->var1, rr->var2, false), rr->neg, assertion);
 		}
 		
@@ -148,7 +146,6 @@ namespace raccoon
 			ur->concept.var = var2;
 			ur->role.var2 = var2;
 			values.push_back(nullptr);
-			if (ur->concept.neg || ur->role.neg) this->start = true;
 			ur->concept.conn_ptr = ur->concept.concept.addconn(new Connection(this, var2, 0, true), ur->concept.neg, false);
 			ur->role.conn_ptr = ur->role.role.addconn(new Connection(this, ur->role.var1, var2, true), ur->role.neg, false);
 		}
