@@ -40,16 +40,19 @@ namespace raccoon
 	public:
 		string name;
 		unsigned int id;
+        bool skolem;
 		
 		Instance(string& name, unsigned int id)
 		 : name(name)
 		 , id(id)
+         , skolem(name.length() > 2 && name[0] == '$' && name[1] == 'U')
 		 {
 		 }
 		 
 		Instance(const Instance& other)
 		 : name(other.name)
 		 , id(other.id)
+         , skolem(other.skolem)
 		{
 		}
 		
@@ -57,6 +60,7 @@ namespace raccoon
 		{
 			this->name = other.name;
 			this->id = other.id;
+            this->skolem = other.skolem;
 			return *this;
 		}
 		

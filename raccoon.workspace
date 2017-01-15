@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CodeLite_Workspace Name="raccoon" Database="" SWTLW="No">
+<CodeLite_Workspace Name="raccoon" Database="">
   <Project Name="raccoon" Path="raccoon/raccoon.project" Active="Yes"/>
   <BuildMatrix>
-    <WorkspaceConfiguration Name="Debug" Selected="yes">
+    <WorkspaceConfiguration Name="Debug" Selected="no">
+      <Environment/>
       <Project Name="raccoon" ConfigName="Debug"/>
     </WorkspaceConfiguration>
     <WorkspaceConfiguration Name="Release" Selected="no">
+      <Environment/>
       <Project Name="raccoon" ConfigName="Release"/>
     </WorkspaceConfiguration>
-    <WorkspaceConfiguration Name="Test" Selected="no">
+    <WorkspaceConfiguration Name="Test" Selected="yes">
+      <Environment/>
       <Project Name="raccoon" ConfigName="Test"/>
     </WorkspaceConfiguration>
   </BuildMatrix>

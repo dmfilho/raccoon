@@ -60,7 +60,19 @@ namespace raccoon
 	{
 		for (PathItemRole* item: this->roles)
 		{
-			if (item->role->equivalentTo(role) && inst1 == *(item->inst1) && inst2 == *(item->inst2))
+            Instance * iinst1 = *(item->inst1);
+            Instance * iinst2 = *(item->inst2);
+			if (item->role->equivalentTo(role) && 
+                (
+                    inst1 == nullptr ||
+                    inst1 == iinst1 ||
+                    (iinst1 != nullptr && inst1->skolem && iinst1->skolem)
+                ) && (
+                    inst2 == nullptr ||
+                    inst2 == iinst2 ||
+                    (iinst2 != nullptr && inst2->skolem && iinst2->skolem)
+                )   
+            )
 			{
 				return true;
 			}
@@ -120,7 +132,14 @@ namespace raccoon
 	{
 		for (PathItemConcept* item: this->concepts)
 		{
-			if (item->concept->equivalentTo(concept) && inst == *(item->inst))
+            Instance * iinst = *(item->inst);
+			if (item->concept->equivalentTo(concept) && 
+                (
+                    inst == iinst ||
+                    inst == nullptr ||
+                    (iinst != nullptr && inst->skolem && iinst->skolem)
+                )
+            )
 			{
 				return true;
 			}
@@ -139,7 +158,10 @@ namespace raccoon
 	{
 		for (PathItemConcept* item: this->concepts)
 		{
-			if (item->concept->complementOf(concept) && inst == *(item->inst))
+			if (
+                item->concept->complementOf(concept) && 
+                inst == *(item->inst)
+            )
 			{
 				return true;
 			}
@@ -173,10 +195,19 @@ namespace raccoon
 		{
 			PathItemConcept* lastConcept = concepts.back();
 			ConceptRealization* c = lastConcept->concept;
+            Instance * lastInst = *(lastConcept->inst);
+            Instance * pathInst;
 			for (auto it = concepts.end()-1; it != concepts.begin(); )
 			{
 				--it;
-				if (c->equivalentTo((*it)->concept) && *(lastConcept->inst) == *((*it)->inst))
+                pathInst = *((*it)->inst);
+				if (c->equivalentTo((*it)->concept) && 
+                    (
+                        lastInst == nullptr ||
+                        lastInst == pathInst ||
+                        (pathInst != nullptr && pathInst->skolem && lastInst->skolem)
+                    )
+                )
 				{
 					return true;
 				}
@@ -186,12 +217,26 @@ namespace raccoon
 		{
 			PathItemRole* lastRole = roles.back();
 			RoleRealization* r = lastRole->role;
+            Instance * lastInst1 = *(lastRole->inst1);
+            Instance * lastInst2 = *(lastRole->inst2);
+            Instance * pathInst1;
+            Instance * pathInst2;
 			for (auto it = roles.end()-1; it != roles.begin(); )
 			{
 				--it;
+                pathInst1 = *((*it)->inst1);
+                pathInst2 = *((*it)->inst2);
 				if (r->equivalentTo((*it)->role) && 
-					*(lastRole->inst1) == *((*it)->inst1) && 
-					*(lastRole->inst2) == *((*it)->inst2))
+					(
+                        lastInst1 == nullptr ||
+                        lastInst1 == pathInst1 ||
+                        (pathInst1 != nullptr && lastInst1->skolem && pathInst1->skolem)
+                    ) && (
+                        lastInst2 == nullptr ||
+                        lastInst2 == pathInst2 ||
+                        (pathInst2 != nullptr && lastInst2->skolem && pathInst2->skolem)
+                    )
+                )
 				{
 					return true;
 				}
