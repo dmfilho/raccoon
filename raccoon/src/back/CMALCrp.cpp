@@ -214,7 +214,7 @@ namespace raccoon
 			return false;
 		}
 		// Try to prove the clause, go prove its first concept
-		if (this->proveNextConcept(obj, 0, instances))
+		if (this->proveNextUniversal(obj, 0, instances))
 		{
 			if (instances[inst0idx] != nullptr)
 			{
@@ -249,7 +249,8 @@ namespace raccoon
 		// If this concept index is beyond the last concept, go prove the first role
 		if (i >= obj->concepts.size())
 		{
-			return proveNextRole(obj, 0, instances);
+            printd("\n# proveNextConcept (%d): SUCCESS (no more literals on clause)", clauseDepth);
+			return true;
 		}
 		// Print debug information when in debug mode
 		printd("\n# proveNextConcept (%d,%d): ", clauseDepth, ++literalIndex);
@@ -277,7 +278,7 @@ namespace raccoon
 			if (conn->universal) continue;
 			printd("\n# proveNextConcept (%d,%d): ", clauseDepth, literalIndex); 
 			calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
-			printd(" - CONNECT - ");
+			printd("\n# Trying to Connect to Clause: ");
 			calld(conn->clause->print());
 			// Try to prove the connection, if it succeeds try to prove the next concept, if it succeeds, return true
 			if (this->proveClause(conn->clause, instptr, conn->var1, &insttemp, conn->var2))
@@ -324,7 +325,7 @@ namespace raccoon
 		// If this role index is beyond the last role, go prove the first universal quantifier
 		if (i >= obj->roles.size())
 		{
-			return proveNextUniversal(obj, 0, instances);
+			return proveNextConcept(obj, 0, instances);
 		}
 		// Print debug information when in debug mode
 		printd("\n# proveNextRole (%d,%d): ", clauseDepth, ++literalIndex);
@@ -401,8 +402,7 @@ namespace raccoon
 		// If this universal index is beyond the last universal, everything was proved. Return true.
 		if (i >= obj->universals.size())
 		{
-			printd("\n# proveNextUniversal (%d): SUCCESS (no more literals on clause)", clauseDepth);
-			return true;
+            return proveNextRole(obj, 0, instances);
 		}
 		// Print debug information when in debug mode
 		printd("\n# proveNextUniversal (%d,%d): ", clauseDepth, ++literalIndex);

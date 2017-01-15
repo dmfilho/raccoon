@@ -64,13 +64,13 @@ namespace raccoon
             Instance * iinst2 = *(item->inst2);
 			if (item->role->equivalentTo(role) && 
                 (
-                    inst1 == nullptr ||
+                    iinst1 == nullptr ||
                     inst1 == iinst1 ||
-                    (iinst1 != nullptr && inst1->skolem && iinst1->skolem)
+                    (inst1 != nullptr && inst1->skolem && iinst1->skolem)
                 ) && (
-                    inst2 == nullptr ||
+                    iinst2 == nullptr ||
                     inst2 == iinst2 ||
-                    (iinst2 != nullptr && inst2->skolem && iinst2->skolem)
+                    (inst2 != nullptr && inst2->skolem && iinst2->skolem)
                 )   
             )
 			{
@@ -90,9 +90,23 @@ namespace raccoon
 	 */
 	bool Path::containsNegationOfRole(RoleRealization* role, Instance* inst1, Instance* inst2)
 	{
+        Instance * iinst1;
+        Instance * iinst2;
 		for (PathItemRole* item: this->roles)
 		{
-			if (item->role->complementOf(role) && inst1 == *(item->inst1) && inst2 == *(item->inst2))
+            iinst1 = *(item->inst1);
+            iinst2 = *(item->inst2);
+			if (item->role->complementOf(role) && 
+                (
+                    inst1 == nullptr ||
+                    iinst1 == nullptr ||
+                    inst1 == iinst1
+                ) && (
+                    inst2 == nullptr ||
+                    iinst2 == nullptr ||
+                    inst2 == iinst2
+                )
+            )
 			{
 				return true;
 			}
@@ -136,8 +150,8 @@ namespace raccoon
 			if (item->concept->equivalentTo(concept) && 
                 (
                     inst == iinst ||
-                    inst == nullptr ||
-                    (iinst != nullptr && inst->skolem && iinst->skolem)
+                    iinst == nullptr ||
+                    (inst != nullptr && inst->skolem && iinst->skolem)
                 )
             )
 			{
@@ -156,11 +170,17 @@ namespace raccoon
 	 */
 	bool Path::containsNegationOfConcept(ConceptRealization* concept, Instance* inst)
 	{
+        Instance * iinst;
 		for (PathItemConcept* item: this->concepts)
 		{
+            iinst = *(item->inst);
 			if (
                 item->concept->complementOf(concept) && 
-                inst == *(item->inst)
+                (
+                    inst == nullptr ||
+                    iinst == nullptr ||
+                    inst == iinst
+                )
             )
 			{
 				return true;
@@ -201,13 +221,7 @@ namespace raccoon
 			{
 				--it;
                 pathInst = *((*it)->inst);
-				if (c->equivalentTo((*it)->concept) && 
-                    (
-                        lastInst == nullptr ||
-                        lastInst == pathInst ||
-                        (pathInst != nullptr && pathInst->skolem && lastInst->skolem)
-                    )
-                )
+				if (c->equivalentTo((*it)->concept) && lastInst == pathInst)
 				{
 					return true;
 				}
@@ -226,17 +240,7 @@ namespace raccoon
 				--it;
                 pathInst1 = *((*it)->inst1);
                 pathInst2 = *((*it)->inst2);
-				if (r->equivalentTo((*it)->role) && 
-					(
-                        lastInst1 == nullptr ||
-                        lastInst1 == pathInst1 ||
-                        (pathInst1 != nullptr && lastInst1->skolem && pathInst1->skolem)
-                    ) && (
-                        lastInst2 == nullptr ||
-                        lastInst2 == pathInst2 ||
-                        (pathInst2 != nullptr && lastInst2->skolem && pathInst2->skolem)
-                    )
-                )
+				if (r->equivalentTo((*it)->role) && lastInst1 == pathInst1  && lastInst2 == pathInst2)
 				{
 					return true;
 				}
