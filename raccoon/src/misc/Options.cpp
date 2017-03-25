@@ -210,8 +210,8 @@ namespace raccoon
 					return;
 				}
 				break;
-			case 'p': // disable pure reduction
-				pure = false;
+			case 'p': // enable pure reduction
+				pure = true;
 				break;
 			case '?': // something is wrong
 				if (strcmp(optopt,"i") == 0) 
