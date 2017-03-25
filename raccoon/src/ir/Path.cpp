@@ -31,6 +31,14 @@
 // raccoon
 #include "Path.h"
 
+/**
+ * Macro used to check for regularity (simplifying instance check).
+ * __Pi stands for Path Instance
+ * __Li stands for Literal Instance
+ */
+#define INST_EQUIV_OR_SKOLEM(__Pi, __Li) \
+    (__Pi == __Li || __Pi == nullptr || (__Li != nullptr && __Pi->skolem && __Li->skolem))
+
 namespace raccoon
 {
 	/**
@@ -63,15 +71,8 @@ namespace raccoon
             Instance * iinst1 = *(item->inst1);
             Instance * iinst2 = *(item->inst2);
 			if (item->role->equivalentTo(role) && 
-                (
-                    iinst1 == nullptr ||
-                    inst1 == iinst1 ||
-                    (inst1 != nullptr && inst1->skolem && iinst1->skolem)
-                ) && (
-                    iinst2 == nullptr ||
-                    inst2 == iinst2 ||
-                    (inst2 != nullptr && inst2->skolem && iinst2->skolem)
-                )   
+                INST_EQUIV_OR_SKOLEM(iinst1, inst1) &&
+                INST_EQUIV_OR_SKOLEM(iinst2, inst2)
             )
 			{
 				return true;
@@ -148,11 +149,7 @@ namespace raccoon
 		{
             Instance * iinst = *(item->inst);
 			if (item->concept->equivalentTo(concept) && 
-                (
-                    inst == iinst ||
-                    iinst == nullptr ||
-                    (inst != nullptr && inst->skolem && iinst->skolem)
-                )
+                INST_EQUIV_OR_SKOLEM(iinst, inst)
             )
 			{
 				return true;
@@ -221,7 +218,8 @@ namespace raccoon
 			{
 				--it;
                 pathInst = *((*it)->inst);
-				if (c->equivalentTo((*it)->concept) && lastInst == pathInst)
+				if (c->equivalentTo((*it)->concept) && 
+                    INST_EQUIV_OR_SKOLEM(pathInst, lastInst))
 				{
 					return true;
 				}
@@ -240,7 +238,8 @@ namespace raccoon
 				--it;
                 pathInst1 = *((*it)->inst1);
                 pathInst2 = *((*it)->inst2);
-				if (r->equivalentTo((*it)->role) && lastInst1 == pathInst1  && lastInst2 == pathInst2)
+				if (r->equivalentTo((*it)->role) && INST_EQUIV_OR_SKOLEM(pathInst1, lastInst1) && 
+                    INST_EQUIV_OR_SKOLEM(pathInst2, lastInst2))
 				{
 					return true;
 				}
