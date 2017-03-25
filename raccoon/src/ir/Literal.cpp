@@ -41,6 +41,7 @@ namespace raccoon
 	 */
 	int Literal::block()
 	{
+        if (this->blocked) return 0;
 		int cblock = 0;
 		static vector<Connection*> vconn;
 		for (Connection* conn: pconn)
@@ -65,6 +66,7 @@ namespace raccoon
 			vconn.pop_back();
 			conn->clause->block();
 		}
+        this->blocked = true;
 		return cblock;
 	}
 	
@@ -119,6 +121,7 @@ namespace raccoon
 	 : _name(name)
 	 , _id(id)
 	 , original(true)
+     , blocked(false)
 	{
 	}
 

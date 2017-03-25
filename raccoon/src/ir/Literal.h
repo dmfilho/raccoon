@@ -61,6 +61,11 @@ namespace raccoon
 		 * True when the literal is original from the ontology. False when it was created during normalization.
 		 */
 		bool original;
+        
+        /**
+         * True when the literal was already blocked.
+         */
+        bool blocked;
 		
 		/**
 		 * List of positive connections. Instanced clauses are added to the front of the list, whilst variable clauses

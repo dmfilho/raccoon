@@ -150,18 +150,17 @@ namespace raccoon
 			ur->role.conn_ptr = ur->role.role.addconn(new Connection(this, ur->role.var1, var2, true), ur->role.neg, false);
 		}
 		
-		inline int blockIfPureUniversal()
+		inline int blockIfhasPureUniversal()
 		{
-			int cblocked = 0;
 			for (UniversalRealization* u: universals)
 			{
 				if (u->concept.concept.pure() && u->role.role.pure())
 				{
-					++cblocked;
 					this->block();
+                    return 1;
 				}
 			}
-			return cblocked;
+			return 0;
 		}
 		
 		inline void block()

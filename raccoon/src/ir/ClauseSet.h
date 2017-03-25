@@ -32,12 +32,12 @@ namespace raccoon
 			clauses.clear();
 		}
 		
-		inline int blockPureClauses()
+		inline int blockClausesWithPureUniversal()
 		{
 			int blocked = 0; 
 			for (Clause* clause: clauses)
 			{
-				blocked += clause->blockIfPureUniversal();
+				blocked += clause->blockIfhasPureUniversal();
 			}
 			return blocked;
 		}

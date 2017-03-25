@@ -56,6 +56,7 @@ namespace raccoon
 		if (this->pure)
 		{
 			cout << endl << "Performing PURE reduction..." << endl;
+            cout << "-------------------------------------------------" << endl;
 			gettime(&before);
 			ontology->pureReduction();
 			cout << "End of PURE reduction... [" << msecdiff(&before) << "ms]" << endl;

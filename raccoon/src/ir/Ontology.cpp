@@ -1,5 +1,6 @@
 
 // STL
+#include <iostream>
 #include <sstream>
 #include <cstring>
 #include <cstdlib>
@@ -7,6 +8,7 @@
 #include "Literal.h"
 #include "Ontology.h"
 
+using namespace std;
 
 namespace raccoon
 {
@@ -15,24 +17,41 @@ namespace raccoon
 	 */
 	void Ontology::pureReduction()
 	{
-		int blocked;
+        int pureClauses = 0, pureConcepts = 0, pureRoles = 0;
+        int newPureClauses;
 		do
 		{
-			blocked = 0;
+            newPureClauses = 0;
+			int newPureConcepts = 0;
 			for (auto c: concepts)
 			{
 				Literal* concept = c.second;
-				if (concept->pure())
-					blocked += concept->block();
+				if (!concept->blocked && concept->pure()) {
+					newPureClauses += concept->block();
+                    ++pureConcepts;
+                    ++newPureConcepts;
+                }
 			}
+            int newPureRoles = 0;
 			for (auto r: roles)
 			{
 				Literal* role = r.second;
-				if (role->pure())
-					blocked += role->block();
+				if (!role->blocked && role->pure()) {
+					newPureClauses += role->block();
+                    ++pureRoles;
+                    ++newPureRoles;
+                }
 			}
-			blocked += clauseSet.blockPureClauses();
-		} while (blocked > 0);
+			newPureClauses += clauseSet.blockClausesWithPureUniversal();
+            pureClauses += newPureClauses;
+            cout << "*** PURE Concepts: " << pureConcepts 
+                 << " (" << newPureConcepts << " new)" << endl;
+            cout << "*** PURE Roles: " << pureRoles
+                 << " (" << newPureRoles << " new)" << endl;
+            cout << "*** PURE Clauses: " << pureClauses
+                 << " (" << newPureClauses << " new)" << endl;
+            cout << "-------------------------------------------------" << endl;
+		} while (newPureClauses > 0);
 	}
 	
 	/**
