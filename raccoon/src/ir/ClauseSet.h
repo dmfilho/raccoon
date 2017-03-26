@@ -2,6 +2,7 @@
 #define __RACCOON_IR_KB_H
 
 // STL
+#include <iostream>
 #include <iterator>
 #include <vector>
 #include <unordered_map>
@@ -34,10 +35,11 @@ namespace raccoon
 		
 		inline int blockClausesWithPureUniversal()
 		{
-			int blocked = 0; 
-			for (Clause* clause: clauses)
+			int blocked = 0;
+			for (Clause* c: clauses)
 			{
-				blocked += clause->blockIfhasPureUniversal();
+                if (c->blocked) continue;
+				blocked += c->blockIfhasPureUniversal();
 			}
 			return blocked;
 		}

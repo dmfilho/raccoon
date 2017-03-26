@@ -122,7 +122,7 @@ TEST(Owl2Conv_SubClassOf)
 	CHECK(ontology.concepts.at("t:Class2") == &cs.clauses[0]->concepts[1]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[0]->concept.id()) == &cs.clauses[0]->concepts[0]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[1]->concept.id()) == &cs.clauses[0]->concepts[1]->concept);
-	CHECK(ontology.conceptCount == 2);
+	CHECK(ontology.conceptCount == 4); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -167,7 +167,7 @@ TEST(Owl2Conv_EquivalentClasses)
 	CHECK(ontology.concepts.at("t:Class2") == &cs.clauses[0]->concepts[1]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[0]->concept.id()) == &cs.clauses[0]->concepts[0]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[1]->concept.id()) == &cs.clauses[0]->concepts[1]->concept);
-	CHECK(ontology.conceptCount == 2);
+	CHECK(ontology.conceptCount == 4); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -221,7 +221,7 @@ TEST(Owl2Conv_DisjointClasses)
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[0]->concept.id()) == &cs.clauses[0]->concepts[0]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[1]->concept.id()) == &cs.clauses[0]->concepts[1]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[1]->concepts[1]->concept.id()) == &cs.clauses[1]->concepts[1]->concept);
-	CHECK(ontology.conceptCount == 3);
+	CHECK(ontology.conceptCount == 5); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -290,7 +290,7 @@ TEST(Owl2Conv_DisjointUnion)
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[0]->concept.id()) == &cs.clauses[0]->concepts[0]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[1]->concept.id()) == &cs.clauses[0]->concepts[1]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[2]->concept.id()) == &cs.clauses[0]->concepts[2]->concept);
-	CHECK(ontology.conceptCount == 4); // includes a concept that is created in the normalization process.
+	CHECK(ontology.conceptCount == 6); // includes a concept that is created in the normalization process, plus Thing and Nothing
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -330,7 +330,7 @@ TEST(Owl2Conv_ObjectIntersecitonOf)
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[0]->concept.id()) == &cs.clauses[0]->concepts[0]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[1]->concept.id()) == &cs.clauses[0]->concepts[1]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[2]->concept.id()) == &cs.clauses[0]->concepts[2]->concept);
-	CHECK(ontology.conceptCount == 3);
+	CHECK(ontology.conceptCount == 5); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -374,7 +374,7 @@ TEST(Owl2Conv_ObjectIntersecitonOf_Negated)
 	CHECK(ontology.conceptsById.at(cs.clauses[0]->concepts[1]->concept.id()) == &cs.clauses[0]->concepts[1]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[1]->concepts[1]->concept.id()) == &cs.clauses[1]->concepts[1]->concept);
 	CHECK(ontology.conceptsById.at(cs.clauses[2]->concepts[0]->concept.id()) == &cs.clauses[2]->concepts[0]->concept);
-	CHECK(ontology.conceptCount == 4);
+	CHECK(ontology.conceptCount == 6); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -403,7 +403,7 @@ TEST(Owl2Conv_ObjectUnionOf)
 	CHECK(hasConcept(cs.clauses[0], "t:Class2", false, 0));
 	CHECK(hasConcept(cs.clauses[1], "t:Class3", false, 0));
 	CHECK(hasConcept(cs.clauses[2], "t:Class1", true, 0));
-	CHECK(ontology.conceptCount == 4);
+	CHECK(ontology.conceptCount == 6); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -434,7 +434,7 @@ TEST(Owl2Conv_ObjectUnionOf_Negated)
 	CHECK(hasConcept(cs.clauses[0], "t:Class2", true, 0));
 	CHECK(hasConcept(cs.clauses[0], "t:Class3", true, 0));
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", false, 0));
-	CHECK(ontology.conceptCount == 3);
+	CHECK(ontology.conceptCount == 5); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -464,7 +464,7 @@ TEST(Owl2Conv_ObjectComplementOf)
 	CHECK(cs.clauses[0]->concepts.size() == 2);
 	CHECK(hasConcept(cs.clauses[0], "t:Class2", true, 0));
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", true, 0));
-	CHECK(ontology.conceptCount == 2);
+	CHECK(ontology.conceptCount == 4); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -494,7 +494,7 @@ TEST(Owl2Conv_ObjectComplementOf_Negated)
 	CHECK(cs.clauses[0]->concepts.size() == 2);
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", false, 0));
 	CHECK(hasConcept(cs.clauses[0], "t:Class2", false, 0));
-	CHECK(ontology.conceptCount == 2);
+	CHECK(ontology.conceptCount == 4); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -529,7 +529,7 @@ TEST(Owl2Conv_ObjectSomeValuesFrom)
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", true, 0));
 	CHECK(hasConcept(cs.clauses[0], "t:Class2", false, 1));
 	CHECK(hasRole(cs.clauses[0], "t:Role1", false, 0, 1));
-	CHECK(ontology.conceptCount == 2);
+	CHECK(ontology.conceptCount == 4); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 1);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -563,7 +563,7 @@ TEST(Owl2Conv_ObjectSomeValuesFrom_Negated)
 	}
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", false, 0));
 	CHECK(hasUniversal(cs.clauses[0], "t:Role1", "t:Class2", true, true, 0, 1));
-	CHECK(ontology.conceptCount == 2);
+	CHECK(ontology.conceptCount == 4); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 1);
 	CHECK(ontology.instanceCount == 1);
 }
@@ -593,7 +593,7 @@ TEST(Owl2Conv_ObjectAllValuesFrom)
 	CHECK(cs.clauses[0]->universals.size() == 1);
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", true, 0));
 	CHECK(hasUniversal(cs.clauses[0], "t:Role1", "t:Class2", true, false, 0, 1));
-	CHECK(ontology.conceptCount == 2);
+	CHECK(ontology.conceptCount == 4); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 1);
 	CHECK(ontology.instanceCount == 1);
 }
@@ -624,7 +624,7 @@ TEST(Owl2Conv_ObjectAllValuesFrom_Negated)
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", false, 0));
 	CHECK(hasConcept(cs.clauses[0], "t:Class2", true, 1));
 	CHECK(hasRole(cs.clauses[0], "t:Role1", false, 0, 1));
-	CHECK(ontology.conceptCount == 2);
+	CHECK(ontology.conceptCount == 4); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 1);
 	CHECK(ontology.instanceCount == 0);
 }
@@ -654,7 +654,7 @@ TEST(Owl2Conv_ClassAssertion)
 	CHECK(cs.clauses[0]->concepts.size() == 1);
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", true, 0));
 	CHECK(cs.clauses[0]->values[0] == &ontology.assertInstance("t:Instance1"));
-	CHECK(ontology.conceptCount == 1);
+	CHECK(ontology.conceptCount == 3); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 0);
 	CHECK(ontology.instanceCount == 1);
 }
@@ -684,7 +684,7 @@ TEST(Owl2Conv_ObjectPropertyAssertion)
 	CHECK(hasRole(cs.clauses[0], ":Role1", true, 0, 1));
 	CHECK(cs.clauses[0]->values[0] == &ontology.assertInstance(":Instance1"));
 	CHECK(cs.clauses[0]->values[1] == &ontology.assertInstance(":Instance2"));
-	CHECK(ontology.conceptCount == 0);
+	CHECK(ontology.conceptCount == 2); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 1);
 	CHECK(ontology.instanceCount == 2);
 }
@@ -714,7 +714,7 @@ TEST(Owl2Conv_NegativeObjectPropertyAssertion)
 	CHECK(hasRole(cs.clauses[0], ":Role1", false, 0, 1));
 	CHECK(cs.clauses[0]->values[0] == &ontology.assertInstance(":Instance1"));
 	CHECK(cs.clauses[0]->values[1] == &ontology.assertInstance(":Instance2"));
-	CHECK(ontology.conceptCount == 0);
+	CHECK(ontology.conceptCount == 2); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 1);
 	CHECK(ontology.instanceCount == 2);
 }

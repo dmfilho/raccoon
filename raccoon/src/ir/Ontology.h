@@ -57,6 +57,8 @@ namespace raccoon
 		 , newRoleCount(0)
 		 , skolemInstanceCount(0)
 		{
+            assertConcept("owl:Thing");
+            assertConcept("owl:Nothing");
 		}
 		
 		~Ontology()

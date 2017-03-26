@@ -7,6 +7,7 @@
 // raccoon
 #include "Literal.h"
 #include "Ontology.h"
+#include "../misc/debug.h"
 
 using namespace std;
 
@@ -26,7 +27,8 @@ namespace raccoon
 			for (auto c: concepts)
 			{
 				Literal* concept = c.second;
-				if (!concept->blocked && concept->pure()) {
+				if (!concept->blocked && concept->pure() && concept->id() > 1) {
+                    printd("PureConcept: %s\n", concept->name());
 					newPureClauses += concept->block();
                     ++pureConcepts;
                     ++newPureConcepts;
@@ -37,6 +39,7 @@ namespace raccoon
 			{
 				Literal* role = r.second;
 				if (!role->blocked && role->pure()) {
+                    printd("PureRole: %s\n", role->name());
 					newPureClauses += role->block();
                     ++pureRoles;
                     ++newPureRoles;
@@ -44,13 +47,11 @@ namespace raccoon
 			}
 			newPureClauses += clauseSet.blockClausesWithPureUniversal();
             pureClauses += newPureClauses;
-            cout << "*** PURE Concepts: " << pureConcepts 
-                 << " (" << newPureConcepts << " new)" << endl;
-            cout << "*** PURE Roles: " << pureRoles
-                 << " (" << newPureRoles << " new)" << endl;
-            cout << "*** PURE Clauses: " << pureClauses
-                 << " (" << newPureClauses << " new)" << endl;
-            cout << "-------------------------------------------------" << endl;
+            printd("***\n");
+            printd("PURE Concepts: %d (%d new)\n", pureConcepts, newPureConcepts);
+            printd("PURE Roles: %d (%d new)\n", pureRoles, newPureRoles);
+            printd("PURE Clauses: %d (%d new)\n", pureClauses, newPureClauses);
+            printd("-------------------------------------------------\n");
 		} while (newPureClauses > 0);
 	}
 	

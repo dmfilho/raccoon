@@ -30,6 +30,7 @@
 #define __RACCOON_IR_CLAUSE_H
 
 // STL
+#include <iostream>
 #include <vector>
 #include <functional>
 // raccoon
@@ -154,7 +155,8 @@ namespace raccoon
 		{
 			for (UniversalRealization* u: universals)
 			{
-				if (u->concept.concept.pure() && u->role.role.pure())
+				if ((u->concept.concept.blocked || u->concept.concept.pure()) && 
+                    (u->role.role.blocked || u->role.role.pure()))
 				{
 					this->block();
                     return 1;

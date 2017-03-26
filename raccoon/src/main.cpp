@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 			cout << "Normalizing Ontology..." << flush;
 			gettime(&before);
 		}
-		owl2.parse(pr, &ontology, &clauseSet, true);
+		owl2.parse(pr, &ontology, &ontology.clauseSet, true);
 		if (!options.quiet)
 		{
 			cout << "OK [" << msecdiff(&before) <<  " ms]"                                               "\n"
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 			     << "ABox: " << owl2.aboxCount() <<                                                      "\n"
 			     << "Declarations: " << owl2.declarationCount() <<                                       "\n"
 			     << "Annotations: " << owl2.annotationCount() <<                                         "\n"
-			     << "Matrix Clauses: " << clauseSet.size() <<                                            "\n"
+			     << "Matrix Clauses: " << ontology.clauseSet.size() <<                                   "\n"
 			     << "Unsupported Features: ";
 			owl2.printUnsupportedFeatures();
 			cout << endl
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 				{
 					default:
 					{
-						CMALCrp reasoner(&clauseSet, options.pure);
+						CMALCrp reasoner(&ontology.clauseSet, options.pure);
 						cout << (reasoner.consistency(&ontology) ? "true" : "false");
 						break;
 					}
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 			case OptionCmd::matrix:
 			{
 				cout << "Note: the matrix is transposed.\n";
-				clauseSet.printClauses();
+				ontology.clauseSet.printClauses();
 				return 0;
 			}
 			case OptionCmd::invalid_command:

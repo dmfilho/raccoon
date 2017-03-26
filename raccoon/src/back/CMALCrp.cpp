@@ -61,8 +61,10 @@ namespace raccoon
 			ontology->pureReduction();
 			cout << "End of PURE reduction... [" << msecdiff(&before) << "ms]" << endl;
 		}
+        //int startClause = 0;
 		for (Clause* clause: *kb)
 		{
+            //cout << "StartClause: " << ++startClause << endl;
 			printd("\n# CMALCr::consistency start clause: ");
 			calld(clause->print());
 			if (clause->start && this->proveClause(clause, &inst1, 0, &inst2, -1))
@@ -159,7 +161,9 @@ namespace raccoon
 	bool CMALCrp::proveClause(Clause* obj, Instance** inst0, int inst0idx, Instance** inst1, int inst1idx)
 	{
 		// Return in case the clause was removed by a reduction.
-		if (obj->blocked) return false;
+		if (obj->blocked) {
+            return false;
+        }
 		int varcount = obj->varCount();
 		printd("\n# proveClause (%d) PATH: ", ++clauseDepth);
 		calld(path.print());
@@ -250,22 +254,25 @@ namespace raccoon
 		// If this concept index is beyond the last concept, go prove the first role
 		if (i >= obj->concepts.size())
 		{
-            printd("\n# proveNextConcept (%d): SUCCESS (no more literals on clause)", clauseDepth);
-			return true;
+			return this->proveNextRole(obj, 0, instances);
 		}
-		// Print debug information when in debug mode
-		printd("\n# proveNextConcept (%d,%d): ", clauseDepth, ++literalIndex);
-		calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
+        // Print debug information when in debug mode
+		printd("\n# proveNextConcept (%d,%d,%d,%d): ", clauseDepth, ++literalIndex, i, obj->concepts.size());
+        calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
 		// Save the pointer of the instance for the variable of the concept, and its original value
 		Instance** instptr = &instances[obj->concepts[i]->var];
 		Instance* insttemp = nullptr;
 		Instance* instorig = *instptr;
-		// Check if this concept already appears on the path
-		if (path.containsNegationOfConcept(obj->concepts[i], instorig))
+
+		// Check if the complement of this concept already appears on the path
+        // Also check if it is owl:Thing
+		if (path.containsNegationOfConcept(obj->concepts[i], instorig) ||
+            obj->concepts[i]->concept.id() == 0)
 		{
-			printd("\n# proveNextConcept (%d,%d): SUCCESS (complement in path), trying next concept", clauseDepth, literalIndex--);
+			printd("\n# proveNextConcept (%d,%d,%d,%d): SUCCESS (complement in path), trying next concept", clauseDepth, literalIndex--, i, obj->concepts.size());
 			return this->proveNextConcept(obj, i+1, instances);
 		}
+        if (obj->concepts[i]->concept.id() == 1) return false;
 		// Try to connect the concept
 		list<Connection*> * connList = obj->concepts[i]->concept.getconns(obj->concepts[i]->neg);
 		PathItemConcept pathConcept = {
@@ -274,10 +281,11 @@ namespace raccoon
 			.inst = instptr
 		};
 		path.pushConcept(&pathConcept);
+        printd("\n# Trying from %d connections.", connList->size());
 		for (Connection* conn: *connList)
 		{
-			if (conn->universal) continue;
-			printd("\n# proveNextConcept (%d,%d): ", clauseDepth, literalIndex); 
+            if (conn->universal) continue;
+			printd("\n# proveNextConcept (%d,%d,%d,%d): ", clauseDepth, literalIndex,i, obj->concepts.size()); 
 			calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
 			printd("\n# Trying to Connect to Clause: ");
 			calld(conn->clause->print());
@@ -323,14 +331,14 @@ namespace raccoon
 	 */
 	bool CMALCrp::proveNextRole(Clause* obj, unsigned int i, Instance* instances[])
 	{
-		// If this role index is beyond the last role, go prove the first universal quantifier
+		// If this role index is beyond the last role, the proof has ended.
 		if (i >= obj->roles.size())
 		{
-			return proveNextConcept(obj, 0, instances);
+			return true;
 		}
-		// Print debug information when in debug mode
+        // Print debug information when in debug mode
 		printd("\n# proveNextRole (%d,%d): ", clauseDepth, ++literalIndex);
-		calld(obj->roles[i]->print(instances[obj->roles[i]->var1], instances[obj->roles[i]->var2]));
+        calld(obj->roles[i]->print(instances[obj->roles[i]->var1], instances[obj->roles[i]->var2]));
 		// Save the poitners of the instances for the variables of the role, and their original values
 		Instance** instptr1 = &instances[obj->roles[i]->var1];
 		Instance** instptr2 = &instances[obj->roles[i]->var2];
@@ -353,7 +361,7 @@ namespace raccoon
 		path.pushRole(&pathRole);
 		for (Connection* conn: *connList)
 		{
-			if (conn->universal) continue;
+            if (conn->universal) continue;
 			printd("\n# proveNextConcept (%d,%d): ", clauseDepth, literalIndex); 
 			calld(obj->roles[i]->print(instances[obj->roles[i]->var1], instances[obj->roles[i]
 			->var2]));
@@ -400,12 +408,12 @@ namespace raccoon
 	 */
 	bool CMALCrp::proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[])
 	{
-		// If this universal index is beyond the last universal, everything was proved. Return true.
+		// If this universal index is beyond the last universal, go prove the first concept.
 		if (i >= obj->universals.size())
 		{
-            return proveNextRole(obj, 0, instances);
+            return this->proveNextConcept(obj, 0, instances);
 		}
-		// Print debug information when in debug mode
+        // Print debug information when in debug mode
 		printd("\n# proveNextUniversal (%d,%d): ", clauseDepth, ++literalIndex);
 		calld(obj->universals[i]->print(instances[obj->universals[i]->role.var1], instances[obj->universals[i]->role.var2]));
 		// Save the poitners of the instances for the variables of the universal, and their original values

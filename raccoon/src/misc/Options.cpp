@@ -284,8 +284,8 @@ namespace raccoon
 	void Options::printVersion()
 	{
 		cout << 
-		"raccoon 0.1.3\n"
-		"Copyright (C) 2015 Dimas Melo Filho.\n"
+		"raccoon 0.1.4\n"
+		"Copyright (C) 2017 Dimas Melo Filho.\n"
 		"raccoon comes with ABSOLUTELY NO WARRANTY; for details\n"
 		"run raccoon --warranty. This is free software, and you are\n"
 		"welcome to redistribute it under certain conditions;\n"
