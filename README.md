@@ -10,7 +10,7 @@ It is currently under development. For now, it is able to to perform consistency
 Download
 ======
 
-Compiled binaries are available for the following Operating Systems:
+Pre-compiled binaries are available for the following Operating Systems:
 
 Version | Operating System | Platform
 :------:|:----------------:|:--------:
