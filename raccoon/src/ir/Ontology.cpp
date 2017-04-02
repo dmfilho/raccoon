@@ -53,6 +53,9 @@ namespace raccoon
             printd("PURE Clauses: %d (%d new)\n", pureClauses, newPureClauses);
             printd("-------------------------------------------------\n");
 		} while (newPureClauses > 0);
+        cout << "PURE Removed: " << pureConcepts << " Concepts, "
+             << pureRoles << " Roles, " << pureClauses << " Clauses." << endl
+             << "-------------------------------------------------" << endl;
 	}
 	
 	/**

@@ -14,6 +14,7 @@ Pre-compiled binaries are available for the following Operating Systems:
 
 Version | Operating System | Platform
 :------:|:----------------:|:--------:
+0.1.5 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/open?id=0B4CJaYm24URxSWVoaWxrYXNGb3M)<br>[i386](https://drive.google.com/open?id=0B4CJaYm24URxWndpZHZEU0hhVTg)
 0.1.4 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxNW5WNlNjSUhiTm8/view?usp=sharing)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxc3NtVWNBc0RrSVE/view?usp=sharing)
 0.1.2 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxMU9XSjJfUjVXRms/view?usp=sharing)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxWXUzNllub0pYRlU/view?usp=sharing)
 

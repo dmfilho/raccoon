@@ -1,3 +1,9 @@
+raccoon (0.1.5-1) UNRELEASED; urgency=low
+
+  [ Dimas Melo Filho ]
+  * Implemented a limited form of backtracking restriction.
+  * Handling owl:Nothing and owl:Thing in a different (more efficient) way.
+
 raccoon (0.1.4-1) UNRELEASED; urgency=low
 
   [ Dimas Melo Filho ]

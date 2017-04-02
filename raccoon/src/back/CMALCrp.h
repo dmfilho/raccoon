@@ -42,6 +42,7 @@ namespace raccoon
 	class CMALCrp
 	{
 	private:
+        bool cutClause;
 		ClauseSet* kb;
 		Path path;
 		bool pure;
@@ -54,9 +55,9 @@ namespace raccoon
 		bool query(ClauseSet* query);
 		bool regularity(Clause* obj, Instance** instances);
 		bool proveClause(Clause* obj, Instance** inst0, int inst0idx, Instance** inst1, int inst1idx);
-		bool proveNextConcept(Clause* obj, unsigned int i, Instance* instances[]);
-		bool proveNextRole(Clause* obj, unsigned int i, Instance* instances[]);
-		bool proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[]);
+		bool proveNextConcept(Clause* obj, unsigned int i, Instance* instances[], bool* isRetry);
+		bool proveNextRole(Clause* obj, unsigned int i, Instance* instances[], bool* isRetry);
+		bool proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[], bool* isRetry);
 		
 		CMALCrp(ClauseSet* kb, bool pure);
 		~CMALCrp();

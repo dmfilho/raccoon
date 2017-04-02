@@ -29,6 +29,7 @@
 // stl
 #include <iostream>
 #include <list>
+
 // raccoon
 #include "CMALCrp.h"
 #include "../ir/Path.h"
@@ -218,8 +219,11 @@ namespace raccoon
 			printd("\n# proveClause(%d,%d): Regular Clause", clauseDepth--, literalIndex);
 			return false;
 		}
+        int isRetrySz = obj->concepts.size() + obj->roles.size() + obj->universals.size();
+        bool isRetry[isRetrySz];
+        for (int i = 0; i < isRetrySz; ++i) isRetry[i] = false;
 		// Try to prove the clause, go prove its first concept
-		if (this->proveNextUniversal(obj, 0, instances))
+		if (this->proveNextUniversal(obj, 0, instances, isRetry))
 		{
 			if (instances[inst0idx] != nullptr)
 			{
@@ -249,16 +253,17 @@ namespace raccoon
 	 * proveNextUniversal to prove the first universal quantifier on the clause. Once all subsequent universals are 
 	 * proved, it returns true. the truth is returned in a chain when all literals are connected.
 	 */
-	bool CMALCrp::proveNextConcept(Clause* obj, unsigned int i, Instance* instances[])
+	bool CMALCrp::proveNextConcept(Clause* obj, unsigned int i, Instance* instances[], bool* isRetry)
 	{
 		// If this concept index is beyond the last concept, go prove the first role
 		if (i >= obj->concepts.size())
 		{
-			return this->proveNextRole(obj, 0, instances);
+			return this->proveNextRole(obj, 0, instances, isRetry + obj->concepts.size());
 		}
         // Print debug information when in debug mode
 		printd("\n# proveNextConcept (%d,%d,%d,%d): ", clauseDepth, ++literalIndex, i, obj->concepts.size());
         calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
+        
 		// Save the pointer of the instance for the variable of the concept, and its original value
 		Instance** instptr = &instances[obj->concepts[i]->var];
 		Instance* insttemp = nullptr;
@@ -270,21 +275,34 @@ namespace raccoon
             obj->concepts[i]->concept.id() == 0)
 		{
 			printd("\n# proveNextConcept (%d,%d,%d,%d): SUCCESS (complement in path), trying next concept", clauseDepth, literalIndex--, i, obj->concepts.size());
-			return this->proveNextConcept(obj, i+1, instances);
+			return this->proveNextConcept(obj, i+1, instances, isRetry);
 		}
-        if (obj->concepts[i]->concept.id() == 1) return false;
-		// Try to connect the concept
+		
+        // Try to connect the concept
 		list<Connection*> * connList = obj->concepts[i]->concept.getconns(obj->concepts[i]->neg);
 		PathItemConcept pathConcept = {
 			.clause = obj,
 			.concept = obj->concepts[i],
 			.inst = instptr
 		};
-		path.pushConcept(&pathConcept);
+        
+        // Handle owl:Nothing
+        if (pathConcept.concept->concept.id() == 0) 
+            return pathConcept.concept->neg &&
+                this->proveNextConcept(obj, i+1, instances, isRetry);
+        // Handle owl:Thing
+        if (pathConcept.concept->concept.id() == 1) return 
+            !pathConcept.concept->neg &&
+                this->proveNextConcept(obj, i+1, instances, isRetry);
+                
         printd("\n# Trying from %d connections.", connList->size());
+		path.pushConcept(&pathConcept);
+        bool hasTriedAllVariableConnections = isRetry[i];
 		for (Connection* conn: *connList)
 		{
             if (conn->universal) continue;
+            bool nonInstancedVar = (conn->clause->values[conn->var1] == nullptr);
+            if (hasTriedAllVariableConnections && nonInstancedVar) continue;
 			printd("\n# proveNextConcept (%d,%d,%d,%d): ", clauseDepth, literalIndex,i, obj->concepts.size()); 
 			calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
 			printd("\n# Trying to Connect to Clause: ");
@@ -292,18 +310,24 @@ namespace raccoon
 			// Try to prove the connection, if it succeeds try to prove the next concept, if it succeeds, return true
 			if (this->proveClause(conn->clause, instptr, conn->var1, &insttemp, conn->var2))
 			{
+                // print debug info
 				printd("\n# proveNextConcept (%d,%d): valid connection found, trying next literal)", clauseDepth, literalIndex);
 				path.popConcept();
-				if (this->proveNextConcept(obj, i+1, instances))
+                // if the variable has no assigned instance (is still a variable) we do not need
+                // to try any other connection (Variable Proof Reduction), because the failure was not
+                // due to an instance being assigned to the first variable of the clause.
+                if (nonInstancedVar) return this->proveNextConcept(obj, i+1, instances, isRetry);
+                // go prove the next concept of the clause
+				if (this->proveNextConcept(obj, i+1, instances, isRetry))
 				{
 					printd("\n# proveNextConcept (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex--);
 					return true;
 				}
-				if (*instptr == instorig) // the failure wasn't because of an instantiation.
-				{
-					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
-					return false;
-				}
+//				if (*instptr == instorig) // the failure wasn't because of an instantiation.
+//				{
+//					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
+//					return false;
+//				}
 				printd("\n# proveNextConcept (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
 				path.pushConcept(&pathConcept);
 			}
@@ -314,6 +338,7 @@ namespace raccoon
 			printd("\n# proveNextConcept (%d,%d): STILL ", clauseDepth, literalIndex);
 			calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
 		}
+        isRetry[i] = true;
 		path.popConcept();
 		printd("\n# proveNextConcept (%d,%d): FAIL (no valid connections) - backtrack", clauseDepth, literalIndex--);
 		return false;
@@ -329,26 +354,29 @@ namespace raccoon
 	 * \remark after all subsequent roles are connected, the method proceeds to call proveNextUniversal for the first 
 	 * role on the clause.
 	 */
-	bool CMALCrp::proveNextRole(Clause* obj, unsigned int i, Instance* instances[])
+	bool CMALCrp::proveNextRole(Clause* obj, unsigned int i, Instance* instances[], bool* isRetry)
 	{
 		// If this role index is beyond the last role, the proof has ended.
 		if (i >= obj->roles.size())
 		{
 			return true;
 		}
+            
         // Print debug information when in debug mode
 		printd("\n# proveNextRole (%d,%d): ", clauseDepth, ++literalIndex);
         calld(obj->roles[i]->print(instances[obj->roles[i]->var1], instances[obj->roles[i]->var2]));
+        
 		// Save the poitners of the instances for the variables of the role, and their original values
 		Instance** instptr1 = &instances[obj->roles[i]->var1];
 		Instance** instptr2 = &instances[obj->roles[i]->var2];
 		Instance* instorig1 = *instptr1;
 		Instance* instorig2 = *instptr2;
+        
 		// Check if the role already appears in the path
 		if (path.containsNegationOfRole(obj->roles[i], instorig1, instorig2))
 		{
 			printd("\n# proveNextRole (%d,%d): SUCCESS (complement in path), trying next role", clauseDepth, literalIndex--);
-			return this->proveNextRole(obj, i+1, instances);
+			return this->proveNextRole(obj, i+1, instances, isRetry);
 		}
 		// Try to connect the role
 		list<Connection*> * connList = obj->roles[i]->role.getconns(obj->roles[i]->neg);
@@ -358,10 +386,14 @@ namespace raccoon
 			.inst1 = instptr1,
 			.inst2 = instptr2
 		};
+        bool hasTriedAllVariableConnections = isRetry[i];
 		path.pushRole(&pathRole);
 		for (Connection* conn: *connList)
 		{
             if (conn->universal) continue;
+            bool nonInstancedVar = conn->clause->values[conn->var1] == nullptr &&
+                conn->clause->values[conn->var2] == nullptr;
+            if (hasTriedAllVariableConnections && nonInstancedVar) continue;
 			printd("\n# proveNextConcept (%d,%d): ", clauseDepth, literalIndex); 
 			calld(obj->roles[i]->print(instances[obj->roles[i]->var1], instances[obj->roles[i]
 			->var2]));
@@ -372,16 +404,22 @@ namespace raccoon
 			{
 				printd("\n# proveNextRole (%d,%d): valid connection found, trying next literal)", clauseDepth, literalIndex);
 				path.popRole();
-				if (this->proveNextRole(obj, i+1, instances))
+                // if the variable has no assigned instance (is still a variable) we do not need
+                // to try any other connection (Variable Proof Reduction), because the failure was not
+                // due to an instance being assigned to the first variable of the clause.
+                if (nonInstancedVar) 
+                    return this->proveNextRole(obj, i+1, instances, isRetry);
+                
+				if (this->proveNextRole(obj, i+1, instances, isRetry))
 				{
 					printd("\n# proveNextRole (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex--);
 					return true;
 				}
-				if (*instptr1 == instorig1) // the failure wasn't because of an instantiation.
-				{
-					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
-					return false;
-				}
+//				if (*instptr1 == instorig1) // the failure wasn't because of an instantiation.
+//				{
+//					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
+//					return false;
+//				}
 				printd("\n# proveNextRole (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
 				path.pushRole(&pathRole);
 			}
@@ -392,6 +430,7 @@ namespace raccoon
 			printd("\n# proveNextRole (%d,%d): STILL ", clauseDepth, literalIndex);
 			calld(obj->roles[i]->print(instances[obj->roles[i]->var1], instances[obj->roles[i]->var2]));
 		}
+        isRetry[i] = true;
 		path.popRole();
 		printd("\n# proveNextRole (%d,%d): FAIL (no valid connection) - backtrack", clauseDepth, literalIndex--);
 		return false;			
@@ -406,13 +445,14 @@ namespace raccoon
 	 * \return true when able to connect every universal quantifier on the clause, false otherwise.
 	 * \remark after all subsequent universal quantifiers are connected, the method returns true.
 	 */
-	bool CMALCrp::proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[])
+	bool CMALCrp::proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[], bool* isRetry)
 	{
 		// If this universal index is beyond the last universal, go prove the first concept.
 		if (i >= obj->universals.size())
 		{
-            return this->proveNextConcept(obj, 0, instances);
+            return this->proveNextConcept(obj, 0, instances, isRetry + obj->universals.size());
 		}
+        
         // Print debug information when in debug mode
 		printd("\n# proveNextUniversal (%d,%d): ", clauseDepth, ++literalIndex);
 		calld(obj->universals[i]->print(instances[obj->universals[i]->role.var1], instances[obj->universals[i]->role.var2]));
@@ -422,13 +462,15 @@ namespace raccoon
 		Instance* instorig1 = *instptr1;
 		Instance* instorig2 = *instptr2;
 		Instance* insttemp = nullptr;
+        
 		// Check if the universal's concept or role already appear in the path
 		if (path.containsNegationOfConcept(&obj->universals[i]->concept, instorig2) ||
 			path.containsNegationOfRole(&obj->universals[i]->role, instorig1, instorig2))
 		{
 			printd("\n# proveNextUniversal(%d,%d): SUCCESS (complement in path), trying next universal", clauseDepth, literalIndex--);
-			return this->proveNextUniversal(obj, i+1, instances);
+			return this->proveNextUniversal(obj, i+1, instances, isRetry);
 		}
+        
 		// Try to connect the concept pf the universal
 		list<Connection*> * connList = obj->universals[i]->concept.concept.getconns(obj->universals[i]->concept.neg);
 		// Save number of connections of concept for PURE checking later
@@ -438,35 +480,43 @@ namespace raccoon
 			.concept = &obj->universals[i]->concept,
 			.inst = instptr2
 		};
-		path.pushConcept(&pathConcept);
-		for (Connection* conn: *connList)
-		{
-			if (conn->universal) continue;
-			printd("\n# proveNextUniversal (%d,%d): ", clauseDepth, literalIndex); 
-			calld(obj->universals[i]->concept.print(instances[obj->universals[i]->concept.var], nullptr));
-			printd(" - CONNECT - ");
-			calld(conn->clause->print());
-			// Try to prove the connection, if it succeeds try to prove the next concept, if it succeeds, return true
-			if (this->proveClause(conn->clause, instptr2, conn->var1, &insttemp, conn->var2))
-			{
-				printd("\n# proveNextUniversal (%d,%d): (valid concept connection found), trying next literal", clauseDepth, literalIndex);
-				path.popConcept();
-				if (this->proveNextUniversal(obj, i+1, instances))
-				{
-					printd("\n# proveNextUniversal (%d,%d): SUCCESS (valid concept connection)", clauseDepth, literalIndex--);
-					return true;
-				}
-				break;
-				//printd("\n# proveNextUniversal (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
-				//path.pushConcept(&pathConcept);
-			}
-			// if something fail, restore the original instance of the variable of the concept, just in case it was
-			// changed by the connection
-			*instptr2 = instorig2;
-			insttemp = nullptr;
-			printd("\n# proveNextUniversal (%d,%d): STILL CONCEPT ", clauseDepth, ++literalIndex);
-			calld(obj->universals[i]->print(instances[obj->universals[i]->role.var1], instances[obj->universals[i]->role.var2]));
-		}
+        // Handle owl:Nothing
+        if (pathConcept.concept->concept.id() == 0) 
+            return pathConcept.concept->neg &&
+                this->proveNextUniversal(obj, i+1, instances, isRetry);
+        // Handle owl:Thing
+        if (pathConcept.concept->concept.id() == 1) 
+            return !pathConcept.concept->neg &&
+                this->proveNextUniversal(obj, i+1, instances, isRetry);
+        bool hasTriedAllVariableConnections = isRetry[i];
+        if (!hasTriedAllVariableConnections)
+        {
+            path.pushConcept(&pathConcept);
+            for (Connection* conn: *connList)
+            {
+                if (conn->universal) continue;
+                printd("\n# proveNextUniversal (%d,%d): ", clauseDepth, literalIndex); 
+                calld(obj->universals[i]->concept.print(instances[obj->universals[i]->concept.var], nullptr));
+                printd(" - CONNECT - ");
+                calld(conn->clause->print());
+                // Try to prove the connection, if it succeeds try to prove the next concept, if it succeeds, return true
+                if (this->proveClause(conn->clause, instptr2, conn->var1, &insttemp, conn->var2))
+                {
+                    printd("\n# proveNextUniversal (%d,%d): (valid concept connection found), trying next literal", clauseDepth, literalIndex);
+                    path.popConcept();
+                    // Since the proof is with a skolem constant we need NOT try any other connection.
+                    // i.e. the instance will never change. If we fail to prove the rest of the literals it
+                    // surely wasn't because of this connection.
+                    return this->proveNextUniversal(obj, i+1, instances, isRetry);
+                }
+                // if something fail, restore the original instance of the variable of the concept, just in case it was
+                // changed by the connection
+                *instptr2 = instorig2;
+                insttemp = nullptr;
+                printd("\n# proveNextUniversal (%d,%d): STILL CONCEPT ", clauseDepth, ++literalIndex);
+                calld(obj->universals[i]->print(instances[obj->universals[i]->role.var1], instances[obj->universals[i]->role.var2]));
+            }
+        }
 		path.popConcept();
 		// Try to connect the role of the universal
 		connList = obj->universals[i]->role.role.getconns(obj->universals[i]->role.neg);
@@ -482,6 +532,8 @@ namespace raccoon
 		for (Connection* conn: *connList)
 		{
 			if (conn->universal) continue;
+            bool nonInstancedVar = (conn->clause->values[conn->var1] == nullptr);
+            if (hasTriedAllVariableConnections && nonInstancedVar) continue;
 			printd("\n# proveNextUniversal (%d,%d): ", clauseDepth, literalIndex); 
 			calld(obj->universals[i]->role.print(instances[obj->universals[i]->role.var1], instances[obj->universals[i]->role.var2]));
 			printd(" - CONNECT - ");
@@ -491,16 +543,20 @@ namespace raccoon
 			{
 				printd("\n# proveNextUniversal (%d,%d): valid role connection found, trying next literal)", clauseDepth, literalIndex);
 				path.popRole();
-				if (this->proveNextUniversal(obj, i+1, instances))
+                // if the first variable has no assigned instance (is still a variable) we do not need
+                // to try any other connection (Variable Proof Reduction), because the failure was not
+                // due to an instance being assigned to the first variable of the clause.
+                if (nonInstancedVar) return this->proveNextUniversal(obj, i+1, instances, isRetry);
+				if (this->proveNextUniversal(obj, i+1, instances, isRetry))
 				{
 					printd("\n# proveNextUniversal (%d,%d): SUCCESS (valid role connection)", clauseDepth, literalIndex--);
 					return true;
 				}
-				if (*instptr1 == instorig1) // the failure wasn't because of an instantiation.
-				{
-					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
-					return false;
-				}
+//				if (*instptr1 == instorig1) // the failure wasn't because of an instantiation.
+//				{
+//					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
+//					return false;
+//				}
 				printd("\n# proveNextUniversal (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
 				path.pushRole(&pathRole);
 			}
@@ -511,7 +567,8 @@ namespace raccoon
 			printd("\n# proveNextUniversal (%d,%d): STILL ROLE ", clauseDepth, ++literalIndex);
 			calld(obj->universals[i]->print(instances[obj->universals[i]->role.var1], instances[obj->universals[i]->role.var2]));
 		}
-		path.popRole();
+        isRetry[i] = true;
+        path.popRole();
 		printd("\n# proveNextUniversal (%d,%d): FAIL (no connection found) - backtrack", clauseDepth, literalIndex--);
 		return false;	
 	}
