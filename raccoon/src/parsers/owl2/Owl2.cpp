@@ -44,6 +44,7 @@ extern "C" {
 #include "../../ir/ConceptRealization.h"
 #include "../../ir/RoleRealization.h"
 #include "../../ir/UniversalRealization.h"
+#include "../../ir/ExistentialRealization.h"
 
 using namespace std;
 namespace raccoon
@@ -597,13 +598,12 @@ namespace raccoon
 	
 	void Owl2::parseExistentialQuantifier(ast_node* roleNode, ast_node* conceptNode, bool negRole, bool negConcept, Clause* clause, unsigned int var)
 	{
-		Literal* lit = nullptr;
+		Literal* roleLit = nullptr;
 		roleNode = roleNode->firstChild;
 		switch (roleNode->tokenId)
 		{
 			case OWL2_ObjectProperty:
-				lit = &ontology->assertRole(roleNode->firstChild->firstChild->data);
-				clause->add(new RoleRealization(*lit, var, 0, negRole), false);
+				roleLit = &ontology->assertRole(roleNode->firstChild->firstChild->data);
 				break;
 			case OWL2_InverseObjectProperty: // inverse as in inverse function
 				throw unsupported_feature_exception(
@@ -613,14 +613,13 @@ namespace raccoon
 			default:
 				throw parser_exception("OWL2 Parser Error: Expected ObjectProperty or InverseObjectProperty on Quantifier.");
 		}
-		unsigned int roleVar = clause->varCount()-1;
 		// If the Quantifier's class is not a simple class, create a new class to represent it, else just add it
 		if (conceptNode->firstChild->tokenId != OWL2_Class)
 		{
 			Clause* c = new Clause();
 			Literal& newConcept = ontology->newConcept();
-			clause->add(new ConceptRealization(newConcept, roleVar, false));
-			c->add(new ConceptRealization(newConcept, 0, true));
+            clause->add(new ExistentialRealization(*roleLit, var, 0, negRole, newConcept, negConcept));
+            c->add(new ConceptRealization(newConcept, 0, true));
 			c->start = false;
 			parseClassExpression(conceptNode, negConcept, c, 0);
 			clauseSet->add(c);
@@ -628,7 +627,7 @@ namespace raccoon
 		else
 		{
 			Literal& concept = ontology->assertConcept(conceptNode->firstChild->firstChild->firstChild->data);
-			clause->add(new ConceptRealization(concept, roleVar, negConcept));
+			clause->add(new ExistentialRealization(*roleLit, var, 0, negRole, concept, negConcept));
 		}
 	}
 	

@@ -24,6 +24,7 @@ OBJECTS = CMALCrp.o \
           Path.o \
           RoleRealization.o \
           UniversalRealization.o \
+          ExistentialRealization.o \
           Options.o \
           time.o \
           Owl2.o \

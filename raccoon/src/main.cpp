@@ -51,6 +51,7 @@ int main(int argc, char* argv[])
 	ClauseSet clauseSet;
 	raccoon_time before;
 	
+    cout << RACCOON_VERSION << endl << flush;
 	if (options.valid)
 	{
 		if (!options.quiet) 

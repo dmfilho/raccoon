@@ -37,6 +37,7 @@
 #include "ConceptRealization.h"
 #include "RoleRealization.h"
 #include "UniversalRealization.h"
+#include "ExistentialRealization.h"
 #include "Connection.h"
 
 using namespace std;
@@ -77,6 +78,13 @@ namespace raccoon
 		 * realization also tells which variables of the clause the universal quantifier deals with.
 		 */
 		vector<UniversalRealization*> universals;	// List of universal quantifiers of the clause
+        
+        /**
+         * List of existential realizations of the clause. An existential realization consists of a tuple of (role,concept).
+         * Since a clause can deal with multiple variables and an existnetial restriction uses two variables, the
+         * realization also tells which variables of the clause the existential restriction deals with.
+         */
+        vector<ExistentialRealization*> existentials; // List of existential quantifiers of the clause
 		
 		/**
 		 * List of list of instances, each list of instances contains the instances used within a usage of the clause
@@ -149,6 +157,20 @@ namespace raccoon
 			values.push_back(nullptr);
 			ur->concept.conn_ptr = ur->concept.concept.addconn(new Connection(this, var2, 0, true), ur->concept.neg, false);
 			ur->role.conn_ptr = ur->role.role.addconn(new Connection(this, ur->role.var1, var2, true), ur->role.neg, false);
+		}
+        
+        /**
+		 * \brief Adds an ExistentialRealization to the concepts vector.
+		 */
+		inline void add(ExistentialRealization* er)
+		{
+			this->existentials.push_back(er);
+			unsigned int var2 = _varCount++;
+			er->concept.var = var2;
+			er->role.var2 = var2;
+			values.push_back(nullptr);
+			er->concept.conn_ptr = er->concept.concept.addconn(new Connection(this, var2, 0, true), er->concept.neg, false);
+			er->role.conn_ptr = er->role.role.addconn(new Connection(this, er->role.var1, var2, true), er->role.neg, false);
 		}
 		
 		inline int blockIfhasPureUniversal()

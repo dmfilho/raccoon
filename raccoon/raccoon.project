@@ -39,8 +39,8 @@
   <Dependencies/>
   <VirtualDirectory Name="src">
     <VirtualDirectory Name="back">
-      <File Name="src/back/CMALCrp.cpp"/>
       <File Name="src/back/CMALCrp.h"/>
+      <File Name="src/back/CMALCrp.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="ir">
       <File Name="src/ir/Clause.h"/>
@@ -64,6 +64,8 @@
       <File Name="src/ir/UniversalRealization.h"/>
       <File Name="src/ir/UniversalRealization.cpp"/>
       <File Name="src/ir/Connection.h"/>
+      <File Name="src/ir/ExistentialRealization.h"/>
+      <File Name="src/ir/ExistentialRealization.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="parsers">
       <VirtualDirectory Name="owl2">

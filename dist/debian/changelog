@@ -1,3 +1,10 @@
+raccoon (0.1.6-1) UNRELEASED; urgency=low
+
+  [ Dimas Melo Filho ]
+  * Bug correction on the skolem connection restriction.
+  * Separated the reasoning of existential restrictions into different functions.
+  * Reordered some proof steps to prove existential restrictions a priori.
+
 raccoon (0.1.5-1) UNRELEASED; urgency=low
 
   [ Dimas Melo Filho ]

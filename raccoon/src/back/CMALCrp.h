@@ -46,6 +46,7 @@ namespace raccoon
 		ClauseSet* kb;
 		Path path;
 		bool pure;
+        int universalCount;
 		#ifdef _DEBUG
 			int clauseDepth;
 			int literalIndex;
@@ -57,6 +58,8 @@ namespace raccoon
 		bool proveClause(Clause* obj, Instance** inst0, int inst0idx, Instance** inst1, int inst1idx);
 		bool proveNextConcept(Clause* obj, unsigned int i, Instance* instances[], bool* isRetry);
 		bool proveNextRole(Clause* obj, unsigned int i, Instance* instances[], bool* isRetry);
+        bool proveNextExistentialConcept(Clause * obj, unsigned int i, Instance* instances[], bool* isRetry);
+        bool proveNextExistentialRole(Clause * obj, unsigned int i, Instance* instances[], bool* isRetry);
 		bool proveNextUniversal(Clause* obj, unsigned int i, Instance* instances[], bool* isRetry);
 		
 		CMALCrp(ClauseSet* kb, bool pure);

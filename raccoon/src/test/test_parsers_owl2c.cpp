@@ -90,6 +90,36 @@ bool hasUniversal(Clause* clause, const char* roleName, const char* conceptName,
 }
 
 /**
+ * \brief Returns true when a Clause has the specified existential quantifier
+ * @param cs The Clause to search in
+ * @param roleName The name of the role we are looking for
+ * @param conceptName The name of the concept we are looking for
+ * @param roleNeg Are we looking for a negated role?
+ * @param conceptNeg Are we looking for a negated concept?
+ * @param var1 What is the first variable id of the existential quantifier
+ * @param var2 What is the second variable id of the existential quantifier
+ * @return True when the specified role is found within the clauseset.
+ */
+bool hasExistential(Clause* clause, const char* roleName, const char* conceptName, bool roleNeg, bool conceptNeg, 
+	int var1, int var2)
+{
+	for (auto existential: clause->existentials)
+	{
+		if (existential->role.role._name == roleName &&
+			existential->concept.concept._name == conceptName &&
+			existential->role.neg == roleNeg &&
+			existential->concept.neg == conceptNeg &&
+			existential->role.var1 == var1 &&
+			existential->role.var2 == var2 &&
+			existential->concept.var == var2)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
  * \brief Test the conversion of the SubClassOf
  */
 TEST(Owl2Conv_SubClassOf)
@@ -520,15 +550,14 @@ TEST(Owl2Conv_ObjectSomeValuesFrom)
 	if (pr == NULL) return;	
 	owl2.parse(pr, &ontology, &cs, true);
 	CHECK(cs.clauses.size() == 1);
-	CHECK(cs.clauses[0]->concepts.size() == 2);
-	CHECK(cs.clauses[0]->roles.size() == 1);
+	CHECK(cs.clauses[0]->concepts.size() == 1);
+	CHECK(cs.clauses[0]->existentials.size() == 1);
 	for (auto clause: ontology.clauseSet)
 	{
 		CHECK(clause->values.size() == 0);
 	}
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", true, 0));
-	CHECK(hasConcept(cs.clauses[0], "t:Class2", false, 1));
-	CHECK(hasRole(cs.clauses[0], "t:Role1", false, 0, 1));
+    CHECK(hasExistential(cs.clauses[0], "t:Role1", "t:Class2", false, false, 0, 1));
 	CHECK(ontology.conceptCount == 4); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 1);
 	CHECK(ontology.instanceCount == 0);
@@ -619,11 +648,10 @@ TEST(Owl2Conv_ObjectAllValuesFrom_Negated)
 	if (pr == NULL) return;	
 	owl2.parse(pr, &ontology, &cs, true);
 	CHECK(cs.clauses.size() == 1);
-	CHECK(cs.clauses[0]->concepts.size() == 2);
-	CHECK(cs.clauses[0]->roles.size() == 1);
+	CHECK(cs.clauses[0]->concepts.size() == 1);
+	CHECK(cs.clauses[0]->existentials.size() == 1);
 	CHECK(hasConcept(cs.clauses[0], "t:Class1", false, 0));
-	CHECK(hasConcept(cs.clauses[0], "t:Class2", true, 1));
-	CHECK(hasRole(cs.clauses[0], "t:Role1", false, 0, 1));
+    CHECK(hasExistential(cs.clauses[0], "t:Role1", "t:Class2", false, true, 0, 1));
 	CHECK(ontology.conceptCount == 4); // because owl:Thing and owl:Nothing are always there
 	CHECK(ontology.roleCount == 1);
 	CHECK(ontology.instanceCount == 0);

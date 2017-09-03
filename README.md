@@ -14,9 +14,23 @@ Pre-compiled binaries are available for the following Operating Systems:
 
 Version | Operating System | Platform
 :------:|:----------------:|:--------:
+0.1.6 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxN3RWSDJqcnExZVk)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxazBnUFBybnpzRlk)
 0.1.5 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/open?id=0B4CJaYm24URxSWVoaWxrYXNGb3M)<br>[i386](https://drive.google.com/open?id=0B4CJaYm24URxWndpZHZEU0hhVTg)
-0.1.4 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxNW5WNlNjSUhiTm8/view?usp=sharing)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxc3NtVWNBc0RrSVE/view?usp=sharing)
-0.1.2 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxMU9XSjJfUjVXRms/view?usp=sharing)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxWXUzNllub0pYRlU/view?usp=sharing)
+0.1.4 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxNW5WNlNjSUhiTm8)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxc3NtVWNBc0RrSVE)
+0.1.2 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxMU9XSjJfUjVXRms)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxWXUzNllub0pYRlU)
+
+Author and Contributors
+======
+The reasoner was developed by Dimas Melo Filho, with the help of the following contributors and researchers:
+
+Name | Country | Organization
+:---:|:-------:|:-----------:
+Fred Freitas | Brazil | UFPE
+Jens Otten | Germany | University of Potsdam
+Diogo Espinhara | Brazil | UFPE
+
+Feel free to contribute.
+
 
 How to Compile
 ======

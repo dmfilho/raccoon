@@ -47,13 +47,30 @@ TEST(ReasonerCMALCrp_AcyclicTBoxInconsistency001)
 }
 
 /**
- * \brief Test Acyclic TBox Inconsistency.
+ * \brief Test Acyclic TBox Inconsistency 2.
  */
 TEST(ReasonerCMALCrp_AcyclicTBoxInconsistency002)
 {
 	Owl2 owl2;
 	Ontology ontology;
 	parse_result* pr = OWL2_parse_file("../../test/consistency/test_acyclic_tbox_inconsistency002.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == false);
+	parse_result_free(pr);
+}
+
+/**
+ * \brief Test Acyclic TBox Inconsistency 3. Contributed by *Diogo Espinhara*.
+ * \description This case caused false consistency problems on versions between 0.1.3 and 0.1.5 
+ * (inclusive) it was caused by a premature blocking of connections containing skolem functions.
+ */
+TEST(ReasonerCMALCrp_AcyclicTBoxInconsistency003)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_acyclic_tbox_inconsistency003.owl");
 	CHECK(pr != NULL);
 	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
 	CMALCrp reasoner(&ontology.clauseSet, true);
@@ -99,6 +116,21 @@ TEST(ReasonerCMALCrp_CyclicInconsistency002)
 	Owl2 owl2;
 	Ontology ontology;
 	parse_result* pr = OWL2_parse_file("../../test/consistency/test_cyclic_inconsistency002.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == false);
+	parse_result_free(pr);
+}
+
+/**
+ * \brief Test Cyclic Inconsistency.
+ */
+TEST(ReasonerCMALCrp_CyclicInconsistency003)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_cyclic_inconsistency003.owl");
 	CHECK(pr != NULL);
 	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
 	CMALCrp reasoner(&ontology.clauseSet, true);

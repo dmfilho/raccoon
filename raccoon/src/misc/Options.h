@@ -32,6 +32,8 @@
 
 #include <string>
 
+#define RACCOON_VERSION "raccoon version 0.1.6"
+
 struct option
 {
 	const char *name;
