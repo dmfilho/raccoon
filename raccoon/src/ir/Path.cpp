@@ -89,7 +89,7 @@ namespace raccoon
 	 * @param inst2 The instance of the second variable of the role, or nullptr to ignore.
 	 * @return true if the path contains the negation of the given role.
 	 */
-	bool Path::containsNegationOfRole(RoleRealization* role, Instance* inst1, Instance* inst2)
+	PathItemRole * Path::containsNegationOfRole(RoleRealization* role, Instance* inst1, Instance* inst2)
 	{
         Instance * iinst1;
         Instance * iinst2;
@@ -109,10 +109,10 @@ namespace raccoon
                 )
             )
 			{
-				return true;
+				return item;
 			}
 		}
-		return false;
+		return nullptr;
 	}
 		
 	/**
@@ -163,9 +163,10 @@ namespace raccoon
 	 * If the instance is nullptr it is treated as a variable and is ignored on the comparison.
 	 * @param concept The concept to check if it is in the path.
 	 * @param inst The instance of the concept, or nullptr to ignore.
-	 * @return true if a negation of the concept with its respective instance is in the path.
+	 * @return pointer to ConceptRealization if a negation of the concept with its respective instance 
+     * is in the path.
 	 */
-	bool Path::containsNegationOfConcept(ConceptRealization* concept, Instance* inst)
+	PathItemConcept * Path::containsNegationOfConcept(ConceptRealization* concept, Instance* inst)
 	{
         Instance * iinst;
 		for (PathItemConcept* item: this->concepts)
@@ -179,11 +180,11 @@ namespace raccoon
                     inst == iinst
                 )
             )
-			{
-				return true;
+			{ 
+				return item;
 			}
 		}
-		return false;
+		return nullptr;
 	}
 	
 	/**

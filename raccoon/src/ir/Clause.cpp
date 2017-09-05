@@ -104,6 +104,11 @@ namespace raccoon
 			universal->print(this->values);
 			cout << ", ";
 		}
+        for (auto existential: this->existentials)
+        {
+            existential->print(this->values);
+            cout << ", ";
+        }
 	}
 	
 	Clause::Clause()

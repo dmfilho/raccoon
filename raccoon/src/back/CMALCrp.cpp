@@ -262,7 +262,7 @@ namespace raccoon
 			return this->proveNextRole(obj, 0, instances, isRetry + obj->concepts.size());
 		}
         // Print debug information when in debug mode
-		printd("\n# proveNextConcept (%d,%d,%d,%d): ", clauseDepth, ++literalIndex, i, obj->concepts.size());
+		printd("\n# proveNextConcept (%d,%d,%d,%lu): ", clauseDepth, ++literalIndex, i, obj->concepts.size());
         calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
         
 		// Save the pointer of the instance for the variable of the concept, and its original value
@@ -271,12 +271,22 @@ namespace raccoon
 		Instance* instorig = *instptr;
 
 		// Check if the complement of this concept already appears on the path
-        // Also check if it is owl:Thing
-		if (path.containsNegationOfConcept(obj->concepts[i], instorig) ||
-            obj->concepts[i]->concept.id() == 0)
+        PathItemConcept * pathItem = path.containsNegationOfConcept(obj->concepts[i], instorig);
+		if (pathItem != nullptr)
 		{
-			printd("\n# proveNextConcept (%d,%d,%d,%d): SUCCESS (complement in path), trying next concept", clauseDepth, literalIndex--, i, obj->concepts.size());
-			return this->proveNextConcept(obj, i+1, instances, isRetry);
+            if (instorig == nullptr) {
+                *instptr = *pathItem->inst;
+            }
+			printd("\n# proveNextConcept (%d,%d,%d,%lu): SUCCESS (complement in path), trying next concept", clauseDepth, literalIndex--, i, obj->concepts.size());
+			if (this->proveNextConcept(obj, i+1, instances, isRetry)) {
+                return true;
+            } else {
+                printd("\n# proveNextConcept (%d,%d,%d,%lu): FAILED WITH COMPLEMENT IN PATH", clauseDepth, literalIndex+1, i, obj->concepts.size());
+                // If the failure was not due to instantiation, we will not be able to connect this in any way.
+                if (*instptr == nullptr) return false;
+            }
+            printd("\n# proveNextConcept (%d,%d,%d,%lu): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex, i, obj->concepts.size());
+            *instptr = instorig;
 		}
 		
         // Try to connect the concept
@@ -296,7 +306,7 @@ namespace raccoon
             !pathConcept.concept->neg &&
                 this->proveNextConcept(obj, i+1, instances, isRetry);
                 
-        printd("\n# Trying from %d connections.", connList->size());
+        printd("\n# Trying from %lu connections.", connList->size());
 		path.pushConcept(&pathConcept);
         bool hasTriedAllVariableConnections = isRetry[i];
 		for (Connection* conn: *connList)
@@ -304,7 +314,7 @@ namespace raccoon
             if (universalCount && conn->universal) continue;
             bool nonInstancedVar = (conn->clause->values[conn->var1] == nullptr);
             if (hasTriedAllVariableConnections && nonInstancedVar) continue;
-			printd("\n# proveNextConcept (%d,%d,%d,%d): ", clauseDepth, literalIndex,i, obj->concepts.size()); 
+			printd("\n# proveNextConcept (%d,%d,%d,%lu): ", clauseDepth, literalIndex,i, obj->concepts.size()); 
 			calld(obj->concepts[i]->print(instances[obj->concepts[i]->var], nullptr));
 			printd("\n# Trying to Connect to Clause: ");
 			calld(conn->clause->print());
@@ -374,10 +384,26 @@ namespace raccoon
 		Instance* instorig2 = *instptr2;
         
 		// Check if the role already appears in the path
-		if (path.containsNegationOfRole(obj->roles[i], instorig1, instorig2))
+        PathItemRole * pathItem = path.containsNegationOfRole(obj->roles[i], instorig1, instorig2);
+		if (pathItem != nullptr)
 		{
+            if (instorig1 == nullptr) {
+                *instptr1 = *pathItem->inst1;
+            }
+            if (instorig2 == nullptr) {
+                *instptr2 = *pathItem->inst2;
+            }
 			printd("\n# proveNextRole (%d,%d): SUCCESS (complement in path), trying next role", clauseDepth, literalIndex--);
-			return this->proveNextRole(obj, i+1, instances, isRetry);
+			if (this->proveNextRole(obj, i+1, instances, isRetry)) {
+                return true;
+            } else {
+                printd("\n# proveNextRole (%d,%d): FAILED WITH COMPLEMENT IN PATH", clauseDepth, literalIndex+1);
+                // If the failure was not due to instantiation, we will not be able to connect this in any way.
+                if (*instptr1 == nullptr && *instptr2 == nullptr) return false;
+            }
+            printd("\n# proveNextRole (%d,%d): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex);
+            *instptr1 = instorig1;
+            *instptr2 = instorig2;
 		}
 		// Try to connect the role
 		list<Connection*> * connList = obj->roles[i]->role.getconns(obj->roles[i]->neg);
@@ -452,11 +478,23 @@ namespace raccoon
 		Instance* insttemp = nullptr;
 		Instance* instorig = *instptr;
         
-        // Check if the existential's concept or role already appear in the path
-		if (path.containsNegationOfConcept(&obj->existentials[i]->concept, instorig))
+        // Check if the existential's concept already appear in the path
+        PathItemConcept * pathItem = path.containsNegationOfConcept(&obj->existentials[i]->concept, instorig);
+		if (pathItem != nullptr)
 		{
+            if (instorig == nullptr) {
+                *instptr = *pathItem->inst;
+            }
 			printd("\n# proveNextExistentialConcept(%d,%d): SUCCESS (complement in path), trying next existential role", clauseDepth, literalIndex--);
-			return this->proveNextExistentialRole(obj, i, instances, isRetry);
+			if (this->proveNextExistentialRole(obj, i, instances, isRetry)) {
+                return true;
+            } else {
+                printd("\n# proveNextExistentialConcept(%d,%d): FAILED WITH COMPLEMENT IN PATH", clauseDepth, literalIndex+1);
+                // If the failure was not due to instantiation, we will not be able to connect this in any way.
+                if (*instptr == nullptr) return false;
+            }
+            printd("\n# proveNextExistentialConcept(%d,%d): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex);
+            *instptr = instorig;
 		}
         
         // Try to connect the concept
@@ -476,7 +514,7 @@ namespace raccoon
             !pathConcept.concept->neg &&
                 this->proveNextExistentialRole(obj, i, instances, isRetry);
                 
-        printd("\n# Trying from %d connections.", connList->size());
+        printd("\n# Trying from %lu connections.", connList->size());
 		path.pushConcept(&pathConcept);
         bool hasTriedAllVariableConnections = isRetry[i];
 		for (Connection* conn: *connList)
@@ -484,15 +522,15 @@ namespace raccoon
             if (universalCount && conn->universal) continue;
             bool nonInstancedVar = (conn->clause->values[conn->var1] == nullptr);
             if (hasTriedAllVariableConnections && nonInstancedVar) continue;
-			printd("\n# proveNextExistentialConcept (%d,%d,%d,%d): ", clauseDepth, literalIndex,i, obj->concepts.size()); 
-			calld(obj->existentials[i]->print(instances[obj->existentials[i]->concept.var], nullptr));
+			printd("\n# proveNextExistentialConcept (%d,%d,%d,%lu): ", clauseDepth, literalIndex,i, obj->concepts.size()); 
+			calld(obj->existentials[i]->print(instances[obj->existentials[i]->role.var1], instances[obj->existentials[i]->role.var2]));
 			printd("\n# Trying to Connect to Clause: ");
 			calld(conn->clause->print());
 			// Try to prove the connection, if it succeeds try to prove the next concept, if it succeeds, return true
 			if (this->proveClause(conn->clause, instptr, conn->var1, &insttemp, conn->var2))
 			{
                 // print debug info
-				printd("\n# proveNextExistentialConcept (%d,%d): valid connection found, trying next literal)", clauseDepth, literalIndex);
+				printd("\n# proveNextExistentialConcept (%d,%d): valid connection found, trying next literal)", clauseDepth, literalIndex--);
 				path.popConcept();
                 // if the variable has no assigned instance (is still a variable) we do not need
                 // to try any other connection (Variable Proof Reduction), because the failure was not
@@ -501,7 +539,7 @@ namespace raccoon
                 // go prove the next concept of the clause
 				if (this->proveNextExistentialRole(obj, i, instances, isRetry))
 				{
-					printd("\n# proveNextExistentialConcept (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex--);
+					printd("\n# proveNextExistentialConcept (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex+1);
 					return true;
 				}
 //				if (*instptr == instorig) // the failure wasn't because of an instantiation.
@@ -509,7 +547,7 @@ namespace raccoon
 //					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
 //					return false;
 //				}
-				printd("\n# proveNextExistentialConcept (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
+				printd("\n# proveNextExistentialConcept (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, ++literalIndex);
 				path.pushConcept(&pathConcept);
 			}
 			// if something fail, restore the original instance of the variable of the concept, just in case it was
@@ -517,7 +555,7 @@ namespace raccoon
 			*instptr = instorig;
 			insttemp = nullptr;
 			printd("\n# proveNextExistentialConcept (%d,%d): STILL ", clauseDepth, literalIndex);
-			calld(obj->existentials[i]->print(instances[obj->existentials[i]->concept.var], nullptr));
+			calld(obj->existentials[i]->print(instances[obj->existentials[i]->role.var1], instances[obj->existentials[i]->role.var2]));
 		}
         isRetry[i] = true;
 		path.popConcept();
@@ -539,11 +577,28 @@ namespace raccoon
 		Instance* instorig2 = *instptr2;
         
 		// Check if the role already appears in the path
-		if (path.containsNegationOfRole(&obj->existentials[i]->role, instorig1, instorig2))
+        PathItemRole * pathItem = path.containsNegationOfRole(&obj->existentials[i]->role, instorig1, instorig2);
+		if (pathItem != nullptr)
 		{
+            if (instorig1 == nullptr) {
+                *instptr1 = *pathItem->inst1;
+            }
+            if (instorig2 == nullptr) {
+                *instptr2 = *pathItem->inst2;
+            }
 			printd("\n# proveNextExistentialRole (%d,%d): SUCCESS (complement in path), trying next role", clauseDepth, literalIndex--);
-			return this->proveNextExistentialConcept(obj, i+1, instances, isRetry);
+			if (this->proveNextExistentialConcept(obj, i+1, instances, isRetry)) {
+                return true;
+            } else {
+                printd("\n# proveNextExistentialRole (%d,%d): FAILED WITH COMPLEMENT IN PATH", clauseDepth, literalIndex+1);
+                // If the failure was not due to instantiation, we will not be able to connect this in any way.
+                if (*instptr1 == nullptr && *instptr2 == nullptr) return false;
+            }
+            *instptr1 = instorig1;
+            *instptr2 = instorig2;
+            printd("\n# proveNextExistentialRole (%d,%d): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex);
 		}
+        
 		// Try to connect the role
 		list<Connection*> * connList = obj->existentials[i]->role.role.getconns(obj->existentials[i]->role.neg);
 		PathItemRole pathRole = {

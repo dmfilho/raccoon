@@ -103,7 +103,7 @@ namespace raccoon
 		 * @param inst2 The instance of the second variable of the role, or nullptr to ignore.
 		 * @return true if the path contains the negation of the given role.
 		 */
-		bool containsNegationOfRole(RoleRealization* role, Instance* inst1, Instance* inst2);
+		PathItemRole * containsNegationOfRole(RoleRealization* role, Instance* inst1, Instance* inst2);
 		
 		/**
 		 * \brief Push a specific role with specific instances to the path.
@@ -136,7 +136,7 @@ namespace raccoon
 		 * @param inst The instance of the concept, or nullptr to ignore.
 		 * @return true if a negation of the concept with its respective instance is in the path.
 		 */
-		bool containsNegationOfConcept(ConceptRealization* concept, Instance* inst);
+		PathItemConcept * containsNegationOfConcept(ConceptRealization* concept, Instance* inst);
 		
 		/**
 		 * \brief Push a concept to the top of the path, with the given instance.

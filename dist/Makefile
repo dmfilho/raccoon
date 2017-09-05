@@ -1,4 +1,4 @@
-VERSION=0.1.6
+VERSION=0.1.7
 DEBVER=1
 FILES=usr/local/bin/raccoon
 

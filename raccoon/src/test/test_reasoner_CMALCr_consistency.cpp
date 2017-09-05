@@ -214,6 +214,51 @@ TEST(ReasonerCMALCrp_CyclicConsistency005_Slow)
 }
 
 /**
+ * \brief Test Cyclic Consistency.
+ */
+TEST(ReasonerCMALCrp_CyclicConsistency006_Slow)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_cyclic_consistency006_slow.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == true);
+	parse_result_free(pr);
+}
+
+/**
+ * \brief Test Cyclic Consistency. Contributed by Ivan Varzinczak.
+ */
+TEST(ReasonerCMALCrp_CyclicConsistency007)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_cyclic_consistency007.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == true);
+	parse_result_free(pr);
+}
+
+/**
+ * \brief Test Cyclic Consistency. Contributed by Diogo Espinhara.
+ */
+TEST(ReasonerCMALCrp_CyclicConsistency008)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_cyclic_consistency008.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == true);
+	parse_result_free(pr);
+}
+
+/**
  * \brief Test Skolem Consistency.
  */
 TEST(ReasonerCMALCrp_CyclicPure)

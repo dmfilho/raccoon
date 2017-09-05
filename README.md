@@ -14,6 +14,7 @@ Pre-compiled binaries are available for the following Operating Systems:
 
 Version | Operating System | Platform
 :------:|:----------------:|:--------:
+0.1.7 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxX2dTVUVCZmpJcEE)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxZXlGTzRKcFBBcVU)
 0.1.6 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxN3RWSDJqcnExZVk)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxazBnUFBybnpzRlk)
 0.1.5 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/open?id=0B4CJaYm24URxSWVoaWxrYXNGb3M)<br>[i386](https://drive.google.com/open?id=0B4CJaYm24URxWndpZHZEU0hhVTg)
 0.1.4 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxNW5WNlNjSUhiTm8)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxc3NtVWNBc0RrSVE)
@@ -21,7 +22,7 @@ Version | Operating System | Platform
 
 Author and Contributors
 ======
-The reasoner was developed by Dimas Melo Filho, with the help of the following contributors and researchers:
+The reasoner was developed by Dimas Melo Filho, with inestimable help of the following contributors and researchers:
 
 Name | Country | Organization
 :---:|:-------:|:-----------:

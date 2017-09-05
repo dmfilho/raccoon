@@ -1,0 +1,12 @@
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_inconsistency001.owl>)
+Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_acyclic_tbox_inconsistency001.owl>
+  Annotation( rdfs:comment "Author: Ivan Varzinczak" )
+  SubClassOf(:Person 
+  	ObjectSomeValuesFrom(:hasFather  
+  		ObjectIntersectionOf(:Person 
+  			ObjectSomeValuesFrom(:hasFather :Person)
+  		)
+  	)
+  )
+)

@@ -28,7 +28,7 @@ namespace raccoon
 			{
 				Literal* concept = c.second;
 				if (!concept->blocked && concept->pure() && concept->id() > 1) {
-                    printd("PureConcept: %s\n", concept->name());
+                    printd("PureConcept: %s\n", concept->name().c_str());
 					newPureClauses += concept->block();
                     ++pureConcepts;
                     ++newPureConcepts;
@@ -39,7 +39,7 @@ namespace raccoon
 			{
 				Literal* role = r.second;
 				if (!role->blocked && role->pure()) {
-                    printd("PureRole: %s\n", role->name());
+                    printd("PureRole: %s\n", role->name().c_str());
 					newPureClauses += role->block();
                     ++pureRoles;
                     ++newPureRoles;

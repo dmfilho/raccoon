@@ -100,7 +100,7 @@ namespace raccoon
 	void ExistentialRealization::print(std::vector<Instance*>& values)
 	{
 		this->role.print(values);
-		cout << "\n";
+		cout << "^";
 		this->concept.print(values);
 	}
 	
@@ -113,7 +113,7 @@ namespace raccoon
 	void ExistentialRealization::print(Instance* inst1, Instance* inst2)
 	{
 		this->role.print(inst1, inst2);
-		cout << '\n';
+		cout << '^';
 		this->concept.print(inst2, nullptr);
 	}
 	
@@ -123,7 +123,7 @@ namespace raccoon
 	void ExistentialRealization::print()
 	{
 		this->role.print();
-		cout << "\n";
+		cout << "^";
 		this->concept.print();
 	}
 

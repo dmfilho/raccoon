@@ -169,8 +169,8 @@ namespace raccoon
 			er->concept.var = var2;
 			er->role.var2 = var2;
 			values.push_back(nullptr);
-			er->concept.conn_ptr = er->concept.concept.addconn(new Connection(this, var2, 0, true), er->concept.neg, false);
-			er->role.conn_ptr = er->role.role.addconn(new Connection(this, er->role.var1, var2, true), er->role.neg, false);
+			er->concept.conn_ptr = er->concept.concept.addconn(new Connection(this, var2, 0, false), er->concept.neg, false);
+			er->role.conn_ptr = er->role.role.addconn(new Connection(this, er->role.var1, var2, false), er->role.neg, false);
 		}
 		
 		inline int blockIfhasPureUniversal()
