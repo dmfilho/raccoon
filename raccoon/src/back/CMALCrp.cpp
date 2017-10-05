@@ -283,7 +283,7 @@ namespace raccoon
             } else {
                 printd("\n# proveNextConcept (%d,%d,%d,%lu): FAILED WITH COMPLEMENT IN PATH", clauseDepth, literalIndex+1, i, obj->concepts.size());
                 // If the failure was not due to instantiation, we will not be able to connect this in any way.
-                if (*instptr == nullptr) return false;
+                if (*instptr == instorig) return false;
             }
             printd("\n# proveNextConcept (%d,%d,%d,%lu): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex, i, obj->concepts.size());
             *instptr = instorig;
@@ -324,10 +324,10 @@ namespace raccoon
                 // print debug info
 				printd("\n# proveNextConcept (%d,%d): valid connection found, trying next literal)", clauseDepth, literalIndex);
 				path.popConcept();
-                // if the variable has no assigned instance (is still a variable) we do not need
-                // to try any other connection (Variable Proof Reduction), because the failure was not
+                // if the variable did not change instance we do not need to try any other connection
+                // (Instantiationless Proof Reduction), because the failure was not
                 // due to an instance being assigned to the first variable of the clause.
-                if (nonInstancedVar) return this->proveNextConcept(obj, i+1, instances, isRetry);
+                if (*instptr == instorig) return this->proveNextConcept(obj, i+1, instances, isRetry);
                 // go prove the next concept of the clause
 				if (this->proveNextConcept(obj, i+1, instances, isRetry))
 				{
@@ -399,7 +399,7 @@ namespace raccoon
             } else {
                 printd("\n# proveNextRole (%d,%d): FAILED WITH COMPLEMENT IN PATH", clauseDepth, literalIndex+1);
                 // If the failure was not due to instantiation, we will not be able to connect this in any way.
-                if (*instptr1 == nullptr && *instptr2 == nullptr) return false;
+                if (*instptr1 == instorig1 && *instptr2 == instorig2) return false;
             }
             printd("\n# proveNextRole (%d,%d): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex);
             *instptr1 = instorig1;
@@ -431,10 +431,10 @@ namespace raccoon
 			{
 				printd("\n# proveNextRole (%d,%d): valid connection found, trying next literal)", clauseDepth, literalIndex);
 				path.popRole();
-                // if the variable has no assigned instance (is still a variable) we do not need
-                // to try any other connection (Variable Proof Reduction), because the failure was not
+                // if the variable did not change instance we do not need to try any other connection
+                // (Instantiationless Proof Reduction), because the failure was not
                 // due to an instance being assigned to the first variable of the clause.
-                if (nonInstancedVar) 
+                if (*instptr1 == instorig1 && *instptr2 == instorig2) 
                     return this->proveNextRole(obj, i+1, instances, isRetry);
                 
 				if (this->proveNextRole(obj, i+1, instances, isRetry))
@@ -491,7 +491,7 @@ namespace raccoon
             } else {
                 printd("\n# proveNextExistentialConcept(%d,%d): FAILED WITH COMPLEMENT IN PATH", clauseDepth, literalIndex+1);
                 // If the failure was not due to instantiation, we will not be able to connect this in any way.
-                if (*instptr == nullptr) return false;
+                if (*instptr == instorig) return false;
             }
             printd("\n# proveNextExistentialConcept(%d,%d): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex);
             *instptr = instorig;
@@ -532,10 +532,10 @@ namespace raccoon
                 // print debug info
 				printd("\n# proveNextExistentialConcept (%d,%d): valid connection found, trying next literal)", clauseDepth, literalIndex--);
 				path.popConcept();
-                // if the variable has no assigned instance (is still a variable) we do not need
-                // to try any other connection (Variable Proof Reduction), because the failure was not
+                // if the variable did not change instance we do not need to try any other connection
+                // (Instantiationless Proof Reduction), because the failure was not
                 // due to an instance being assigned to the first variable of the clause.
-                if (nonInstancedVar) return this->proveNextExistentialRole(obj, i, instances, isRetry);
+                if (*instptr == instorig) return this->proveNextExistentialRole(obj, i, instances, isRetry);
                 // go prove the next concept of the clause
 				if (this->proveNextExistentialRole(obj, i, instances, isRetry))
 				{
@@ -592,7 +592,7 @@ namespace raccoon
             } else {
                 printd("\n# proveNextExistentialRole (%d,%d): FAILED WITH COMPLEMENT IN PATH", clauseDepth, literalIndex+1);
                 // If the failure was not due to instantiation, we will not be able to connect this in any way.
-                if (*instptr1 == nullptr && *instptr2 == nullptr) return false;
+                if (*instptr1 == instorig1 && *instptr2 == instorig2) return false;
             }
             *instptr1 = instorig1;
             *instptr2 = instorig2;
@@ -625,10 +625,10 @@ namespace raccoon
 			{
 				printd("\n# proveNextExistentialRole (%d,%d): valid connection found, trying next literal)", clauseDepth, literalIndex);
 				path.popRole();
-                // if the variable has no assigned instance (is still a variable) we do not need
-                // to try any other connection (Variable Proof Reduction), because the failure was not
+                // if the variable did not change instance we do not need to try any other connection
+                // (Instantiationless Proof Reduction), because the failure was not
                 // due to an instance being assigned to the first variable of the clause.
-                if (nonInstancedVar) 
+                if (*instptr1 == instorig1 && *instptr2 == instorig2) 
                     return this->proveNextExistentialConcept(obj, i+1, instances, isRetry);
                 
 				if (this->proveNextExistentialConcept(obj, i+1, instances, isRetry))
@@ -772,10 +772,11 @@ namespace raccoon
 			{
 				printd("\n# proveNextUniversal (%d,%d): valid role connection found, trying next literal)", clauseDepth, literalIndex);
 				path.popRole();
-                // if the first variable has no assigned instance (is still a variable) we do not need
-                // to try any other connection (Variable Proof Reduction), because the failure was not
+                // if the variable did not change instance we do not need to try any other connection
+                // (Instantiationless Proof Reduction), because the failure was not
                 // due to an instance being assigned to the first variable of the clause.
-                if (nonInstancedVar) return this->proveNextUniversal(obj, i+1, instances, isRetry);
+                // Here we do not check instptr2 because it is always a skolem constant.
+                if (*instptr1 == instorig1) return this->proveNextUniversal(obj, i+1, instances, isRetry);
                 --universalCount;
 				if (this->proveNextUniversal(obj, i+1, instances, isRetry))
 				{

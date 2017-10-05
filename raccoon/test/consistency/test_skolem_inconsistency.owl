@@ -1,0 +1,9 @@
+Prefix(:=<http://www.semanticweb.org/dell-ubuntu/ontologies/2017/8/untitled-ontology-10#>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+
+Ontology(<http://www.semanticweb.org/dell-ubuntu/ontologies/2017/8/untitled-ontology-10>
+	Annotation( rdfs:comment "Author: Diogo Espinhara" )
+	DisjointClasses(:B :C)
+	SubClassOf(:C ObjectAllValuesFrom(:eat :B))
+	ClassAssertion(ObjectIntersectionOf(:C ObjectSomeValuesFrom(:eat ObjectComplementOf(:B))) :IndC)
+)

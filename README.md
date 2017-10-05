@@ -14,11 +14,7 @@ Pre-compiled binaries are available for the following Operating Systems:
 
 Version | Operating System | Platform
 :------:|:----------------:|:--------:
-0.1.7 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxX2dTVUVCZmpJcEE)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxZXlGTzRKcFBBcVU)
-0.1.6 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxN3RWSDJqcnExZVk)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxazBnUFBybnpzRlk)
-0.1.5 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/open?id=0B4CJaYm24URxSWVoaWxrYXNGb3M)<br>[i386](https://drive.google.com/open?id=0B4CJaYm24URxWndpZHZEU0hhVTg)
-0.1.4 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxNW5WNlNjSUhiTm8)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxc3NtVWNBc0RrSVE)
-0.1.2 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxMU9XSjJfUjVXRms)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxWXUzNllub0pYRlU)
+0.1.8 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxQnBwNnBZRWc0MU0)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxOG5QY2NfT3FGbmc)
 
 Author and Contributors
 ======

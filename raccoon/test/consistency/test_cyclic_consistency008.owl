@@ -1,6 +1,7 @@
 Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
 Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_cyclic_consistency008.owl>)
 Ontology(<http://cin.ufpe.br/~dldmf/raccoon/test_cyclic_consistency008.owl>
+	Annotation( rdfs:comment "Author: Diogo Espinhara" )
 	SubClassOf(:A ObjectSomeValuesFrom(:eat :B))
 	ClassAssertion(ObjectIntersectionOf(:A ObjectComplementOf(ObjectSomeValuesFrom(:eat :A))) :IndA) 
 )

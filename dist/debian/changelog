@@ -1,3 +1,9 @@
+raccoon (0.1.8-1) UNRELEASED; urgency=high
+
+  [ Dimas Melo Filho ]
+  * Bug correction on implementation of Instantiationless Proof Reduction.
+  * Included new test cases.
+
 raccoon (0.1.7-1) UNRELEASED; urgency=medium
 
   [ Dimas Melo Filho ]

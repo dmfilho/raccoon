@@ -288,4 +288,20 @@ TEST(ReasonerCMALCrp_SkolemConsistency)
 	parse_result_free(pr);
 }
 
+/**
+ * \brief Test Skolem Inconsistency.
+ */
+TEST(ReasonerCMALCrp_SkolemInconsistency)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_skolem_inconsistency.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == false);
+	parse_result_free(pr);
+}
+
+
 // TODO: More unit tests
