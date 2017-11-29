@@ -89,7 +89,7 @@ namespace raccoon
 	 * @param inst2 The instance of the second variable of the role, or nullptr to ignore.
 	 * @return true if the path contains the negation of the given role.
 	 */
-	PathItemRole * Path::containsNegationOfRole(RoleRealization* role, Instance* inst1, Instance* inst2)
+	PathItemRole * Path::containsNegationOfRole(RoleRealization* role, Instance* inst1, Instance* inst2, bool exactly)
 	{
         Instance * iinst1;
         Instance * iinst2;
@@ -99,12 +99,12 @@ namespace raccoon
             iinst2 = *(item->inst2);
 			if (item->role->complementOf(role) && 
                 (
-                    inst1 == nullptr ||
-                    iinst1 == nullptr ||
+                    (!exactly && (inst1 == nullptr ||
+                    iinst1 == nullptr)) ||
                     inst1 == iinst1
                 ) && (
-                    inst2 == nullptr ||
-                    iinst2 == nullptr ||
+                    (!exactly && (inst2 == nullptr ||
+                    iinst2 == nullptr)) ||
                     inst2 == iinst2
                 )
             )
@@ -166,7 +166,7 @@ namespace raccoon
 	 * @return pointer to ConceptRealization if a negation of the concept with its respective instance 
      * is in the path.
 	 */
-	PathItemConcept * Path::containsNegationOfConcept(ConceptRealization* concept, Instance* inst)
+	PathItemConcept * Path::containsNegationOfConcept(ConceptRealization* concept, Instance* inst, bool exactly)
 	{
         Instance * iinst;
 		for (PathItemConcept* item: this->concepts)
@@ -175,8 +175,8 @@ namespace raccoon
 			if (
                 item->concept->complementOf(concept) && 
                 (
-                    inst == nullptr ||
-                    iinst == nullptr ||
+                    (!exactly && (inst == nullptr ||
+                    iinst == nullptr)) ||
                     inst == iinst
                 )
             )

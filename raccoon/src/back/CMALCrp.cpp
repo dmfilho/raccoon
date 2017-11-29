@@ -64,6 +64,8 @@ namespace raccoon
 			cout << "End of PURE reduction... [" << msecdiff(&before) << "ms]" << endl;
 		}
         //int startClause = 0;
+        this->fixed = &ontology->assertInstance("$F");  // Get a fixed instance for when we want to force
+        // connection without instantiation.
 		for (Clause* clause: *kb)
 		{
             //cout << "StartClause: " << ++startClause << endl;
@@ -271,11 +273,14 @@ namespace raccoon
 		Instance* instorig = *instptr;
 
 		// Check if the complement of this concept already appears on the path
-        PathItemConcept * pathItem = path.containsNegationOfConcept(obj->concepts[i], instorig);
+        PathItemConcept * pathItem = path.containsNegationOfConcept(obj->concepts[i], instorig, false);
 		if (pathItem != nullptr)
 		{
+            Instance* pathOrig = *pathItem->inst;
             if (instorig == nullptr) {
                 *instptr = *pathItem->inst;
+            } else if (pathOrig == nullptr) {
+                *pathItem->inst = *instptr;
             }
 			printd("\n# proveNextConcept (%d,%d,%d,%lu): SUCCESS (complement in path), trying next concept", clauseDepth, literalIndex--, i, obj->concepts.size());
 			if (this->proveNextConcept(obj, i+1, instances, isRetry)) {
@@ -287,6 +292,7 @@ namespace raccoon
             }
             printd("\n# proveNextConcept (%d,%d,%d,%lu): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex, i, obj->concepts.size());
             *instptr = instorig;
+            *pathItem->inst = pathOrig;
 		}
 		
         // Try to connect the concept
@@ -299,11 +305,11 @@ namespace raccoon
         
         // Handle owl:Nothing
         if (pathConcept.concept->concept.id() == 0) 
-            return pathConcept.concept->neg &&
+            return !pathConcept.concept->neg &&
                 this->proveNextConcept(obj, i+1, instances, isRetry);
         // Handle owl:Thing
         if (pathConcept.concept->concept.id() == 1) return 
-            !pathConcept.concept->neg &&
+            pathConcept.concept->neg &&
                 this->proveNextConcept(obj, i+1, instances, isRetry);
                 
         printd("\n# Trying from %lu connections.", connList->size());
@@ -334,11 +340,19 @@ namespace raccoon
 					printd("\n# proveNextConcept (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex--);
 					return true;
 				}
-//				if (*instptr == instorig) // the failure wasn't because of an instantiation.
-//				{
-//					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
-//					return false;
-//				}
+                // if the original literal is uninstanced, since we checked the proof changed instances
+                // on the if (*instptr == instorig) above, try forcing the same connection without 
+                // changing instances
+                if (instorig == nullptr) {
+                    *instptr = this->fixed; // force non-instantiation
+                    insttemp = nullptr;
+                    if (this->proveClause(conn->clause, instptr, conn->var1, &insttemp, conn->var2)) {
+                        // the conneciton worked without instantiation
+                        *instptr = instorig; // clear forced non-instantiation
+                        // now, if it don't work here, it won't be because of instantiation
+                        return this->proveNextConcept(obj, i+1, instances, isRetry);
+                    }
+                }
 				printd("\n# proveNextConcept (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
 				path.pushConcept(&pathConcept);
 			}
@@ -384,15 +398,22 @@ namespace raccoon
 		Instance* instorig2 = *instptr2;
         
 		// Check if the role already appears in the path
-        PathItemRole * pathItem = path.containsNegationOfRole(obj->roles[i], instorig1, instorig2);
+        PathItemRole * pathItem = path.containsNegationOfRole(obj->roles[i], instorig1, instorig2, false);
 		if (pathItem != nullptr)
 		{
+            Instance* pathOrig1 = *pathItem->inst1;
+            Instance* pathOrig2 = *pathItem->inst2;
             if (instorig1 == nullptr) {
                 *instptr1 = *pathItem->inst1;
+            } else if (pathOrig1 == nullptr) {
+                *pathItem->inst1 = *instptr1;
             }
             if (instorig2 == nullptr) {
                 *instptr2 = *pathItem->inst2;
+            } else if (pathOrig2 == nullptr) {
+                *pathItem->inst2 = *instptr2;
             }
+            
 			printd("\n# proveNextRole (%d,%d): SUCCESS (complement in path), trying next role", clauseDepth, literalIndex--);
 			if (this->proveNextRole(obj, i+1, instances, isRetry)) {
                 return true;
@@ -404,6 +425,8 @@ namespace raccoon
             printd("\n# proveNextRole (%d,%d): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex);
             *instptr1 = instorig1;
             *instptr2 = instorig2;
+            *pathItem->inst1 = pathOrig1;
+            *pathItem->inst2 = pathOrig2;
 		}
 		// Try to connect the role
 		list<Connection*> * connList = obj->roles[i]->role.getconns(obj->roles[i]->neg);
@@ -442,11 +465,20 @@ namespace raccoon
 					printd("\n# proveNextRole (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex--);
 					return true;
 				}
-//				if (*instptr1 == instorig1) // the failure wasn't because of an instantiation.
-//				{
-//					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
-//					return false;
-//				}
+                // if the original literal is uninstanced, and the connected literal is instanced,
+                // try forcing the same connection without changing instances
+                if ((instorig1 == nullptr && *instptr1 != instorig1) || 
+                    (instorig2 == nullptr && *instptr2 != instorig2)) {
+                    if (instorig1 == nullptr) *instptr1 = this->fixed;
+                    if (instorig2 == nullptr) *instptr2 = this->fixed;
+                    if (this->proveClause(conn->clause, instptr1, conn->var1, instptr2, conn->var2)) {
+                        // the conneciton worked without instantiation
+                        *instptr1 = instorig1; // clear forced non-instantiation
+                        *instptr2 = instorig2;
+                        // now, if it don't work here, it won't be because of instantiation
+                        return this->proveNextRole(obj, i+1, instances, isRetry);
+                    }
+                }
 				printd("\n# proveNextRole (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
 				path.pushRole(&pathRole);
 			}
@@ -463,6 +495,9 @@ namespace raccoon
 		return false;			
 	}
     
+    // TODO: é necessário revalidar a instância após uma prova em clausulas existenciais 
+    // pois a instancia pode mudar de um termo para o outro e invalidar a prova do termo anterior
+    // que precisava que estivesse com um termo específico
     bool CMALCrp::proveNextExistentialConcept(Clause * obj, unsigned int i, Instance* instances[], bool* isRetry)
     {
         if (i >= obj->existentials.size())
@@ -479,11 +514,14 @@ namespace raccoon
 		Instance* instorig = *instptr;
         
         // Check if the existential's concept already appear in the path
-        PathItemConcept * pathItem = path.containsNegationOfConcept(&obj->existentials[i]->concept, instorig);
+        PathItemConcept * pathItem = path.containsNegationOfConcept(&obj->existentials[i]->concept, instorig, false);
 		if (pathItem != nullptr)
 		{
+            Instance* pathOrig = *pathItem->inst;
             if (instorig == nullptr) {
                 *instptr = *pathItem->inst;
+            } else if (pathOrig == nullptr) {
+                *pathItem->inst = *instptr;
             }
 			printd("\n# proveNextExistentialConcept(%d,%d): SUCCESS (complement in path), trying next existential role", clauseDepth, literalIndex--);
 			if (this->proveNextExistentialRole(obj, i, instances, isRetry)) {
@@ -495,6 +533,7 @@ namespace raccoon
             }
             printd("\n# proveNextExistentialConcept(%d,%d): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex);
             *instptr = instorig;
+            *pathItem->inst = pathOrig;
 		}
         
         // Try to connect the concept
@@ -507,11 +546,11 @@ namespace raccoon
         
         // Handle owl:Nothing
         if (pathConcept.concept->concept.id() == 0) 
-            return pathConcept.concept->neg &&
+            return !pathConcept.concept->neg &&
                 this->proveNextExistentialRole(obj, i, instances, isRetry);
         // Handle owl:Thing
         if (pathConcept.concept->concept.id() == 1) return 
-            !pathConcept.concept->neg &&
+            pathConcept.concept->neg &&
                 this->proveNextExistentialRole(obj, i, instances, isRetry);
                 
         printd("\n# Trying from %lu connections.", connList->size());
@@ -542,11 +581,19 @@ namespace raccoon
 					printd("\n# proveNextExistentialConcept (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex+1);
 					return true;
 				}
-//				if (*instptr == instorig) // the failure wasn't because of an instantiation.
-//				{
-//					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
-//					return false;
-//				}
+                // if the original literal is uninstanced, since we checked the proof changed instances
+                // on the if (*instptr == instorig) above, try forcing the same connection without 
+                // changing instances
+                if (instorig == nullptr) {
+                    *instptr = this->fixed; // force non-instantiation
+                    insttemp = nullptr;
+                    if (this->proveClause(conn->clause, instptr, conn->var1, &insttemp, conn->var2)) {
+                        // the conneciton worked without instantiation
+                        *instptr = instorig; // clear forced non-instantiation
+                        // now, if it don't work here, it won't be because of instantiation
+                        return this->proveNextExistentialRole(obj, i, instances, isRetry);
+                    }
+                }
 				printd("\n# proveNextExistentialConcept (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, ++literalIndex);
 				path.pushConcept(&pathConcept);
 			}
@@ -577,14 +624,20 @@ namespace raccoon
 		Instance* instorig2 = *instptr2;
         
 		// Check if the role already appears in the path
-        PathItemRole * pathItem = path.containsNegationOfRole(&obj->existentials[i]->role, instorig1, instorig2);
+        PathItemRole * pathItem = path.containsNegationOfRole(&obj->existentials[i]->role, instorig1, instorig2, false);
 		if (pathItem != nullptr)
 		{
+            Instance* pathOrig1 = *pathItem->inst1;
+            Instance* pathOrig2 = *pathItem->inst2;
             if (instorig1 == nullptr) {
                 *instptr1 = *pathItem->inst1;
+            } else if (pathOrig1 == nullptr) {
+                *pathItem->inst1 = *instptr1;
             }
             if (instorig2 == nullptr) {
                 *instptr2 = *pathItem->inst2;
+            } else if (pathOrig2 == nullptr) {
+                *pathItem->inst2 = *instptr2;
             }
 			printd("\n# proveNextExistentialRole (%d,%d): SUCCESS (complement in path), trying next role", clauseDepth, literalIndex--);
 			if (this->proveNextExistentialConcept(obj, i+1, instances, isRetry)) {
@@ -596,6 +649,8 @@ namespace raccoon
             }
             *instptr1 = instorig1;
             *instptr2 = instorig2;
+            *pathItem->inst1 = pathOrig1;
+            *pathItem->inst2 = pathOrig2;
             printd("\n# proveNextExistentialRole (%d,%d): NOW TRYING WITH CONNECTIONS", clauseDepth, ++literalIndex);
 		}
         
@@ -636,11 +691,20 @@ namespace raccoon
 					printd("\n# proveNextExistentialRole (%d,%d): SUCCESS (valid connection)", clauseDepth, literalIndex--);
 					return true;
 				}
-//				if (*instptr1 == instorig1) // the failure wasn't because of an instantiation.
-//				{
-//					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
-//					return false;
-//				}
+                // if the original literal is uninstanced, and the connected literal is instanced,
+                // try forcing the same connection without changing instances
+                if ((instorig1 == nullptr && *instptr1 != instorig1) || 
+                    (instorig2 == nullptr && *instptr2 != instorig2)) {
+                    if (instorig1 == nullptr) *instptr1 = this->fixed;
+                    if (instorig2 == nullptr) *instptr2 = this->fixed;
+                    if (this->proveClause(conn->clause, instptr1, conn->var1, instptr2, conn->var2)) {
+                        // the conneciton worked without instantiation
+                        *instptr1 = instorig1; // clear forced non-instantiation
+                        *instptr2 = instorig2;
+                        // now, if it don't work here, it won't be because of instantiation
+                        return this->proveNextExistentialConcept(obj, i+1, instances, isRetry);
+                    }
+                }
 				printd("\n# proveNextExistentialRole (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
 				path.pushRole(&pathRole);
 			}
@@ -687,13 +751,45 @@ namespace raccoon
 		Instance* insttemp = nullptr;
         
 		// Check if the universal's concept or role already appear in the path
-		if (path.containsNegationOfConcept(&obj->universals[i]->concept, instorig2) ||
-			path.containsNegationOfRole(&obj->universals[i]->role, instorig1, instorig2))
-		{
-			printd("\n# proveNextUniversal(%d,%d): SUCCESS (complement in path), trying next universal", clauseDepth, literalIndex--);
-            --universalCount;
-			return this->proveNextUniversal(obj, i+1, instances, isRetry);
-		}
+        {
+            PathItemConcept * pathItem = path.containsNegationOfConcept(&obj->universals[i]->concept, instorig2, false);
+            if (pathItem != nullptr)
+            {
+                *pathItem->inst = *instptr2;
+                printd("\n# proveNextUniversal(%d,%d): SUCCESS (complement of concept in path), trying next universal", clauseDepth, literalIndex--);
+                --universalCount;
+                return this->proveNextUniversal(obj, i+1, instances, isRetry);
+            }
+        }
+        {
+            PathItemRole * pathItem = path.containsNegationOfRole(&obj->universals[i]->role, instorig1, instorig2, false);
+            if (pathItem != nullptr)
+            {
+                Instance* pathOrig1 = *pathItem->inst1;
+                Instance* pathOrig2 = *pathItem->inst2;
+                if (*instptr1 == nullptr) {
+                    *instptr1 = *pathItem->inst1;
+                } else if (*pathItem->inst1 == nullptr) {
+                    *pathItem->inst1 = *instptr1;
+                }
+                *pathItem->inst2 = *instptr2;
+                printd("\n# proveNextUniversal(%d,%d): SUCCESS (complement  of role in path), trying next universal", clauseDepth, literalIndex--);
+                --universalCount;
+                if (this->proveNextUniversal(obj, i+1, instances, isRetry)) {
+                    return true;
+                } else {
+                    printd("\n# proveNextExistentialRole (%d,%d): FAILED WITH COMPLEMENT IN PATH", clauseDepth, literalIndex+1);
+                    // If the failure was not due to instantiation, we will not be able to connect this in any way.
+                    if (*instptr1 == instorig1 && *instptr2 == instorig2) return false;
+                }
+                ++universalCount;
+                *instptr1 = instorig1;
+                *instptr2 = instorig2;
+                *pathItem->inst1 = pathOrig1;
+                *pathItem->inst2 = pathOrig2;
+            }
+        }
+        
         
 		// Try to connect the concept of the universal
 		list<Connection*> * connList = obj->universals[i]->concept.concept.getconns(obj->universals[i]->concept.neg);
@@ -707,13 +803,13 @@ namespace raccoon
         // Handle owl:Thing
         if (pathConcept.concept->concept.id() == 0) {
             --universalCount;
-            return !pathConcept.concept->neg &&
+            return pathConcept.concept->neg &&
                 this->proveNextUniversal(obj, i+1, instances, isRetry);
         }
         // Handle owl:Nothing
         if (pathConcept.concept->concept.id() == 1) {
             --universalCount;
-            return pathConcept.concept->neg &&
+            return !pathConcept.concept->neg &&
                 this->proveNextUniversal(obj, i+1, instances, isRetry);
         }
         bool hasTriedAllVariableConnections = isRetry[i];
@@ -772,23 +868,32 @@ namespace raccoon
 			{
 				printd("\n# proveNextUniversal (%d,%d): valid role connection found, trying next literal)", clauseDepth, literalIndex);
 				path.popRole();
+                --universalCount;
                 // if the variable did not change instance we do not need to try any other connection
                 // (Instantiationless Proof Reduction), because the failure was not
                 // due to an instance being assigned to the first variable of the clause.
                 // Here we do not check instptr2 because it is always a skolem constant.
                 if (*instptr1 == instorig1) return this->proveNextUniversal(obj, i+1, instances, isRetry);
-                --universalCount;
 				if (this->proveNextUniversal(obj, i+1, instances, isRetry))
 				{
 					printd("\n# proveNextUniversal (%d,%d): SUCCESS (valid role connection)", clauseDepth, literalIndex--);
 					return true;
 				}
                 ++universalCount;
-//				if (*instptr1 == instorig1) // the failure wasn't because of an instantiation.
-//				{
-//					printd("\n# (%d,%d): Literal Failed.", clauseDepth, literalIndex--);
-//					return false;
-//				}
+                // if the original literal is uninstanced, and the connected literal is instanced,
+                // try forcing the same connection without changing instances
+                // on universal restriciton, instance2 will never change since it is a skolem constant
+                if ((instorig1 == nullptr && *instptr1 != instorig1)) {
+                    if (instorig1 == nullptr) *instptr1 = this->fixed;
+                    if (this->proveClause(conn->clause, instptr1, conn->var1, instptr2, conn->var2)) {
+                        // the conneciton worked without instantiation
+                        *instptr1 = instorig1; // clear forced non-instantiation
+                        // now, if it don't work here, it won't be because of instantiation
+                        --universalCount;
+                        return this->proveNextUniversal(obj, i+1, instances, isRetry);
+                    }
+                }
+                
 				printd("\n# proveNextUniversal (%d,%d): could not connect the remaining literals, trying another connection.", clauseDepth, literalIndex);
 				path.pushRole(&pathRole);
 			}

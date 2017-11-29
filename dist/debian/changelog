@@ -1,3 +1,9 @@
+raccoon (0.1.9-1) UNRELEASED; urgency=high
+
+  [ Dimas Melo Filho ]
+  * Bug correction handling owl:Thing and owl:Nothing
+  * Bug correction on the implementation of the reduction rule of the ALC connection calculus.
+
 raccoon (0.1.8-1) UNRELEASED; urgency=high
 
   [ Dimas Melo Filho ]

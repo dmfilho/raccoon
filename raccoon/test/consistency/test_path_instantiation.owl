@@ -1,0 +1,13 @@
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_path_instantiation.owl>)
+
+Ontology(<http://www.semanticweb.org/renan/ontologies/2017/10/untitled-ontology-24>
+	Annotation( rdfs:comment "Author: Renan Leandro Fernandes" )
+	Annotation( rdfs:comment "Tests if the reasoner is correctly handling backwards instantiation when a literal is found on the path (i.e. reduction rule of the calculus substitution). For instance, if a literal A is on the path without instances, and the literal NOT(A) appears on a clause with instance, if we are following the proof using this connection, we have to make sure the instance is propagated backwards to the clause which has the original literal A. This could cause problems on situations where we might have the same literal appearing twice on the clause, once instanced and once uninstanced." )
+	DisjointClasses(:Eater :Eatable :NotEatable)
+	ClassAssertion(:Eater :lion)
+	ObjectPropertyAssertion(:eat :lion :meat)
+	SubClassOf(:Eater ObjectIntersectionOf(ObjectSomeValuesFrom(:eat :Eatable) ObjectAllValuesFrom(:eat :Eatable)))
+	SubClassOf(ObjectIntersectionOf(ObjectSomeValuesFrom(:eat :Eatable) ObjectAllValuesFrom(:eat :Eatable)) :Eater)
+	EquivalentClasses(:Eater ObjectIntersectionOf(ObjectSomeValuesFrom(:eat :Eatable) ObjectAllValuesFrom(:eat :Eatable)))
+) 

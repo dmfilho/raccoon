@@ -14,7 +14,7 @@ Pre-compiled binaries are available for the following Operating Systems:
 
 Version | Operating System | Platform
 :------:|:----------------:|:--------:
-0.1.8 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/0B4CJaYm24URxQnBwNnBZRWc0MU0)<br>[i386](https://drive.google.com/file/d/0B4CJaYm24URxOG5QY2NfT3FGbmc)
+0.1.9 | Debian<br>Ubuntu<br>Mint | [amd64](https://drive.google.com/file/d/1WpG0-3rOaCiWgqNBUt-zv_LILmxkgS2e)<br>[i386](https://drive.google.com/file/d/1D9g20EMDSF0KrOtchRDCChx5HFxy0z1K)
 
 Author and Contributors
 ======
@@ -25,6 +25,7 @@ Name | Country | Organization
 Fred Freitas | Brazil | UFPE
 Jens Otten | Germany | University of Potsdam
 Diogo Espinhara | Brazil | UFPE
+Renan Leandro Fernandes | Brazil | UFPE
 
 Feel free to contribute.
 

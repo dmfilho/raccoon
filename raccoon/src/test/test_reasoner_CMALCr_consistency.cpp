@@ -303,5 +303,79 @@ TEST(ReasonerCMALCrp_SkolemInconsistency)
 	parse_result_free(pr);
 }
 
+/**
+ * \brief Test owl:Thing Consistency.
+ */
+TEST(ReasonerCMALCrp_ThingConsistency)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_thing_consistency.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == true);
+	parse_result_free(pr);
+}
+
+/**
+ * \brief Test owl:Thing Inconsistency.
+ */
+TEST(ReasonerCMALCrp_ThingInconsistency)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_thing_inconsistency.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == false);
+	parse_result_free(pr);
+}
+
+/**
+ * \brief Test owl:Nothing Consistency.
+ */
+TEST(ReasonerCMALCrp_NothingConsistency)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_nothing_consistency.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == true);
+	parse_result_free(pr);
+}
+
+/**
+ * \brief Test owl:Nothing Inconsistency.
+ */
+TEST(ReasonerCMALCrp_NothingInconsistency)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_nothing_inconsistency.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == false);
+	parse_result_free(pr);
+}
+
+/**
+ * \brief Test Path Instantiation.
+ */
+TEST(ReasonerCMALCrp_PathInstantiation)
+{
+	Owl2 owl2;
+	Ontology ontology;
+	parse_result* pr = OWL2_parse_file("../../test/consistency/test_path_instantiation.owl");
+	CHECK(pr != NULL);
+	owl2.parse(pr, &ontology, &ontology.clauseSet, true);
+	CMALCrp reasoner(&ontology.clauseSet, true);
+	CHECK(reasoner.consistency(&ontology) == true);
+	parse_result_free(pr);
+}
 
 // TODO: More unit tests

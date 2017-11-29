@@ -32,7 +32,7 @@
 
 #include <string>
 
-#define RACCOON_VERSION "raccoon version 0.1.8"
+#define RACCOON_VERSION "raccoon version 0.1.9 (2017-11-28)"
 
 struct option
 {

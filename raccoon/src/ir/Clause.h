@@ -115,13 +115,6 @@ namespace raccoon
 		 */
 		inline void add(ConceptRealization* cr, bool newvar = false)
 		{
-			// Do not add Thing neither !Nothing since they don't change the value of disjunctions.
-			if ((cr->concept.name() == "owl:Thing" && cr->neg == false) ||
-			   (cr->concept.name() == "owl:Nothing" && cr->neg == true))
-			{
-				delete cr;
-				return;
-			}
 			this->concepts.push_back(cr);
 			if (newvar)
 			{
@@ -150,13 +143,24 @@ namespace raccoon
 		 */
 		inline void add(UniversalRealization* ur)
 		{
-			this->universals.push_back(ur);
-			unsigned int var2 = _varCount++;
-			ur->concept.var = var2;
-			ur->role.var2 = var2;
-			values.push_back(nullptr);
-			ur->concept.conn_ptr = ur->concept.concept.addconn(new Connection(this, var2, 0, true), ur->concept.neg, false);
-			ur->role.conn_ptr = ur->role.role.addconn(new Connection(this, ur->role.var1, var2, true), ur->role.neg, false);
+            unsigned int var2 = _varCount++;
+            values.push_back(nullptr);
+            if ((ur->concept.concept.name() == "owl:Thing" && ur->concept.neg == true) ||
+               (ur->concept.concept.name() == "owl:Nothing" && ur->concept.neg == false))
+            {
+                RoleRealization * rr = new RoleRealization(ur->role.role, ur->role.var1, var2, ur->role.neg);
+                this->roles.push_back(rr);
+                rr->conn_ptr = rr->role.addconn(new Connection(this, rr->var1, var2, true), rr->neg, false);
+                delete ur;
+            }
+            else 
+            {
+                this->universals.push_back(ur);
+                ur->concept.var = var2;
+                ur->role.var2 = var2;
+                ur->concept.conn_ptr = ur->concept.concept.addconn(new Connection(this, var2, 0, true), ur->concept.neg, false);
+                ur->role.conn_ptr = ur->role.role.addconn(new Connection(this, ur->role.var1, var2, true), ur->role.neg, false);
+            }
 		}
         
         /**

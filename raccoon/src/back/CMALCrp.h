@@ -47,6 +47,7 @@ namespace raccoon
 		Path path;
 		bool pure;
         int universalCount;
+        Instance* fixed;
 		#ifdef _DEBUG
 			int clauseDepth;
 			int literalIndex;

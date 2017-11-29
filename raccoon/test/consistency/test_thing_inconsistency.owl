@@ -1,0 +1,7 @@
+Prefix(:=<http://cin.ufpe.br/~dldmf/raccoon/test_thing_inconsistency.owl>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+
+Ontology(<http://www.semanticweb.org/dell-ubuntu/ontologies/2017/8/untitled-ontology-10>
+	Annotation( rdfs:comment "Author: Renan Leandro Fernandes" )
+	ClassAssertion(ObjectComplementOf(owl:Thing) :a)
+)
